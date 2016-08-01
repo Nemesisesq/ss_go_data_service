@@ -53,7 +53,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     defer session.Close()
 
     session.SetMode(mgo.Monotonic, true)
-    c := session.DB("test").C("ed_records")
+    c := session.DB("heroku_8c97bzpr").C("ed_records")
 
     if r.Method == "GET" {
 
