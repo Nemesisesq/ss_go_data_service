@@ -42,9 +42,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
-    port := os.Getenv("MONGODB_URI")
+    mongo_uri := os.Getenv("MONGODB_URI")
 
-    session, err := mgo.Dial(port)
+    session, err := mgo.Dial(mongo_uri)
 
     if err != nil {
         panic(err)
@@ -53,7 +53,16 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     defer session.Close()
 
     session.SetMode(mgo.Monotonic, true)
-    c := session.DB("heroku_8c97bzpr").C("ed_records")
+
+    db_name := ""
+
+    if mongo_uri != "" {
+        db_name = "heroku_8c97bzpr"
+    } else {
+        db_name = "test"
+    }
+
+    c := session.DB(db_name).C("ed_records")
 
     if r.Method == "GET" {
 
