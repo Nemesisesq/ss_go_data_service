@@ -42,7 +42,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
-    port := os.Getenv("DATABASE_URL")
+    port := os.Getenv("MONGODB_URI")
 
     session, err := mgo.Dial(port)
 
