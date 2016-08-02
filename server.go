@@ -27,7 +27,7 @@ func main() {
     r := mux.NewRouter()
     r.HandleFunc("/", index).Methods("GET")
     r.HandleFunc("/data", testHandler).Methods("POST")
-    r.HandleFunc("/test/{email}", testHandler).Methods("GET")
+    //r.HandleFunc("/test/{email}", testHandler).Methods("GET")
     n := negroni.Classic()
 
     n.Use(c)
@@ -67,7 +67,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     session, err := mgo.Dial(mongo_uri)
 
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
     defer session.Close()
@@ -124,9 +124,10 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
             log.Fatal(err)
             //fmt.Println("an error happend here 1st")
             fmt.Print(err)
+             http.NotFound(w, r)
         }
 
-        fmt.Println(string(t.Package))
+        //fmt.Println(string(t.Package))
 
         err = c.Insert(t)
 
@@ -134,6 +135,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
             log.Fatal(err)
             //fmt.Println("an error happend here 2nd")
             fmt.Print(err)
+             http.NotFound(w, r)
         }
 
         fmt.Fprint(w, "OKAY!")
