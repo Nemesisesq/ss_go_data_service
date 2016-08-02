@@ -10,6 +10,8 @@ import (
     "gopkg.in/mgo.v2/bson"
     //"encoding/json"
     "encoding/json"
+    "github.com/urfave/negroni"
+    "github.com/rs/cors"
 )
 
 func main() {
@@ -18,11 +20,20 @@ func main() {
         port = "8080"
     }
 
+    c := cors.New(cors.Options{
+        AllowedOrigins: []string{"*"},
+    })
+
     r := mux.NewRouter()
     r.HandleFunc("/", index).Methods("GET")
-    r.HandleFunc("/test/", testHandler).Methods("POST")
+    r.HandleFunc("/data", testHandler).Methods("POST")
     r.HandleFunc("/test/{email}", testHandler).Methods("GET")
-    log.Fatal(http.ListenAndServe(":" + port, r))
+    n := negroni.Classic()
+
+    n.Use(c)
+    n.UseHandler(r)
+
+    log.Fatal(http.ListenAndServe(":" + port, n))
 
     fmt.Println("application is running @ http://localhost:8080")
 
@@ -33,8 +44,17 @@ func main() {
 
 
 type EDRecord struct {
-    Email    string `json: "email"`
-    DeviceID []string `json : "deviceId"`
+    Email          string `json: "email"`
+    Fingerprint    int    `json : "fingerprint"`
+    Browser        string `json : browser`
+    BrowserVersion string `json : browserVersion`
+    Device         string `json: device`
+    DeviceType     string `json: deviceType`
+    DeviceVendor   string `json: deviceVendor`
+    Time           int    `json: time`
+    TimeZone       string `json: timeZone`
+    Platform       string `json: platform`
+    Package        json.RawMessage `json: package`
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -70,16 +90,6 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
         email := vars["email"]
 
-        //m := r.URL.Path[len("/test/"):]
-
-        //fmt.Fprint(w, m)
-
-        //fmt.Println(m)
-
-        //if m == nil {
-        //    http.NotFound(w, r)
-        //}
-
         result := &EDRecord{}
         err = c.Find(bson.M{"email": email}).One(result)
 
@@ -104,7 +114,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
         decoder := json.NewDecoder(r.Body)
 
-        fmt.Println(r.Body)
+        //fmt.Println(r.Body)
 
         var t EDRecord
 
@@ -112,15 +122,17 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
         if err != nil {
             log.Fatal(err)
+            //fmt.Println("an error happend here 1st")
             fmt.Print(err)
         }
 
-        fmt.Println(t)
+        fmt.Println(string(t.Package))
 
         err = c.Insert(t)
 
         if err != nil {
             log.Fatal(err)
+            //fmt.Println("an error happend here 2nd")
             fmt.Print(err)
         }
 
