@@ -12,6 +12,7 @@ import (
     "encoding/json"
     "github.com/urfave/negroni"
     "github.com/rs/cors"
+    //"golang.org/x/net/icmp"
 )
 
 func main() {
@@ -44,7 +45,7 @@ func main() {
 
 
 type EDRecord struct {
-    Email          string `json: "email"`
+    Email          string `json: "email" bson:"e"`
     Fingerprint    int    `json : "fingerprint"`
     Browser        string `json : browser`
     BrowserVersion string `json : browserVersion`
@@ -54,7 +55,21 @@ type EDRecord struct {
     Time           int    `json: time`
     TimeZone       string `json: timeZone`
     Platform       string `json: platform`
-    Package        json.RawMessage `json: package`
+    Package        map[string]interface{} `json: package.data`
+}
+
+type EDPriv struct {
+    Password string `json: "password"`
+}
+
+type EDWhole struct {
+    EDRecord `, bson:"inline"`
+    EDPriv `, bson:"inline`
+}
+
+type ResponseStatus struct {
+    Code int
+    Message string
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +139,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
             log.Fatal(err)
             //fmt.Println("an error happend here 1st")
             fmt.Print(err)
-             http.NotFound(w, r)
+            http.NotFound(w, r)
         }
 
         //fmt.Println(string(t.Package))
@@ -135,10 +150,19 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
             log.Fatal(err)
             //fmt.Println("an error happend here 2nd")
             fmt.Print(err)
-             http.NotFound(w, r)
+            http.NotFound(w, r)
         }
 
-        fmt.Fprint(w, "OKAY!")
+        res, err := json.Marshal(&ResponseStatus{200, "Data saved sucessfully!"})
+
+        if err != nil {
+            log.Fatal(err)
+            //fmt.Println("an error happend here 2nd")
+            fmt.Print(err)
+            http.NotFound(w, r)
+        }
+
+        w.Write(res)
     }
 
 }
