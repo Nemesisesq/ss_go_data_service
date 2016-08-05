@@ -45,17 +45,17 @@ func main() {
 
 
 type EDRecord struct {
-    Email          string `json: "email" bson:"e"`
-    Fingerprint    int    `json : "fingerprint"`
-    Browser        string `json : browser`
-    BrowserVersion string `json : browserVersion`
-    Device         string `json: device`
-    DeviceType     string `json: deviceType`
-    DeviceVendor   string `json: deviceVendor`
-    Time           int    `json: time`
-    TimeZone       string `json: timeZone`
-    Platform       string `json: platform`
-    Package        map[string]interface{} `json: package.data`
+    Email          string `json:"email" bson:"e"`
+    Fingerprint    int    `json:"fingerprint"`
+    Browser        string `json:"browser"`
+    BrowserVersion string `json:"browserVersion"`
+    Device         string `json:"device"`
+    DeviceType     string `json:"deviceType"`
+    DeviceVendor   string `json:"deviceVendor"`
+    Time           int    `json:"time"`
+    TimeZone       string `json:"timeZone"`
+    Platform       string `json:"platform"`
+    Package        map[string]interface{} `json:"package.data"`
 }
 
 type EDPriv struct {
