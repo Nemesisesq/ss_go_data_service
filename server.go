@@ -59,12 +59,12 @@ type EDRecord struct {
 }
 
 type EDPriv struct {
-    Password string `json: "password"`
+    Password string `json:"password"`
 }
 
 type EDWhole struct {
-    EDRecord `, bson:"inline"`
-    EDPriv `, bson:"inline`
+    EDRecord `bson:"inline"`
+    EDPriv `bson:"inline"`
 }
 
 type ResponseStatus struct {
