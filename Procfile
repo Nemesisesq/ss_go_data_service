@@ -1,1 +1,1 @@
-web: email_device_id_service
+web: ss_go_data_service
