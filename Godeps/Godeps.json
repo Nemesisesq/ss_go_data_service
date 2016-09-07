@@ -1,8 +1,13 @@
 {
-	"ImportPath": "github.com/nemesisesq/device_id/email_device_id_service",
+	"ImportPath": "github.com/nemesisesq/ss_go_data_service",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.2.0-57-g6edff56",
+			"Rev": "6edff56736fa7bd546812f149e8cdaae61e5a38f"
+		},
 		{
 			"ImportPath": "github.com/gorilla/context",
 			"Comment": "v1.1-4-gaed02d1",
@@ -14,6 +19,15 @@
 			"Rev": "a49d62f618e6dc4a7a7d1f0ad69744a158c21f23"
 		},
 		{
+			"ImportPath": "github.com/joeljames/nigroni-mgo-session",
+			"Rev": "b6c640fc84abca11c85b67f8d7f08713d0c99234"
+		},
+		{
+			"ImportPath": "github.com/joho/godotenv",
+			"Comment": "v1-10-g4ed1339",
+			"Rev": "4ed13390c0acd2ff4e371e64d8b97c8954138243"
+		},
+		{
 			"ImportPath": "github.com/rs/cors",
 			"Comment": "v1.0",
 			"Rev": "a62a804a8a009876ca59105f7899938a1349f4b3"
@@ -22,11 +36,6 @@
 			"ImportPath": "github.com/rs/xhandler",
 			"Comment": "v1.0-1-ged27b6f",
 			"Rev": "ed27b6fd65218132ee50cd95f38474a3d8a2cd12"
-		},
-		{
-			"ImportPath": "github.com/urfave/negroni",
-			"Comment": "v0.2.0-55-gdc6b9d0",
-			"Rev": "dc6b9d037e8dab60cbfc09c61d6932537829be8b"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
