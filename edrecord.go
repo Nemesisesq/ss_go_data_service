@@ -1,38 +1,48 @@
 package main
 
 import (
-  "log"
-  "fmt"
-  "net/http"
-  "encoding/json"
-  "github.com/gorilla/mux"
-  "os"
-  "gopkg.in/mgo.v2"
-  "gopkg.in/mgo.v2/bson"
+    "log"
+    "fmt"
+    "net/http"
+    "encoding/json"
+    "github.com/gorilla/mux"
+    "github.com/gorilla/context"
+    "gopkg.in/mgo.v2"
+    "gopkg.in/mgo.v2/bson"
 )
 
-func testHandler(w http.ResponseWriter, r *http.Request) {
-    mongo_uri := os.Getenv("MONGODB_URI")
+type EDRecord struct {
+    Email          string `json:"email" bson:"e"`
+    Fingerprint    int    `json:"fingerprint"`
+    Browser        string `json:"browser"`
+    BrowserVersion string `json:"browserVersion"`
+    Device         string `json:"device"`
+    DeviceType     string `json:"deviceType"`
+    DeviceVendor   string `json:"deviceVendor"`
+    Time           int    `json:"time"`
+    TimeZone       string `json:"timeZone"`
+    Platform       string `json:"platform"`
+    Package        map[string]interface{} `json:"package.data"`
+}
 
-    session, err := mgo.Dial(mongo_uri)
+type EDPriv struct {
+    Password string `json:"password"`
+}
 
-    if err != nil {
-        //panic(err)
-    }
+type EDWhole struct {
+    EDRecord `bson:"inline"`
+    EDPriv `bson:"inline"`
+}
 
-    defer session.Close()
+type ResponseStatus struct {
+    Code    int
+    Message string
+}
 
-    session.SetMode(mgo.Monotonic, true)
+func emailDataHandler(w http.ResponseWriter, r *http.Request) {
+    db := context.Get(r, "db").(*mgo.Database)
 
-    db_name := ""
-
-    if mongo_uri != "" {
-        db_name = "heroku_8c97bzpr"
-    } else {
-        db_name = "test"
-    }
-
-    c := session.DB(db_name).C("ed_records")
+    c := db.C("ed_records")
 
     if r.Method == "GET" {
 
@@ -41,7 +51,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
         email := vars["email"]
 
         result := &EDRecord{}
-        err = c.Find(bson.M{"email": email}).One(result)
+        err := c.Find(bson.M{"email": email}).One(result)
 
         if err != nil {
             //log.Fatal(err)
@@ -68,7 +78,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
         var t EDRecord
 
-        err = decoder.Decode(&t)
+        err := decoder.Decode(&t)
 
         if err != nil {
             log.Fatal(err)
