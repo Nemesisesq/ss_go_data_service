@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/nemesisesq/ss_go_data_service",
+	"ImportPath": "github.com/nemesisesq/ss_data_service",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Deps": [
