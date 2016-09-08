@@ -1,1 +1,1 @@
-web: ss_go_data_service
+web: ss_data_service
