@@ -1,15 +1,15 @@
 package main
 
 import (
-	"net/http"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
-	"bytes"
+	"reflect"
 	"regexp"
 )
-
-//"io/ioutil"
 
 type RawPayload struct {
 	CallLetters    string `json:"CallLetters"`
@@ -21,7 +21,8 @@ type RawPayload struct {
 type StreamingSource struct {
 	Source      string `json:"source"`
 	DisplayName string `json:"display_name"`
-	DeepLinks   Links  `json:"deepLinks"`
+	Id          int    `json:"id"`
+	DeepLinks   Links  `json:"deep_links"`
 }
 
 type ProcessedPayloads struct {
@@ -31,6 +32,81 @@ type ProcessedPayloads struct {
 type Links struct {
 	DeepLinks []string
 	AppStore  string
+}
+
+type ViewingWindows struct {
+	PayPerView []StreamingSource `json:"pay_per_view"`
+	Binge      []StreamingSource `json:"binge"`
+	Live       []StreamingSource `json:"live"`
+	OnDemand   []StreamingSource `json:"on_demand"`
+	Misc       []StreamingSource `json:"misc"`
+}
+
+func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
+
+	var data map[string]interface{}
+
+	body, _ := ioutil.ReadAll(r.Body)
+
+	json.Unmarshal(body, &data)
+
+	fmt.Println(data["url"])
+
+	payload, err := json.Marshal(data)
+
+	check(err)
+
+	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	client := &http.Client{}
+	req.Header.Add("Content-Type", "application/json")
+
+	response, err := client.Do(req)
+	check(err)
+
+	//v := &ViewingWindows{}
+	v := make(map[string]interface{})
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(&v)
+	check(err)
+
+	fToExt := []string{"pay_per_view"}
+
+	ss_slice := []*StreamingSource{}
+
+	for _, fldNm := range fToExt {
+		//fmt.Println(reflect.TypeOf(v[fldNm]))
+		t := v[fldNm]
+		s := reflect.ValueOf(t)
+
+		for i := 0; i < s.Len(); i++ {
+			fmt.Println(s.Index(i))
+			data := s.Index(i).Interface().(map[string]interface{})
+			fmt.Println(data)
+
+			newSS := &StreamingSource{}
+
+			jsonData, err := json.Marshal(data)
+
+			err = json.Unmarshal(jsonData, newSS)
+
+			check(err)
+
+			ss_slice = append(ss_slice, newSS)
+		}
+
+	}
+	for idx, val := range ss_slice {
+
+		streamSource := MatchDeepLinks(val)
+		ss_slice[idx] = streamSource
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(ss_slice)
+
 }
 
 func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
@@ -57,32 +133,45 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&processedPayloads)
 	check(err)
 
-	deepLinkMap := GetDeepLinks()
-	//
-	for i, streaminSource := range processedPayloads.StreamingSources {
-		fmt.Println(streaminSource.Source)
-		slingRe, err := regexp.Compile(`sling`)
-		check(err)
-		sonyRe, err := regexp.Compile(`vue | sony | playstation`)
+	for i, sS := range processedPayloads.StreamingSources {
+		fmt.Println(sS.Source)
 
-		if slingRe.Match([]byte(streaminSource.Source)) {
+		streamSource := MatchDeepLinks(&sS)
 
-			streaminSource.DeepLinks = deepLinkMap["sling_tv"]
-
-
-		} else if sonyRe.Match([]byte(streaminSource.Source)){
-			streaminSource.DeepLinks = deepLinkMap["playstation_vue"]
-		} else {
-			streaminSource.DeepLinks = deepLinkMap[streaminSource.Source]
-
-		}
-
-		processedPayloads.StreamingSources[i] = streaminSource
+		processedPayloads.StreamingSources[i] = *streamSource
 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(processedPayloads)
+}
+
+func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
+	deepLinkMap := GetDeepLinks()
+
+	switch {
+
+	case GSM(`youtube`, sS.Source):
+		sS.Source = "youtube"
+	case GSM(`sling`, sS.Source):
+		sS.Source = "sling_tv"
+	case GSM(`vue | sony | playstation`, sS.Source):
+		sS.Source = "playstation_vue"
+
+	}
+
+	sS.DeepLinks = deepLinkMap[sS.Source]
+
+	return sS
+}
+
+func GSM(key string, source string) bool {
+	re, err := regexp.Compile(key)
+	match := re.Match([]byte(source))
+	check(err)
+
+	return match
+
 }
 
 func GetDeepLinks() map[string]Links {
