@@ -20,6 +20,7 @@ type RawPayload struct {
 
 type StreamingSource struct {
 	Source      string `json:"source"`
+	MatchedSource string `json:"matched_source"`
 	DisplayName string `json:"display_name"`
 	Id          int    `json:"id"`
 	DeepLinks   Links  `json:"deep_links"`
@@ -94,6 +95,8 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 			check(err)
 
+			newSS.MatchedSource = newSS.Source
+
 			ss_slice = append(ss_slice, newSS)
 		}
 
@@ -136,6 +139,8 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	for i, sS := range processedPayloads.StreamingSources {
 		fmt.Println(sS.Source)
 
+		sS.MatchedSource = sS.Source
+
 		streamSource := MatchDeepLinks(&sS)
 
 		processedPayloads.StreamingSources[i] = *streamSource
@@ -151,16 +156,16 @@ func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
 
 	switch {
 
-	case GSM(`youtube`, sS.Source):
-		sS.Source = "youtube"
-	case GSM(`sling`, sS.Source):
-		sS.Source = "sling_tv"
-	case GSM(`vue | sony | playstation`, sS.Source):
-		sS.Source = "playstation_vue"
+	case GSM(`youtube`, sS.MatchedSource):
+		sS.MatchedSource = "youtube"
+	case GSM(`sling`, sS.MatchedSource):
+		sS.MatchedSource = "sling_tv"
+	case GSM(`(vue|sony|playstation)`, sS.MatchedSource):
+		sS.MatchedSource = "playstation_vue"
 
 	}
 
-	sS.DeepLinks = deepLinkMap[sS.Source]
+	sS.DeepLinks = deepLinkMap[sS.MatchedSource]
 
 	return sS
 }

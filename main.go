@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"os"
 
+	"encoding/json"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
 	"github.com/joho/godotenv"
+	"github.com/kataras/iris"
 	"github.com/rs/cors"
 	"io/ioutil"
-	"encoding/json"
 )
 
 func main() {
@@ -70,8 +71,17 @@ func main() {
 	n.Use(c)
 	n.UseHandler(r)
 
+	hi := func(ctx *iris.Context) {
+		ctx.Write("Hi %s", "iris")
+	}
+
+	iris.Get("/hi", hi)
+
+	//fmt.Println("Hello")
+	//iris.Listen(":3000")
+
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":" + port, n))
+	log.Fatal(http.ListenAndServe(":"+port, n))
 
 }
 
@@ -84,7 +94,6 @@ func check(e error) {
 func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello world")
 }
-
 
 func ReadJSON(r *http.Request, p ...interface{}) error {
 	data, err := ioutil.ReadAll(r.Body)
