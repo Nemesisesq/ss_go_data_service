@@ -1,4 +1,4 @@
-package main
+package service_processor
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	com "github.com/nemesisesq/ss_data_service/common"
 )
 
 type RawPayload struct {
@@ -55,7 +56,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := json.Marshal(data)
 
-	check(err)
+	com.Check(err)
 
 	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
 
@@ -65,13 +66,13 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	req.Header.Add("Content-Type", "application/json")
 
 	response, err := client.Do(req)
-	check(err)
+	com.Check(err)
 
 	//v := &ViewingWindows{}
 	v := make(map[string]interface{})
 	decoder := json.NewDecoder(response.Body)
 	err = decoder.Decode(&v)
-	check(err)
+	com.Check(err)
 
 	fToExt := []string{"pay_per_view"}
 
@@ -93,7 +94,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 			err = json.Unmarshal(jsonData, newSS)
 
-			check(err)
+			com.Check(err)
 
 			newSS.MatchedSource = newSS.Source
 
@@ -121,7 +122,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&rawPayload)
 
-	check(err)
+	com.Check(err)
 
 	url := fmt.Sprintf("%s/guide", os.Getenv("NODE_DATA_SERVICE"))
 	buf := new(bytes.Buffer)
@@ -129,12 +130,12 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	res, err := http.Post(url, "application/json", buf)
 	defer res.Body.Close()
 
-	check(err)
+	com.Check(err)
 
 	processedPayloads := &ProcessedPayloads{}
 	decoder = json.NewDecoder(res.Body)
 	err = decoder.Decode(&processedPayloads)
-	check(err)
+	com.Check(err)
 
 	for i, sS := range processedPayloads.StreamingSources {
 		fmt.Println(sS.Source)
@@ -173,7 +174,7 @@ func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
 func GSM(key string, source string) bool {
 	re, err := regexp.Compile(key)
 	match := re.Match([]byte(source))
-	check(err)
+	com.Check(err)
 
 	return match
 

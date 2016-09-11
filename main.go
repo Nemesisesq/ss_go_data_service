@@ -11,8 +11,10 @@ import (
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-	"io/ioutil"
-	"encoding/json"
+	com "github.com/nemesisesq/ss_data_service/common"
+	pop "github.com/nemesisesq/ss_data_service/popularity"
+	edr "github.com/nemesisesq/ss_data_service/email_data_service"
+	serv_proc"github.com/nemesisesq/ss_data_service/service_processor"
 )
 
 func main() {
@@ -36,10 +38,10 @@ func main() {
 	dbURL := os.Getenv("MONGODB_URI")
 	fmt.Println(dbURL)
 	// Use the MongoDB `DATABASE_NAME` from the env
-	dbName := GetDatabase()
+	dbName := com.GetDatabase()
 	fmt.Println(dbName)
 	// Set the MongoDB collection name
-	dbColl := GetCollection()
+	dbColl := com.GetCollection()
 
 	fmt.Println("Connecting to MongoDB: ", dbURL)
 	fmt.Println("Database Name: ", dbName)
@@ -49,18 +51,18 @@ func main() {
 	// Pointer to this database accessor will be passed to the middleware.
 	dbAccessor, err := nigronimgosession.NewDatabaseAccessor(dbURL, dbName, dbColl)
 
-	check(err)
+	com.Check(err)
 
 	n := negroni.Classic()
 	n.Use(nigronimgosession.NewDatabase(*dbAccessor).Middleware())
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", index).Methods("GET")
-	r.HandleFunc("/data", emailDataHandler).Methods("POST")
-	r.HandleFunc("/update", UpdatePopularShows).Methods("GET")
-	r.HandleFunc("/popular", GetPopularityScore).Methods("POST")
-	r.HandleFunc("/live-streaming-service", GetLiveStreamingServices).Methods("POST")
-	r.HandleFunc("/on-demand-streaming-service", GetOnDemandServices).Methods("POST")
+	r.HandleFunc("/", com.Index).Methods("GET")
+	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
+	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
+	r.HandleFunc("/popular", pop.GetPopularityScore).Methods("POST")
+	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices).Methods("POST")
+	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices).Methods("POST")
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
 
 	c := cors.New(cors.Options{
@@ -71,31 +73,6 @@ func main() {
 	n.UseHandler(r)
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":" + port, n))
+	log.Fatal(http.ListenAndServe(":"+port, n))
 
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "hello world")
-}
-
-
-func ReadJSON(r *http.Request, p ...interface{}) error {
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil || data == nil {
-		return err
-	}
-	for _, v := range p {
-		err := json.Unmarshal(data, v)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }

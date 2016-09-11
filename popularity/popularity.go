@@ -1,4 +1,4 @@
-package main
+package popularity
 
 import (
     "encoding/json"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 	"github.com/gorilla/context"
+	com "github.com/nemesisesq/ss_data_service/common"
 )
 
 type Results struct {
@@ -38,7 +39,7 @@ func UpdatePopularShows(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*mgo.Database)
 
-	col := GetCollection()
+	col := com.GetCollection()
 
 	c := db.C(col)
 
@@ -105,7 +106,7 @@ func GetPopularityScore(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*mgo.Database)
 
-	col := GetCollection()
+	col := com.GetCollection()
 	//defer session.Close()
 
 	c := db.C(col)

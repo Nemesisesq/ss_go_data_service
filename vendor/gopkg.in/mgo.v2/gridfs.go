@@ -130,25 +130,25 @@ func finalizeFile(file *GridFile) {
 //         }
 //     }
 //     file, err := db.GridFS("fs").Create("myfile.txt")
-//     check(err)
+//     com.Check(err)
 //     n, err := file.Write([]byte("Hello world!"))
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //     fmt.Printf("%d bytes written\n", n)
 //
 // The io.Writer interface is implemented by *GridFile and may be used to
 // help on the file creation.  For example:
 //
 //     file, err := db.GridFS("fs").Create("myfile.txt")
-//     check(err)
+//     com.Check(err)
 //     messages, err := os.Open("/var/log/messages")
-//     check(err)
+//     com.Check(err)
 //     defer messages.Close()
 //     err = io.Copy(file, messages)
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //
 func (gfs *GridFS) Create(name string) (file *GridFile, err error) {
 	file = gfs.newFile()
@@ -173,14 +173,14 @@ func (gfs *GridFS) Create(name string) (file *GridFile, err error) {
 //         }
 //     }
 //     file, err := db.GridFS("fs").OpenId(objid)
-//     check(err)
+//     com.Check(err)
 //     b := make([]byte, 8192)
 //     n, err := file.Read(b)
-//     check(err)
+//     com.Check(err)
 //     fmt.Println(string(b))
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //     fmt.Printf("%d bytes read\n", n)
 //
 // The io.Reader interface is implemented by *GridFile and may be used to
@@ -188,11 +188,11 @@ func (gfs *GridFS) Create(name string) (file *GridFile, err error) {
 // file into the standard output:
 //
 //     file, err := db.GridFS("fs").OpenId(objid)
-//     check(err)
+//     com.Check(err)
 //     err = io.Copy(os.Stdout, file)
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //
 func (gfs *GridFS) OpenId(id interface{}) (file *GridFile, err error) {
 	var doc gfsFile
@@ -217,14 +217,14 @@ func (gfs *GridFS) OpenId(id interface{}) (file *GridFile, err error) {
 // The following example will print the first 8192 bytes from the file:
 //
 //     file, err := db.GridFS("fs").Open("myfile.txt")
-//     check(err)
+//     com.Check(err)
 //     b := make([]byte, 8192)
 //     n, err := file.Read(b)
-//     check(err)
+//     com.Check(err)
 //     fmt.Println(string(b))
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //     fmt.Printf("%d bytes read\n", n)
 //
 // The io.Reader interface is implemented by *GridFile and may be used to
@@ -232,11 +232,11 @@ func (gfs *GridFS) OpenId(id interface{}) (file *GridFile, err error) {
 // file into the standard output:
 //
 //     file, err := db.GridFS("fs").Open("myfile.txt")
-//     check(err)
+//     com.Check(err)
 //     err = io.Copy(os.Stdout, file)
-//     check(err)
+//     com.Check(err)
 //     err = file.Close()
-//     check(err)
+//     com.Check(err)
 //
 func (gfs *GridFS) Open(name string) (file *GridFile, err error) {
 	var doc gfsFile

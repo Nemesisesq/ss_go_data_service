@@ -1,4 +1,4 @@
-package main
+package email_data_service
 
 import (
     "log"
@@ -39,7 +39,7 @@ type ResponseStatus struct {
     Message string
 }
 
-func emailDataHandler(w http.ResponseWriter, r *http.Request) {
+func EmailDataHandler(w http.ResponseWriter, r *http.Request) {
     db := context.Get(r, "db").(*mgo.Database)
 
     c := db.C("ed_records")
