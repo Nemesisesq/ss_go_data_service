@@ -20,11 +20,11 @@ type RawPayload struct {
 }
 
 type StreamingSource struct {
-	Source      string `json:"source"`
+	Source        string `json:"source"`
 	MatchedSource string `json:"matched_source"`
-	DisplayName string `json:"display_name"`
-	Id          int    `json:"id"`
-	DeepLinks   Links  `json:"deep_links"`
+	DisplayName   string `json:"display_name"`
+	Id            int    `json:"id"`
+	DeepLinks     Links  `json:"deep_links"`
 }
 
 type ProcessedPayloads struct {
@@ -74,31 +74,34 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&v)
 	com.Check(err)
 
-	fToExt := []string{"pay_per_view"}
+	fToExt := []string{"live", "on_demand", "binge", "pay_per_view"}
 
 	ss_slice := []*StreamingSource{}
 
 	for _, fldNm := range fToExt {
 		//fmt.Println(reflect.TypeOf(v[fldNm]))
-		t := v[fldNm]
-		s := reflect.ValueOf(t)
 
-		for i := 0; i < s.Len(); i++ {
-			fmt.Println(s.Index(i))
-			data := s.Index(i).Interface().(map[string]interface{})
-			fmt.Println(data)
+		if t, ok := v[fldNm]; ok {
 
-			newSS := &StreamingSource{}
+			s := reflect.ValueOf(t)
 
-			jsonData, err := json.Marshal(data)
+			for i := 0; i < s.Len(); i++ {
+				fmt.Println(s.Index(i))
+				data := s.Index(i).Interface().(map[string]interface{})
+				fmt.Println(data)
 
-			err = json.Unmarshal(jsonData, newSS)
+				newSS := &StreamingSource{}
 
-			com.Check(err)
+				jsonData, err := json.Marshal(data)
 
-			newSS.MatchedSource = newSS.Source
+				err = json.Unmarshal(jsonData, newSS)
 
-			ss_slice = append(ss_slice, newSS)
+				com.Check(err)
+
+				newSS.MatchedSource = newSS.Source
+
+				ss_slice = append(ss_slice, newSS)
+			}
 		}
 
 	}
