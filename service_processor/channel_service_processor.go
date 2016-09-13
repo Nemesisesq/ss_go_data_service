@@ -161,7 +161,7 @@ func (a PP) CheckStreamingServicesForSource(source string) bool {
 	return false
 }
 
-func (a PP) RemoveDuplicates() {
+func (a *PP) RemoveDuplicates() {
 	m := map[string]bool{}
 
 	for _, i := range a.StreamingSources {
