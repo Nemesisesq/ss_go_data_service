@@ -118,7 +118,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//ODPayload.RemoveDuplicates()
+	ODPayload.RemoveDuplicates()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ODPayload)
@@ -162,12 +162,12 @@ func (a PP) CheckStreamingServicesForSource(source string) bool {
 }
 
 func (a PP) RemoveDuplicates() {
-	m := map[*StreamingSource]bool{}
+	m := map[string]bool{}
 
 	for _, i := range a.StreamingSources {
-		if _, seen := m[&i]; !seen {
+		if _, seen := m[i.Source]; !seen {
 			a.StreamingSources[len(m)] = i
-			m[&i] = true
+			m[i.Source] = true
 		}
 	}
 
