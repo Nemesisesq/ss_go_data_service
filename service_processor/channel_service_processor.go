@@ -121,7 +121,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	ODPayload.RemoveDuplicates()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ODPayload)
+	json.NewEncoder(w).Encode(ODPayload.StreamingSources)
 
 }
 
