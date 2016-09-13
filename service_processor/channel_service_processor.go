@@ -27,11 +27,11 @@ type StreamingSource struct {
 	DeepLinks     Links  `json:"deep_links"`
 }
 
-type StreamingSources struct {
-	TypeName []*StreamingSource
-}
+//type StreamingSources struct {
+//	TypeName []*StreamingSource
+//}
 
-type ProcessedPayloads struct {
+type PP struct {
 	StreamingSources []StreamingSource `json:"streamingServices"`
 }
 
@@ -80,7 +80,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	fToExt := []string{"live", "on_demand", "binge", "pay_per_view"}
 
-	ss_slice := []*StreamingSource{}
+	ss_slice := []StreamingSource{}
 
 	for _, fldNm := range fToExt {
 		//fmt.Println(reflect.TypeOf(v[fldNm]))=
@@ -101,52 +101,58 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 				newSS.MatchedSource = newSS.Source
 
-				ss_slice = append(ss_slice, newSS)
+				ss_slice = append(ss_slice, *newSS)
 			}
 		}
 	}
 	for idx, val := range ss_slice {
-		streamSource := MatchDeepLinks(val)
-		ss_slice[idx] = streamSource
+		streamSource := MatchDeepLinks(&val)
+		ss_slice[idx] = *streamSource
 	}
 
-	for idx, val := range ss_slice {
-		if !CheckIfLowestTier(ss_slice, val.Source){
-			copy(ss_slice[idx:], ss_slice[idx+1:])
-			ss_slice[len(ss_slice)-1] = nil // or the zero value of T
-			ss_slice = ss_slice[:len(ss_slice)-1]
+	newsSs_slice := []StreamingSource{}
+
+	for _, val := range ss_slice {
+		if CheckIfLowestTier(ss_slice, val.Source) {
+			newsSs_slice = append(newsSs_slice, val)
 		}
 	}
+
+	ss_slice = newsSs_slice;
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ss_slice)
 
 }
 
-func CheckIfLowestTier(ss_slice []*StreamingSource, source string) bool {
+func CheckIfLowestTier(ss_slice []StreamingSource, source string) bool {
 
-	source_slice := &StreamingSources{ss_slice}
+	source_slice := &PP{}
+
+	source_slice.StreamingSources = ss_slice
+
+	x := false
 
 	switch source {
 	case "sling_blue":
-		return true
+		x =  true
 	case "sling_orange":
-		return !source_slice.CheckStreamingServicesForSource("sling_blue")
-	case "sling_blue_orange":
-		return !source_slice.CheckStreamingServicesForSource("sling_blue") && !source_slice.CheckStreamingServicesForSource("sling_orange")
-	case "sony_vue_slim":
-		return true
-	case "sony_vue_core":
-		return !source_slice.CheckStreamingServicesForSource("sony_vue_slim")
-	case "sony_vue_elite":
-		return !source_slice.CheckStreamingServicesForSource("sony_vue_slim") && !source_slice.CheckStreamingServicesForSource("sling_orange")
 
+		x  = !source_slice.CheckStreamingServicesForSource("sling_blue")
+	case "sling_blue_orange":
+		x = !source_slice.CheckStreamingServicesForSource("sling_orange")
+	case "sony_vue_slim":
+		x =  true
+	case "sony_vue_core":
+		x =  !source_slice.CheckStreamingServicesForSource("sony_vue_slim")
+	case "sony_vue_elite":
+		x =  !source_slice.CheckStreamingServicesForSource("sony_vue_core")
 	}
-	return true
+	return x
 }
 
-func (a StreamingSources) CheckStreamingServicesForSource(source string) bool {
-	for _, val := range a.TypeName {
+func (a PP) CheckStreamingServicesForSource(source string) bool {
+	for _, val := range a.StreamingSources {
 		if val.Source == source {
 			return true
 		}
@@ -174,7 +180,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	com.Check(err)
 
-	processedPayloads := &ProcessedPayloads{}
+	processedPayloads := &PP{}
 	decoder = json.NewDecoder(res.Body)
 	err = decoder.Decode(&processedPayloads)
 	com.Check(err)
@@ -190,8 +196,17 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	NewPP := &PP{}
+
+	for _, val := range processedPayloads.StreamingSources {
+		if CheckIfLowestTier(processedPayloads.StreamingSources, val.Source) {
+			NewPP.StreamingSources = append(NewPP.StreamingSources, val)
+		}
+	}
+
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(processedPayloads)
+	json.NewEncoder(w).Encode(NewPP)
 }
 
 func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
