@@ -110,18 +110,18 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 		ss_slice[idx] = *streamSource
 	}
 
-	newsSs_slice := []StreamingSource{}
+	ODPayload := &PP{}
 
 	for _, val := range ss_slice {
 		if CheckIfLowestTier(ss_slice, val.Source) {
-			newsSs_slice = append(newsSs_slice, val)
+			ODPayload.StreamingSources = append(ODPayload.StreamingSources, val)
 		}
 	}
 
-	ss_slice = newsSs_slice;
+	//ODPayload.RemoveDuplicates()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ss_slice)
+	json.NewEncoder(w).Encode(ODPayload)
 
 }
 
@@ -131,7 +131,7 @@ func CheckIfLowestTier(ss_slice []StreamingSource, source string) bool {
 
 	source_slice.StreamingSources = ss_slice
 
-	x := false
+	x := true
 
 	switch source {
 	case "sling_blue":
@@ -159,6 +159,19 @@ func (a PP) CheckStreamingServicesForSource(source string) bool {
 	}
 
 	return false
+}
+
+func (a PP) RemoveDuplicates() {
+	m := map[*StreamingSource]bool{}
+
+	for _, i := range a.StreamingSources {
+		if _, seen := m[&i]; !seen {
+			a.StreamingSources[len(m)] = i
+			m[&i] = true
+		}
+	}
+
+	a.StreamingSources = a.StreamingSources[:len(m)]
 }
 
 func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
