@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	com "github.com/nemesisesq/ss_data_service/common"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
 	"regexp"
-	com "github.com/nemesisesq/ss_data_service/common"
 )
 
 type RawPayload struct {
@@ -25,6 +25,10 @@ type StreamingSource struct {
 	DisplayName   string `json:"display_name"`
 	Id            int    `json:"id"`
 	DeepLinks     Links  `json:"deep_links"`
+}
+
+type StreamingSources struct {
+	TypeName []*StreamingSource
 }
 
 type ProcessedPayloads struct {
@@ -79,12 +83,9 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	ss_slice := []*StreamingSource{}
 
 	for _, fldNm := range fToExt {
-		//fmt.Println(reflect.TypeOf(v[fldNm]))
-
+		//fmt.Println(reflect.TypeOf(v[fldNm]))=
 		if t, ok := v[fldNm]; ok {
-
 			s := reflect.ValueOf(t)
-
 			for i := 0; i < s.Len(); i++ {
 				fmt.Println(s.Index(i))
 				data := s.Index(i).Interface().(map[string]interface{})
@@ -103,17 +104,55 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 				ss_slice = append(ss_slice, newSS)
 			}
 		}
-
 	}
 	for idx, val := range ss_slice {
-
 		streamSource := MatchDeepLinks(val)
 		ss_slice[idx] = streamSource
+	}
+
+	for idx, val := range ss_slice {
+		if !CheckIfLowestTier(ss_slice, val.Source){
+			copy(ss_slice[idx:], ss_slice[idx+1:])
+			ss_slice[len(ss_slice)-1] = nil // or the zero value of T
+			ss_slice = ss_slice[:len(ss_slice)-1]
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ss_slice)
 
+}
+
+func CheckIfLowestTier(ss_slice []*StreamingSource, source string) bool {
+
+	source_slice := &StreamingSources{ss_slice}
+
+	switch source {
+	case "sling_blue":
+		return true
+	case "sling_orange":
+		return !source_slice.CheckStreamingServicesForSource("sling_blue")
+	case "sling_blue_orange":
+		return !source_slice.CheckStreamingServicesForSource("sling_blue") && !source_slice.CheckStreamingServicesForSource("sling_orange")
+	case "sony_vue_slim":
+		return true
+	case "sony_vue_core":
+		return !source_slice.CheckStreamingServicesForSource("sony_vue_slim")
+	case "sony_vue_elite":
+		return !source_slice.CheckStreamingServicesForSource("sony_vue_slim") && !source_slice.CheckStreamingServicesForSource("sling_orange")
+
+	}
+	return true
+}
+
+func (a StreamingSources) CheckStreamingServicesForSource(source string) bool {
+	for _, val := range a.TypeName {
+		if val.Source == source {
+			return true
+		}
+	}
+
+	return false
 }
 
 func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
