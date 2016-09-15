@@ -371,7 +371,7 @@ func GetDeepLinks() map[string]Links {
 	}
 	deepLinks["itunes"] = Links{
 		DeepLinks: []string{"nil"},
-		AppStore: "https://itunes.app.com",
+		AppStore: "https://itunes.apple.com",
 	}
 	deepLinks["google_play"] = Links{
 		DeepLinks: []string{"nil"},
