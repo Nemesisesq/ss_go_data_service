@@ -199,7 +199,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	com.Check(err)
 
 	for i, sS := range processedPayloads.StreamingSources {
-		fmt.Println(sS.Source)
+		//fmt.Println(sS.Source)
 
 		sS.MatchedSource = sS.Source
 
@@ -217,7 +217,6 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewPP)
 }
@@ -233,7 +232,6 @@ func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
 		sS.MatchedSource = "sling_tv"
 	case GSM(`(vue|sony|playstation)`, sS.MatchedSource):
 		sS.MatchedSource = "playstation_vue"
-
 	}
 
 	sS.DeepLinks = deepLinkMap[sS.MatchedSource]

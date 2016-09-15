@@ -15,6 +15,7 @@ import (
 	pop "github.com/nemesisesq/ss_data_service/popularity"
 	edr "github.com/nemesisesq/ss_data_service/email_data_service"
 	serv_proc"github.com/nemesisesq/ss_data_service/service_processor"
+	gracenote "github.com/nemesisesq/ss_data_service/gracenote"
 )
 
 func main() {
@@ -63,6 +64,7 @@ func main() {
 	r.HandleFunc("/popular", pop.GetPopularityScore).Methods("POST")
 	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices).Methods("POST")
 	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices).Methods("POST")
+	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gracenote.GetLineupAirings)
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
 
 	c := cors.New(cors.Options{
