@@ -370,7 +370,7 @@ func GetDeepLinks() map[string]Links {
 		AppStore:  "https://itunes.apple.com/us/app/vudu-movies-tv/id487285735?mt=8",
 	}
 	deepLinks["itunes"] = Links{
-		DeepLinks: []string{nil},
+		DeepLinks: []string{"nil"},
 		AppStore: "https://itunes.app.com",
 	}
 	deepLinks["google_play"] = Links{
