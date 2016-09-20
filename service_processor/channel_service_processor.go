@@ -101,7 +101,18 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 				newSS.MatchedSource = newSS.Source
 
-				ss_slice = append(ss_slice, *newSS)
+				//filter out amazon and goole
+
+				googleRegExp, err  := regexp.CompilePOSIX(`google`)
+				com.Check(err)
+				amazonRegExp, err  := regexp.CompilePOSIX(`amazon`)
+				com.Check(err)
+
+				if !googleRegExp.Match([]byte(newSS.Source)) && !amazonRegExp.Match([]byte(newSS.Source)){
+
+					ss_slice = append(ss_slice, *newSS)
+				}
+
 			}
 		}
 	}
