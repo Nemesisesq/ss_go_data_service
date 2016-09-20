@@ -268,7 +268,7 @@ func GetDeepLinks() map[string]Links {
 	}
 
 	deepLinks["netflix"] = Links{
-		DeepLinks: []string{"fb163114453728333://", "http://www.netflix.com"},
+		DeepLinks: []string{"fb163114453728333://", "http://www.netflix.com/watch/80020315"},
 		AppStore:  "https://itunes.apple.com/us/app/netflix/id363590051?mt=8",
 	}
 
