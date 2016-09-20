@@ -78,7 +78,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&v)
 	com.Check(err)
 
-	fToExt := []string{"live", "on_demand", "binge", "pay_per_view"}
+	fToExt := []string{"on_demand", "binge", "pay_per_view"}
 
 	ss_slice := []StreamingSource{}
 
