@@ -58,19 +58,20 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(body, &data)
 
-	fmt.Println(string(data))
+	fmt.Println("Body Unmarshalled")
 
 	time.Sleep(5)
 	fmt.Println(data["url"])
 
 	payload, err := json.Marshal(data)
 
-	fmt.Println(string(payload))
+	fmt.Println("Payload created")
 	time.Sleep(5)
 
 	com.Check(err)
 
 	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
+	fmt.Println("URL created")
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 
@@ -78,6 +79,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	req.Header.Add("Content-Type", "application/json")
 
 	response, err := client.Do(req)
+	fmt.Println("request made")
 	com.Check(err)
 
 	//v := &ViewingWindows{}
@@ -85,6 +87,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(response.Body)
 	err = decoder.Decode(&v)
 	com.Check(err)
+	fmt.Println("Response from Node server unmarshalled to map interface made")
 
 	fToExt := []string{"on_demand", "binge", "pay_per_view"}
 
