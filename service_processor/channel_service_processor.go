@@ -10,6 +10,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"time"
 )
 
 type RawPayload struct {
@@ -52,13 +53,20 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	var data map[string]interface{}
 
+
 	body, _ := ioutil.ReadAll(r.Body)
 
 	json.Unmarshal(body, &data)
 
+	fmt.Println(data)
+
+	time.Sleep(5)
 	fmt.Println(data["url"])
 
 	payload, err := json.Marshal(data)
+
+	fmt.Println(payload)
+	time.Sleep(5)
 
 	com.Check(err)
 
