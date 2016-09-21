@@ -10,7 +10,6 @@ import (
 	"os"
 	"reflect"
 	"regexp"
-	"time"
 )
 
 type RawPayload struct {
@@ -51,24 +50,8 @@ type ViewingWindows struct {
 
 func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
-	var data map[string]interface{}
-
-
 	body, _ := ioutil.ReadAll(r.Body)
 
-	json.Unmarshal(body, &data)
-
-	fmt.Println("Body Unmarshalled")
-
-	time.Sleep(5)
-	fmt.Println(data["url"])
-
-	_, err := json.Marshal(data)
-
-	fmt.Println("Payload created")
-	time.Sleep(5)
-
-	com.Check(err)
 
 	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
 	fmt.Println("URL created")
@@ -256,6 +239,8 @@ func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
 		sS.MatchedSource = "sling_tv"
 	case GSM(`(vue|sony|playstation)`, sS.MatchedSource):
 		sS.MatchedSource = "playstation_vue"
+	case GSM(`hulu`, sS.MatchedSource):
+		sS.MatchedSource = "hulu"
 	}
 
 	sS.DeepLinks = deepLinkMap[sS.MatchedSource]
