@@ -85,9 +85,11 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	//v := &ViewingWindows{}
 	v := make(map[string]interface{})
 	decoder := json.NewDecoder(response.Body)
+	fmt.Println("Decoding boddy")
+	fmt.Println(response.Body)
+	fmt.Println("Response from Node server unmarshalled to map interface made")
 	err = decoder.Decode(&v)
 	com.Check(err)
-	fmt.Println("Response from Node server unmarshalled to map interface made")
 
 	fToExt := []string{"on_demand", "binge", "pay_per_view"}
 
