@@ -58,14 +58,14 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(body, &data)
 
-	fmt.Println(data)
+	fmt.Println(string(data))
 
 	time.Sleep(5)
 	fmt.Println(data["url"])
 
 	payload, err := json.Marshal(data)
 
-	fmt.Println(payload)
+	fmt.Println(string(payload))
 	time.Sleep(5)
 
 	com.Check(err)
