@@ -63,7 +63,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(5)
 	fmt.Println(data["url"])
 
-	payload, err := json.Marshal(data)
+	_, err := json.Marshal(data)
 
 	fmt.Println("Payload created")
 	time.Sleep(5)
@@ -73,7 +73,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
 	fmt.Println("URL created")
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 
 	client := &http.Client{}
 	req.Header.Add("Content-Type", "application/json")
