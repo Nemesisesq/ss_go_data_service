@@ -290,7 +290,7 @@ func GetDeepLinks() map[string]Links {
 		DeepLinks: []string{"aiv://"},
 		AppStore:  "https://itunes.apple.com/us/app/amazon-video/id545519333?mt=8",
 	}
-	deepLinks["cbs_all_access"] = Links{
+	deepLinks["cbs"] = Links{
 		DeepLinks: []string{"cbs-svod://", "cbs-sv://"},
 		AppStore:  "https://itunes.apple.com/us/app/cbs-watch-full-episodes-on/id530168168?mt=8",
 	}
