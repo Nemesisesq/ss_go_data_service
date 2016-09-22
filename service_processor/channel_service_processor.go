@@ -101,7 +101,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 				googleRegExp, err  := regexp.CompilePOSIX(`google`)
 				com.Check(err)
-				amazonRegExp, err  := regexp.CompilePOSIX(`amazon`)
+				amazonRegExp, err  := regexp.CompilePOSIX(`amazon_buy`)
 				com.Check(err)
 
 				if !googleRegExp.Match([]byte(newSS.Source)) && !amazonRegExp.Match([]byte(newSS.Source)){
@@ -287,6 +287,11 @@ func GetDeepLinks() map[string]Links {
 		AppStore:  "https://itunes.apple.com/us/app/showtime/id996246479?mt=8",
 	}
 	deepLinks["amazon_instant_video"] = Links{
+		DeepLinks: []string{"aiv://"},
+		AppStore:  "https://itunes.apple.com/us/app/amazon-video/id545519333?mt=8",
+	}
+
+	deepLinks["amazon_prime"] = Links{
 		DeepLinks: []string{"aiv://"},
 		AppStore:  "https://itunes.apple.com/us/app/amazon-video/id545519333?mt=8",
 	}
