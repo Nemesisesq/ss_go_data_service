@@ -68,6 +68,7 @@ func main() {
 	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings)
 	r.HandleFunc("/favorites/test", ss.GetTestFavorites)
 	r.HandleFunc("/favorites/add/test", ss.AddContentToTestFavorites)
+	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites)
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
 
 	c := cors.New(cors.Options{
