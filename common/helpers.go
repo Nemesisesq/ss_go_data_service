@@ -30,3 +30,8 @@ func ReadJSON(r *http.Request, p ...interface{}) error {
 	}
 	return nil
 }
+
+type ResponseStatus struct {
+	Code    int
+	Message string
+}
