@@ -83,6 +83,7 @@ type Program struct {
 type Station struct {
 	StationId      string `json:"stationId"`
 	CallSign       string `json:"callSign"`
+	AffiliateCallSign string `json:"affiliateCallSign" bson:"affiliateCallSign`
 	Channel        string `json:"channel"`
 	PreferredImage map[string]interface{} `json:"preferredImage"`
 	Airings        []Airing `json:"airings"`
@@ -112,6 +113,8 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
 
+
+	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
 	com.Check(err)
@@ -138,7 +141,8 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 
 	client := &http.Client{}
 	//TODO Actually set the correct Lineup id in the URL here
-	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+	//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+	url := fmt.Sprintf("%v/%v/grid", LineupsUri, "USA-TX42500-X")
 	req, err := http.NewRequest("GET", url, nil)
 
 	com.Check(err)
@@ -149,6 +153,8 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		"api_key":      ApiKey,
 		"starDateTime": curr_time,
 		//"lineupId" : "USA-ECHOST-DEFAULT",
+		//"imageSize":"Md",
+		"imageAspectTV":"16x9",
 		"size":             "Basic",
 		"imageSize":        "Sm",
 		"excludeChannels":  "music, ppv, adult",
