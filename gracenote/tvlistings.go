@@ -1,12 +1,16 @@
 package gracenote
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
-	"fmt"
-	com"github.com/nemesisesq/ss_data_service/common"
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"time"
+
+	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
+	com "github.com/nemesisesq/ss_data_service/common"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type GeoCode struct {
@@ -31,59 +35,49 @@ type Geometry struct {
 
 type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
-	FormattedAddress  string `json:"formatted_address"`
+	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string `json:"place_id"`
+	PlaceId           string   `json:"place_id"`
 	Types             []string `json:"types"`
 }
 
 type AddressComponent struct {
-	LongName  string `json:"long_name"`
-	ShortName string `json:"short_name"`
+	LongName  string   `json:"long_name"`
+	ShortName string   `json:"short_name"`
 	Types     []string `json:"types"`
 }
 
 type Lineup struct {
-	Type     string `json:"type"`
-	Device   string `json:"device"`
-	LineupId string `json:"lineupId"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	MSO      map[string]interface{} `json:"mso"`
+	ZipCode  string                 `json:"zip_code" bson:"zip_code"`
+	Type     string                 `json:"type" bson:"type"`
+	Device   string                 `json:"device" bson:"device"`
+	LineupId string                 `json:"lineupId" bson:"lineup_id"`
+	Name     string                 `json:"name" bson:"name"`
+	Location string                 `json:"location" bson:"location"`
+	MSO      map[string]interface{} `json:"mso" bson:"mso"`
+	Stations []Station
 }
 
 type Guide struct {
 	Location
-	ZipCode  string
-	Lineups  []Lineup
-	Stations []Station
+	ZipCode string
+	Lineups []Lineup
 }
-
-
 
 type Program struct {
-	TMSID            string `json:"tmsId"`
-	RootId           string `json:"rootId"`
-	SeriesId         string `json:"seriesId"`
-	SubType          string `json:"subType"`
-	Title            string `json:"title"`
-	ReleaseYear      string `json:"releaseYear"`
-	ReleaseDate      string `json:"releaseDate"`
-	OrigAirDate      string `json:"origAirDate"`
-	TitleLang        string `json:"titleLang"`
-	DescriptionLang  string `json:"descriptionLang"`
-	EntityType       string `json:"entityType"`
+	TMSID            string   `json:"tmsId"`
+	RootId           string   `json:"rootId"`
+	SeriesId         string   `json:"seriesId"`
+	SubType          string   `json:"subType"`
+	Title            string   `json:"title"`
+	ReleaseYear      int      `json:"releaseYear"`
+	ReleaseDate      string   `json:"releaseDate"`
+	OrigAirDate      string   `json:"origAirDate"`
+	TitleLang        string   `json:"titleLang"`
+	DescriptionLang  string   `json:"descriptionLang"`
+	EntityType       string   `json:"entityType"`
 	Genres           []string `json:"genres"`
-	ShortDescription string `json:"shortDescription"`
-}
-
-type Airing struct {
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
-	Duration  int `json:"duration"`
-	Channels  []string `json:"channels"`
-	StationId string `json:"stationId"`
-	Program
+	ShortDescription string   `json:"shortDescription"`
 }
 
 type Station struct {
@@ -92,6 +86,15 @@ type Station struct {
 	Channel        string `json:"channel"`
 	PreferredImage map[string]interface{} `json:"preferredImage"`
 	Airings        []Airing `json:"airings"`
+}
+
+type Airing struct {
+	StartTime string   `json:"startTime"`
+	EndTime   string   `json:"endTime"`
+	Duration  int      `json:"duration"`
+	Channels  []string `json:"channels"`
+	StationId string   `json:"stationId"`
+	Program   Program `json:"program"`
 }
 
 func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
@@ -103,37 +106,75 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.Lat = vars["lat"]
 	guideObj.Long = vars["long"]
 
+	guideObj.CheckLineUpsForGeoCoords()
+
 	guideObj.SetZipCode()
-	guideObj.GetLineups()
-	guideObj.GetTVGrid()
+	lineup := guideObj.GetLineups(r)
+	stations := guideObj.GetTVGrid(r, lineup)
+
+	err := json.NewEncoder(w).Encode(stations)
+
+	com.Check(err)
 }
 
-func (g *Guide) GetTVGrid() {
-	client := &http.Client{}
+func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
+	db := context.Get(r, "db").(*mgo.Database)
 
-	req, err := http.NewRequest("GET", LineupsUri + "/USA-ECHOST-DEFAULT/grid", nil)
+	c := db.C("lineups")
+
+	l := &Lineup{}
+
+	query := c.Find(bson.M{"lineup_id": lineup.LineupId})
+
+	count, err := query.Count()
+
+	com.Check(err)
+
+	if count > 0 {
+
+		query.One(&l)
+		return l.Stations
+	}
+
+	client := &http.Client{}
+	//TODO Actually set the correct Lineup id in the URL here
+	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+	req, err := http.NewRequest("GET", url, nil)
 
 	com.Check(err)
 
 	curr_time := time.Now().Format(time.RFC3339)
 
 	params := map[string]string{
-		"api_key": ApiKey,
+		"api_key":      ApiKey,
 		"starDateTime": curr_time,
 		//"lineupId" : "USA-ECHOST-DEFAULT",
-		"size" : "Basic",
-		"imageSize" : "Sm",
-		"excludeChannels": "music, ppv, adult",
+		"size":             "Basic",
+		"imageSize":        "Sm",
+		"excludeChannels":  "music, ppv, adult",
 		"enhancedCallSign": "true",
 	}
 
 	BuildQuery(req, params)
 
 	res, err := client.Do(req)
+
+	//body, err := ioutil.ReadAll(res.Body)
+
+	//if err != nil {
+	//	log.Fatalf("ERROR: %s", err)
+	//}
+	//
+	//fmt.Printf("%s", body)
+
 	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&g.Stations)
+
+	err = decoder.Decode(&lineup.Stations)
 
 	com.Check(err)
+
+	return lineup.Stations
+
 }
 
 func BuildQuery(r *http.Request, m map[string]string) {
@@ -145,7 +186,28 @@ func BuildQuery(r *http.Request, m map[string]string) {
 	r.URL.RawQuery = q.Encode()
 }
 
-func (g *Guide) GetLineups() {
+func (g *Guide) CheckLineUpsForGeoCoords() {
+	//TODO check the geo coordinates for
+}
+
+func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
+
+	db := context.Get(r, "db").(*mgo.Database)
+
+	c := db.C("lineups")
+
+	query := c.Find(bson.M{"zip_code": g.ZipCode})
+	count, err := query.Count()
+
+	com.Check(err)
+
+	if count > 0 {
+		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually
+		query.One(&lineup)
+
+		return lineup
+	}
+
 	client := &http.Client{}
 	//res, err := client.Get(LineupsUri)
 
@@ -169,17 +231,25 @@ func (g *Guide) GetLineups() {
 
 	com.Check(err)
 
+	//TODO Do something to pick the correct lineup here
+
+	//save the New Lineups
+
+	c.Insert(g.Lineups)
+
+	return g.Lineups[0]
+
 }
 
 func (g *Guide) SetZipCode() {
 
-	req, err := http.NewRequest("GET", GeoCodeUri, nil )
+	req, err := http.NewRequest("GET", GeoCodeUri, nil)
 
 	com.Check(err)
 
 	params := map[string]string{
-		"latlng": fmt.Sprintf("%s,%s",g.Lat, g.Long),
-		"sensor" : "true",
+		"latlng": fmt.Sprintf("%s,%s", g.Lat, g.Long),
+		"sensor": "true",
 	}
 
 	BuildQuery(req, params)
@@ -211,5 +281,3 @@ func (g *Guide) SetZipCode() {
 		}
 	}
 }
-
-
