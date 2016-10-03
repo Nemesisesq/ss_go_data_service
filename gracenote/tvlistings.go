@@ -161,7 +161,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		"enhancedCallSign": "true",
 	}
 
-	BuildQuery(req, params)
+	com.BuildQuery(req, params)
 
 	res, err := client.Do(req)
 
@@ -183,14 +183,6 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 
 }
 
-func BuildQuery(r *http.Request, m map[string]string) {
-	q := r.URL.Query()
-
-	for key, val := range m {
-		q.Add(key, val)
-	}
-	r.URL.RawQuery = q.Encode()
-}
 
 func (g *Guide) CheckLineUpsForGeoCoords() {
 	//TODO check the geo coordinates for
@@ -221,7 +213,7 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 
 	params := map[string]string{"country": "USA", "postalCode": g.ZipCode, "api_key": ApiKey}
 
-	BuildQuery(req, params)
+	com.BuildQuery(req, params)
 
 	res, err := client.Do(req)
 
@@ -258,7 +250,7 @@ func (g *Guide) SetZipCode() {
 		"sensor": "true",
 	}
 
-	BuildQuery(req, params)
+	com.BuildQuery(req, params)
 
 	client := &http.Client{}
 
