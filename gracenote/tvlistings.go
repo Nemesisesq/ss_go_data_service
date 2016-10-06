@@ -70,6 +70,7 @@ type Program struct {
 	SeriesId         string   `json:"seriesId"`
 	SubType          string   `json:"subType"`
 	Title            string   `json:"title"`
+	EpisodeTitle     string   `json:"episodeTitle"`
 	ReleaseYear      int      `json:"releaseYear"`
 	ReleaseDate      string   `json:"releaseDate"`
 	OrigAirDate      string   `json:"origAirDate"`
@@ -81,12 +82,12 @@ type Program struct {
 }
 
 type Station struct {
-	StationId      string `json:"stationId"`
-	CallSign       string `json:"callSign"`
-	AffiliateCallSign string `json:"affiliateCallSign" bson:"affiliateCallSign`
-	Channel        string `json:"channel"`
-	PreferredImage map[string]interface{} `json:"preferredImage"`
-	Airings        []Airing `json:"airings"`
+	StationId         string `json:"stationId"`
+	CallSign          string `json:"callSign"`
+	AffiliateCallSign string `json:"affiliateCallSign" bson:"affiliateCallSign"`
+	Channel           string `json:"channel"`
+	PreferredImage    map[string]interface{} `json:"preferredImage"`
+	Airings           []Airing `json:"airings"`
 }
 
 type Airing struct {
@@ -112,7 +113,6 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.SetZipCode()
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
-
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
@@ -182,7 +182,6 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 	return lineup.Stations
 
 }
-
 
 func (g *Guide) CheckLineUpsForGeoCoords() {
 	//TODO check the geo coordinates for
