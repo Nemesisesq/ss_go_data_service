@@ -135,8 +135,14 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 
 	if count > 0 {
 
-		query.One(&l)
-		return l.Stations
+		err = query.One(&l)
+
+		if err != nil {
+			c.Remove(bson.M{"linup_id": lineup.LineupId})
+		} else {
+
+			return l.Stations
+		}
 	}
 
 	client := &http.Client{}
@@ -219,6 +225,8 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 	defer res.Body.Close()
 
 	com.Check(err)
+
+	fmt.Println(res.Status)
 
 	decoder := json.NewDecoder(res.Body)
 
