@@ -52,7 +52,6 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 	body, _ := ioutil.ReadAll(r.Body)
 
-
 	url := fmt.Sprintf("%s/detail_sources", os.Getenv("NODE_DATA_SERVICE"))
 	fmt.Println("URL created")
 
@@ -99,12 +98,12 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 				//filter out amazon and goole
 
-				googleRegExp, err  := regexp.CompilePOSIX(`google`)
+				googleRegExp, err := regexp.CompilePOSIX(`google`)
 				com.Check(err)
-				amazonRegExp, err  := regexp.CompilePOSIX(`amazon_buy`)
+				amazonRegExp, err := regexp.CompilePOSIX(`amazon_buy`)
 				com.Check(err)
 
-				if !googleRegExp.Match([]byte(newSS.Source)) && !amazonRegExp.Match([]byte(newSS.Source)){
+				if !googleRegExp.Match([]byte(newSS.Source)) && !amazonRegExp.Match([]byte(newSS.Source)) {
 
 					ss_slice = append(ss_slice, *newSS)
 				}
@@ -142,18 +141,18 @@ func CheckIfLowestTier(ss_slice []StreamingSource, source string) bool {
 
 	switch source {
 	case "sling_blue":
-		x =  true
+		x = true
 	case "sling_orange":
 
-		x  = !source_slice.CheckStreamingServicesForSource("sling_blue")
+		x = !source_slice.CheckStreamingServicesForSource("sling_blue")
 	case "sling_blue_orange":
 		x = !source_slice.CheckStreamingServicesForSource("sling_orange")
 	case "sony_vue_slim":
-		x =  true
+		x = true
 	case "sony_vue_core":
-		x =  !source_slice.CheckStreamingServicesForSource("sony_vue_slim")
+		x = !source_slice.CheckStreamingServicesForSource("sony_vue_slim")
 	case "sony_vue_elite":
-		x =  !source_slice.CheckStreamingServicesForSource("sony_vue_core")
+		x = !source_slice.CheckStreamingServicesForSource("sony_vue_core")
 	}
 	return x
 }
@@ -223,6 +222,44 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 			NewPP.StreamingSources = append(NewPP.StreamingSources, val)
 		}
 	}
+
+	seen := map[string]bool{}
+	resSS := []StreamingSource{}
+	for i, val := range NewPP.StreamingSources {
+
+		switch {
+
+		case GSM(`sling`, val.Source):
+
+			if seen["sling"] {
+
+			} else {
+
+				NewPP.StreamingSources[i].Source = "sling"
+				resSS = append(resSS, NewPP.StreamingSources[i])
+				seen["sling"] = true
+			}
+		case GSM(`vue`, val.Source):
+			if seen["ps_vue"] {
+
+			} else {
+
+				NewPP.StreamingSources[i].Source = "ps_vue"
+				resSS = append(resSS, NewPP.StreamingSources[i])
+				seen["ps_vue"] = true
+			}
+
+		case GSM(`ota`, val.Source):
+			continue
+
+		default:
+			resSS = append(resSS, NewPP.StreamingSources[i])
+
+		}
+
+	}
+
+	NewPP.StreamingSources = resSS
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewPP)
