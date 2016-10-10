@@ -12,6 +12,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
+
 )
 
 type Episode struct {
@@ -45,6 +46,8 @@ type GuideBoxEpisodes struct {
 	TotalReturned int    `json:"total_returned" bson:"total_returned"`
 }
 
+
+
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	guideboxId := r.URL.Query().Get("guidebox_id")
@@ -64,14 +67,12 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		query.One(&epi)
 	} else {
 
-
-		total_results, episode_list :=epi.GetAllEpisodes(0, 25, guideboxId)
-
+		total_results, episode_list := epi.GetAllEpisodes(0, 25, guideboxId)
 
 		if total_results > len(episode_list) {
 			for total_results > len(episode_list) {
 				_, res := epi.GetAllEpisodes(len(episode_list), 25, guideboxId)
-				episode_list = append(episode_list,res...)
+				episode_list = append(episode_list, res...)
 			}
 
 			epi.Results = episode_list
@@ -90,9 +91,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []Episode) {
-
 
 	client := &http.Client{}
 

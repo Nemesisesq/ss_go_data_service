@@ -20,7 +20,6 @@ func GetTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	testUser.UserName = "test"
 
-
 	db := context.Get(r, "db").(*mgo.Database)
 
 	collection := db.C("favorites")
@@ -33,7 +32,9 @@ func GetTestFavorites(w http.ResponseWriter, r *http.Request) {
 func DeleteTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*mgo.Database)
+
 	c := db.C("favorites")
+
 	c.RemoveAll("")
 
 	res, err := json.Marshal(&common.ResponseStatus{200, "All Test Data Deleted"})
@@ -47,12 +48,54 @@ func DeleteTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(res)
 
+}
 
+func RemoveContentFromTestFavorites(w http.ResponseWriter, r *http.Request) {
+	content := &Content{}
+
+	favorites := &Favorites{}
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(content)
+
+	common.Check(err)
+
+	db := context.Get(r, "db").(*mgo.Database)
+	c := db.C("favorites")
+
+	delQuery := c.Find(bson.M{"user_uuid" : 999})
+
+
+	delQuery.One(&favorites)
+
+	newList := favorites.ContentList
+
+	for idx, value := range (favorites.ContentList) {
+		if value.Title == content.Title {
+			newList = append(newList[:idx], newList[idx + 1:]...)
+		}
+	}
+
+	favorites.ContentList = newList
+
+	c.Update(delQuery, favorites)
+
+	res, err := json.Marshal(&common.ResponseStatus{200, "Item deleted sucessfully!"})
+
+	if err != nil {
+		log.Fatal(err)
+		//fmt.Println("an error happend here 2nd")
+		fmt.Print(err)
+		http.NotFound(w, r)
+	}
+
+	w.Write(res)
 
 }
 
 func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
- 	testUser := &User{}
+	testUser := &User{}
 
 	favorites := &Favorites{}
 
@@ -83,7 +126,7 @@ func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
 		query.One(&favorites)
 		favorites.ContentList = append(favorites.ContentList, *content)
 		colQuery := bson.M{"user_uuid" : 999}
-		err  = c.Update(colQuery, favorites)
+		err = c.Update(colQuery, favorites)
 	}
 
 	res, err := json.Marshal(&common.ResponseStatus{200, "Data saved sucessfully!"})
