@@ -60,7 +60,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	com.Check(err)
 
-	if count <  0 {
+	if count >  0 {
 		query.One(&epi)
 	} else {
 
