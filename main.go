@@ -10,13 +10,15 @@ import (
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
 	com "github.com/nemesisesq/ss_data_service/common"
-	pop "github.com/nemesisesq/ss_data_service/popularity"
 	edr "github.com/nemesisesq/ss_data_service/email_data_service"
-	serv_proc"github.com/nemesisesq/ss_data_service/service_processor"
 	gnote "github.com/nemesisesq/ss_data_service/gracenote"
+	"github.com/nemesisesq/ss_data_service/middleware"
+	pop "github.com/nemesisesq/ss_data_service/popularity"
+	serv_proc "github.com/nemesisesq/ss_data_service/service_processor"
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
+	"github.com/rs/cors"
+	"net/url"
 )
 
 func main() {
@@ -24,30 +26,19 @@ func main() {
 	//Handle port environment variables for local and remote
 
 	err := godotenv.Load()
-	port := os.Getenv("PORT")
-	if port == "" {
-		err := godotenv.Load()
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
-		port = os.Getenv("PORT")
-	}
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
+
+	com.Check(err)
+
+	port := com.GetPort()
 
 	// Use the MongoDB `DATABASE_URL` from the env
 	dbURL := os.Getenv("MONGODB_URI")
-	fmt.Println(dbURL)
 	// Use the MongoDB `DATABASE_NAME` from the env
 	dbName := com.GetDatabase()
-	fmt.Println(dbName)
 	// Set the MongoDB collection name
 	dbColl := com.GetCollection()
 
-	fmt.Println("Connecting to MongoDB: ", dbURL)
-	fmt.Println("Database Name: ", dbName)
-	fmt.Println("Collection Name: ", dbColl)
+	com.AnnounceMongoConnection(dbURL, dbName, dbColl)
 
 	// Creating the database accessor here.
 	// Pointer to this database accessor will be passed to the middleware.
@@ -55,8 +46,27 @@ func main() {
 
 	com.Check(err)
 
+	// Create Redis Client
+	redis_url := os.Getenv("REDIS_URL")
+
+	u, err := url.Parse(redis_url)
+
+	com.Check(err)
+
+	pass, b := u.User.Password()
+
+	if !b {
+		pass = ""
+	}
+	//rURL := fmt.Sprintf("%v://%v",u.Scheme, u.Host)
+	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
+	com.Check(err)
+
 	n := negroni.Classic()
 	n.Use(nigronimgosession.NewDatabase(*dbAccessor).Middleware())
+
+	x := middleware.NewRedisClient(*cacheAccessor)
+	n.Use(x.Middleware())
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", com.Index).Methods("GET")

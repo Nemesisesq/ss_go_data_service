@@ -3,14 +3,10 @@ package streamsavvy
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/gorilla/context"
-	//"github.com/gorilla/mux"
+	//"github.com/gorilla/context"
 	"encoding/json"
-
 	com "github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"gopkg.in/redis.v4"
 )
 
 type Episode struct {
@@ -53,21 +49,26 @@ type GuideBoxEpisodes struct {
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	guideboxId := r.URL.Query().Get("guidebox_id")
-	db := context.Get(r, "db").(*mgo.Database)
+	//db := context.Get(r, "db").(*mgo.Database)
 
-	c := db.C("episodes")
+	//c := db.C("episodes")
 
-	query := c.Find(bson.M{"guidebox_id": guideboxId})
+	//query := c.Find(bson.M{"guidebox_id": guideboxId})
 
-	count, err := query.Count()
+	//count, err := query.Count()
 
 	epi := &GuideBoxEpisodes{}
 
-	com.Check(err)
+	//com.Check(err)
+	//client3 := context.Get(r, "client")
+	//print(client3)
+	//client := context.Get(r, "client").(*redis.Client)
 
-	if count < 0 {
-		query.One(&epi)
-	} else {
+	client := r.Context().Value("client").(*redis.Client)
+
+	val, err := client.Get(guideboxId).Result()
+
+	if err == redis.Nil {
 
 		//redisClient := context.Get(r, "redisClient").(*redis.Client)
 
@@ -87,8 +88,13 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		epi.TotalResults = total_results
 		epi.TotalReturned = len(episode_list)
 
-		c.Insert(*epi)
+		val, err := json.Marshal(epi)
+		com.Check(err)
 
+		err = client.Set(guideboxId, val, 0).Err()
+		com.Check(err)
+	} else {
+		json.Unmarshal([]byte(val), &epi)
 	}
 
 	json.NewEncoder(w).Encode(epi)

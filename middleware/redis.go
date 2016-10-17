@@ -2,47 +2,52 @@ package middleware
 
 import (
 	"gopkg.in/redis.v4"
-	"github.com/gorilla/context"
 	"net/http"
 	"github.com/codegangsta/negroni"
+	//gcontext"github.com/gorilla/context"
+	"context"
+	"github.com/nemesisesq/ss_data_service/common"
+	"fmt"
 )
 
 type CacheAccessor struct {
-	redis.Client
-	url  string
-	name string
-	coll string
+	client redis.Client
+	addr  string
+	pass string
+	db int
 }
 
-func NewCacheAccessor(url, name, coll string) (*CacheAccessor, error) {
-	client, err := redis.NewClient()
-	if err == nil {
-		return &CacheAccessor{client , url, name, coll}, nil
-	} else {
-		return &CacheAccessor{}, err
-	}
+func NewCacheAccessor(addr, pass string, db int) (*CacheAccessor, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr: addr,
+		Password: pass,
+		DB: db,
+	})
+
+	pong, err := client.Ping().Result()
+	common.Check(err)
+	fmt.Printf("redis %v",pong)
+
+		return &CacheAccessor{*client , addr, pass, db}, nil
 }
 
-func (da *CacheAccessor) Set(request *http.Request, client redis.Client) {
-	db := client.DB(da.name)
-	context.Set(request, "db", db)
-	context.Set(request, "mgoSession", client)
+func (ca *CacheAccessor) Set(request *http.Request, client redis.Client) context.Context {
+	//gcontext.Set(request, "client", *client)
+	return context.WithValue(request.Context(), "client", &client)
 }
 
-type Database struct {
-	dba CacheAccessor
+type RedisClient struct {
+	rca CacheAccessor
 }
 
-func NewDatabase(CacheAccessor CacheAccessor) *Database {
-	return &Database{CacheAccessor}
+func NewRedisClient(CacheAccessor CacheAccessor) *RedisClient {
+	return &RedisClient{CacheAccessor}
 }
 
-func (d *Database) Middleware() negroni.HandlerFunc {
+func (ca *RedisClient) Middleware() negroni.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request, next http.HandlerFunc) {
-		//reqSession := d.dba.Clone()
-		//defer reqSession.Close()
-		//d.dba.Set(request, reqSession)
-		next(writer, request)
+		ctx := ca.rca.Set(request, ca.rca.client)
+		next(writer, request.WithContext(ctx))
 	}
 }
 

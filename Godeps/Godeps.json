@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/nemesisesq/ss_data_service",
-	"GoVersion": "go1.6",
+	"GoVersion": "go1.7",
 	"GodepVersion": "v74",
 	"Deps": [
 		{
@@ -42,6 +42,10 @@
 			"Rev": "28d1bd4fbe7e56c9025ffe3a89113fa4f5e48f31"
 		},
 		{
+			"ImportPath": "gopkg.in/bsm/ratelimit.v1",
+			"Rev": "db14e161995a5177acef654cb0dd785e8ee8bc22"
+		},
+		{
 			"ImportPath": "gopkg.in/mgo.v2",
 			"Comment": "r2015.06.03-3-g3569c88",
 			"Rev": "3569c88678d88179dcbd68d02ab081cbca3cd4d0"
@@ -60,6 +64,41 @@
 			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
 			"Comment": "r2015.06.03-3-g3569c88",
 			"Rev": "3569c88678d88179dcbd68d02ab081cbca3cd4d0"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal/consistenthash",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal/errors",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal/hashtag",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal/pool",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v4/internal/proto",
+			"Comment": "v4.2.1",
+			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
 		}
 	]
 }
