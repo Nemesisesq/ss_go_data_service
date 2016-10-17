@@ -5,6 +5,7 @@ import (
 	"net/http"
 	//"github.com/gorilla/context"
 	"encoding/json"
+
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/redis.v4"
 )
@@ -41,7 +42,7 @@ type Episode struct {
 }
 type GuideBoxEpisodes struct {
 	GuideboxId    string    `bson:"guidebox_id"`
-	Results       []Episode `json:"results" bson:"list"`
+	Results       []Episode `json:"results"`
 	TotalResults  int       `json:"total_results" bson:"total_results"`
 	TotalReturned int       `json:"total_returned" bson:"total_returned"`
 }
@@ -80,9 +81,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 				episode_list = append(episode_list, res...)
 			}
 
-			epi.Results = episode_list
-
 		}
+		epi.Results = episode_list
 
 		epi.GuideboxId = guideboxId
 		epi.TotalResults = total_results
@@ -111,6 +111,7 @@ func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId stri
 	//TODO Actually set the correct Lineup id in the URL here
 	//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
 	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
+	fmt.Println(url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -126,10 +127,17 @@ func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId stri
 
 	com.Check(err)
 
+	//x, err := ioutil.ReadAll(res.Body)
+	//com.Check(err)
+	//
+	//json.Unmarshal(x, &gbe)
+	//
 	decoder := json.NewDecoder(res.Body)
-
+	//
+	////x := map[string]interface{}{}
+	//
 	err = decoder.Decode(&gbe)
-
+	//
 	com.Check(err)
 
 	total_results = gbe.TotalResults
