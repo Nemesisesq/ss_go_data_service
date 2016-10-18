@@ -68,7 +68,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	v := make(map[string]interface{})
 	decoder := json.NewDecoder(response.Body)
 	fmt.Println("Decoding boddy")
-	fmt.Println(response.Body)
+	//fmt.Println(response.Body)
 	fmt.Println("Response from Node server unmarshalled to map interface made")
 	err = decoder.Decode(&v)
 	com.Check(err)
