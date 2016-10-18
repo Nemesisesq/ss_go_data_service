@@ -8,6 +8,7 @@ import (
 
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/redis.v4"
+	"time"
 )
 
 type Episode struct {
@@ -78,7 +79,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		val, err := json.Marshal(epi)
 		com.Check(err)
 
-		err = client.Set(guideboxId, val, 86400).Err()
+		timeout := time.Hour * 24
+		err = client.Set(guideboxId, val, timeout).Err()
 		com.Check(err)
 	} else {
 		json.Unmarshal([]byte(val), &epi)
