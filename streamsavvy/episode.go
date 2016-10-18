@@ -78,7 +78,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		val, err := json.Marshal(epi)
 		com.Check(err)
 
-		err = client.Set(guideboxId, val, 0).Err()
+		err = client.Set(guideboxId, val, 7200*4).Err()
 		com.Check(err)
 	} else {
 		json.Unmarshal([]byte(val), &epi)
