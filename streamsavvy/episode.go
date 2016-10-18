@@ -50,28 +50,15 @@ type GuideBoxEpisodes struct {
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	guideboxId := r.URL.Query().Get("guidebox_id")
-	//db := context.Get(r, "db").(*mgo.Database)
-
-	//c := db.C("episodes")
-
-	//query := c.Find(bson.M{"guidebox_id": guideboxId})
-
-	//count, err := query.Count()
 
 	epi := &GuideBoxEpisodes{}
 
-	//com.Check(err)
-	//client3 := context.Get(r, "client")
-	//print(client3)
-	//client := context.Get(r, "client").(*redis.Client)
 
 	client := r.Context().Value("client").(*redis.Client)
 
 	val, err := client.Get(guideboxId).Result()
 
 	if err == redis.Nil {
-
-		//redisClient := context.Get(r, "redisClient").(*redis.Client)
 
 		total_results, episode_list := epi.GetAllEpisodes(0, 25, guideboxId)
 
@@ -103,15 +90,15 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []Episode) {
 
+	//TODO Logging
+
 	client := &http.Client{}
 
 	baseUrl := "https://api-public.guidebox.com/v1.43/US/%v/show/%v/episodes/all/%v/%v/all/all/true"
 
 	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
-	//TODO Actually set the correct Lineup id in the URL here
-	//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+
 	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
-	fmt.Println(url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -127,17 +114,9 @@ func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId stri
 
 	com.Check(err)
 
-	//x, err := ioutil.ReadAll(res.Body)
-	//com.Check(err)
-	//
-	//json.Unmarshal(x, &gbe)
-	//
 	decoder := json.NewDecoder(res.Body)
-	//
-	////x := map[string]interface{}{}
-	//
+
 	err = decoder.Decode(&gbe)
-	//
 	com.Check(err)
 
 	total_results = gbe.TotalResults

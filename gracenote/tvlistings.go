@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
@@ -37,8 +36,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string   `json:"place_id"`
-	Types             []string `json:"types"`
+	PlaceId string   `json:"place_id"`
+	Types   []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -82,12 +81,12 @@ type Program struct {
 }
 
 type Station struct {
-	StationId         string `json:"stationId"`
-	CallSign          string `json:"callSign"`
-	AffiliateCallSign string `json:"affiliateCallSign" bson:"affiliateCallSign"`
-	Channel           string `json:"channel"`
+	StationId         string                 `json:"stationId"`
+	CallSign          string                 `json:"callSign"`
+	AffiliateCallSign string                 `json:"affiliateCallSign" bson:"affiliateCallSign"`
+	Channel           string                 `json:"channel"`
 	PreferredImage    map[string]interface{} `json:"preferredImage"`
-	Airings           []Airing `json:"airings"`
+	Airings           []Airing               `json:"airings"`
 }
 
 type Airing struct {
@@ -96,7 +95,7 @@ type Airing struct {
 	Duration  int      `json:"duration"`
 	Channels  []string `json:"channels"`
 	StationId string   `json:"stationId"`
-	Program   Program `json:"program"`
+	Program   Program  `json:"program"`
 }
 
 func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
@@ -121,13 +120,13 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
-	db := context.Get(r, "db").(*mgo.Database)
+	db := r.Context().Value("db").(mgo.Database)
 
 	c := db.C("lineups")
 
 	l := &Lineup{}
 
-	query := c.Find(bson.M{"lineup_id": lineup.LineupId})
+	query := *c.Find(bson.M{"lineup_id": lineup.LineupId})
 
 	count, err := query.Count()
 
@@ -160,7 +159,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		"starDateTime": curr_time,
 		//"lineupId" : "USA-ECHOST-DEFAULT",
 		//"imageSize":"Md",
-		"imageAspectTV":"16x9",
+		"imageAspectTV":    "16x9",
 		"size":             "Basic",
 		"imageSize":        "Sm",
 		"excludeChannels":  "music, ppv, adult",
@@ -195,11 +194,11 @@ func (g *Guide) CheckLineUpsForGeoCoords() {
 
 func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 
-	db := context.Get(r, "db").(*mgo.Database)
+	db := r.Context().Value("db").(mgo.Database)
 
 	c := db.C("lineups")
 
-	query := c.Find(bson.M{"zip_code": g.ZipCode})
+	query := *c.Find(bson.M{"zip_code": g.ZipCode})
 	count, err := query.Count()
 
 	com.Check(err)
