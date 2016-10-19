@@ -153,7 +153,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		client := &http.Client{}
 		//TODO Actually set the correct Lineup id in the URL here
 		//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
-		url := fmt.Sprintf("%v/%v/grid", LineupsUri, "USA-TX42500-X")
+		url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
 		req, err := http.NewRequest("GET", url, nil)
 
 		com.Check(err)
@@ -301,4 +301,17 @@ func (g *Guide) SetZipCode() {
 			}
 		}
 	}
+}
+
+
+func (g *Guide) FilterAirings(stations []Station) (filteredStations []Station) {
+
+	//for _, station := range stations {
+	//	newAirings := []Airing{}
+	//	for _, airing := range station.Airings {
+	//
+	//	}
+	//}
+
+	return filteredStations
 }
