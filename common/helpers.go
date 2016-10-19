@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"github.com/joho/godotenv"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Check(e error) {
@@ -69,4 +69,9 @@ func GetPort() string {
 	}
 
 	return port
+}
+
+func GetLogger() *log.Logger {
+	log.SetFormatter(&log.JSONFormatter{})
+	return log.New()
 }

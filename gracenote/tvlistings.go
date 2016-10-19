@@ -11,7 +11,11 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/redis.v4"
+	log "github.com/Sirupsen/logrus"
 )
+
+const format = "2006-01-02T15:04Z"
+
 
 type GeoCode struct {
 	Results []Result `json:"results"`
@@ -102,103 +106,67 @@ type Airing struct {
 func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 
 	guideObj := &Guide{}
-
 	vars := mux.Vars(r)
-
 	guideObj.Lat = vars["lat"]
-
 	guideObj.Long = vars["long"]
-
 	guideObj.CheckLineUpsForGeoCoords()
-
 	guideObj.SetZipCode()
-
 	lineup := guideObj.GetLineups(r)
-
 	stations := guideObj.GetTVGrid(r, lineup)
-
 	stations = guideObj.FilterAirings(stations)
-
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
 	com.Check(err)
 }
 
+func GetFreshTVListingsGrid(lineup Lineup) []byte {
+	log.SetFormatter(&log.JSONFormatter{})
+	iClient := &http.Client{}
+	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+	req, err := http.NewRequest("GET", url, nil)
+
+	com.Check(err)
+
+
+	start_time := time.Now().Format(format)
+	end_time := time.Now().Add(time.Hour * 6).Format(format)
+	params := map[string]string{
+		"api_key":      ApiKey,
+		"startDateTime": start_time,
+		"endDateTime" : end_time,
+
+		"imageAspectTV":    "16x9",
+		"size":             "Basic",
+		"imageSize":        "Sm",
+		"excludeChannels":  "music, ppv, adult",
+		"enhancedCallSign": "true",
+	}
+	com.BuildQuery(req, params)
+
+	log.Info(req)
+
+	res, err := iClient.Do(req)
+
+	com.Check(err)
+
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&lineup.Stations)
+
+	com.Check(err)
+
+	the_json, err := json.Marshal(lineup.Stations)
+
+	com.Check(err)
+
+	return the_json
+}
 func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
-	//db := r.Context().Value("db").(mgo.Database)
 
-	//c := db.C("lineups")
-
-	//l := &Lineup{}
-
-	//query := *c.Find(bson.M{"lineup_id": lineup.LineupId})
-
-	//count, err := query.Count()
-
-	//com.Check(err)
-
-	//if count > 0 {
-	//
-	//	err = query.One(&l)
-	//
-	//	if err != nil {
-	//		c.Remove(bson.M{"linup_id": lineup.LineupId})
-	//	} else {
-	//
-	//		return l.Stations
-	//	}
-	//}
 	rc := r.Context().Value("redis_client").(*redis.Client)
-
 	val, err := rc.Get(lineup.LineupId).Result()
-
 	if err == redis.Nil {
-
-		client := &http.Client{}
-		//TODO Actually set the correct Lineup id in the URL here
-		//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
-		url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
-		req, err := http.NewRequest("GET", url, nil)
-
-		com.Check(err)
-
-		curr_time := time.Now().Format(time.RFC3339)
-
-		params := map[string]string{
-			"api_key":      ApiKey,
-			"starDateTime": curr_time,
-			//"lineupId" : "USA-ECHOST-DEFAULT",
-			//"imageSize":"Md",
-			"imageAspectTV":    "16x9",
-			"size":             "Basic",
-			"imageSize":        "Sm",
-			"excludeChannels":  "music, ppv, adult",
-			"enhancedCallSign": "true",
-		}
-
-		com.BuildQuery(req, params)
-
-		res, err := client.Do(req)
-
-		//body, err := ioutil.ReadAll(res.Body)
-
-		//if err != nil {
-		//	log.Fatalf("ERROR: %s", err)
-		//}
-		//
-		//fmt.Printf("%s", body)
-
-		decoder := json.NewDecoder(res.Body)
-
-		err = decoder.Decode(&lineup.Stations)
-
-		com.Check(err)
-
-		the_json, err := json.Marshal(lineup.Stations)
-
-		com.Check(err)
-
+		the_json := GetFreshTVListingsGrid(lineup)
 		timeout := time.Hour * 4
 		rc.Set(lineup.LineupId, the_json, timeout)
 
@@ -217,49 +185,35 @@ func (g *Guide) CheckLineUpsForGeoCoords() {
 func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 
 	db := r.Context().Value("db").(mgo.Database)
-
 	c := db.C("lineups")
-
 	query := *c.Find(bson.M{"zip_code": g.ZipCode})
 	count, err := query.Count()
 
 	com.Check(err)
 
 	if count > 0 {
-		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually
+		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
 		query.One(&lineup)
 
 		return lineup
 	}
 
-	client := &http.Client{}
-	//res, err := client.Get(LineupsUri)
-
+	iClient := &http.Client{}
 	req, err := http.NewRequest("GET", LineupsUri, nil)
-
 	params := map[string]string{"country": "USA", "postalCode": g.ZipCode, "api_key": ApiKey}
-
 	com.BuildQuery(req, params)
-
-	res, err := client.Do(req)
-
+	res, err := iClient.Do(req)
 	defer res.Body.Close()
 
 	com.Check(err)
 
 	fmt.Println(res.Status)
-
 	decoder := json.NewDecoder(res.Body)
-
-	//var x []Lineup
-
 	err = decoder.Decode(&g.Lineups)
 
 	com.Check(err)
 
 	//TODO Do something to pick the correct lineup here
-
-	//save the New Lineups
 
 	c.Insert(g.Lineups)
 
@@ -270,28 +224,20 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 func (g *Guide) SetZipCode() {
 
 	req, err := http.NewRequest("GET", GeoCodeUri, nil)
-
 	com.Check(err)
-
 	params := map[string]string{
 		"latlng": fmt.Sprintf("%s,%s", g.Lat, g.Long),
 		"sensor": "true",
 	}
-
 	com.BuildQuery(req, params)
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
+	iClient := &http.Client{}
+	res, err := iClient.Do(req)
 	defer res.Body.Close()
 
 	com.Check(err)
 
 	geoCode := &GeoCode{}
-
 	decoder := json.NewDecoder(res.Body)
-
 	err = decoder.Decode(&geoCode)
 
 	com.Check(err)
@@ -301,6 +247,7 @@ func (g *Guide) SetZipCode() {
 			for _, t := range component.Types {
 				if t == "postal_code" {
 					g.ZipCode = component.LongName
+
 					return
 				}
 			}
@@ -309,29 +256,22 @@ func (g *Guide) SetZipCode() {
 }
 
 func (g *Guide) FilterAirings(stations []Station) (filteredStations []Station) {
-	const format = "2006-01-02T15:04Z"
-
 	for _, station := range stations {
-
 		newAirings := []Airing{}
-
 		for _, airing := range station.Airings {
 			t, err := time.Parse(format, airing.EndTime)
+			now := time.Now()
+
 			com.Check(err)
-			delta := time.Now().Sub(t)
 
-			if delta > 0 {
+			delta := t.Before(now)
+			if delta {
 				// happened in the past
-
 			} else {
-				// happening in the future
 				newAirings = append(newAirings, airing)
 			}
-
 		}
-
 		station.Airings = newAirings
-
 		filteredStations = append(filteredStations, station)
 	}
 
