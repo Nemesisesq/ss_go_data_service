@@ -109,9 +109,9 @@ func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	common.Check(err)
 
-	db := context.Get(r, "db").(*mgo.Database)
+	db := r.Context().Value("db").(mgo.Database)
 
-	c := db.C("favorites")
+	c := *db.C("favorites")
 
 	query := c.Find(bson.M{"user_uuid" : 999})
 

@@ -10,6 +10,7 @@ import (
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gopkg.in/redis.v4"
 )
 
 type GeoCode struct {
@@ -120,69 +121,85 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
-	db := r.Context().Value("db").(mgo.Database)
+	//db := r.Context().Value("db").(mgo.Database)
 
-	c := db.C("lineups")
+	//c := db.C("lineups")
 
-	l := &Lineup{}
+	//l := &Lineup{}
 
-	query := *c.Find(bson.M{"lineup_id": lineup.LineupId})
+	//query := *c.Find(bson.M{"lineup_id": lineup.LineupId})
 
-	count, err := query.Count()
+	//count, err := query.Count()
 
-	com.Check(err)
+	//com.Check(err)
 
-	if count > 0 {
-
-		err = query.One(&l)
-
-		if err != nil {
-			c.Remove(bson.M{"linup_id": lineup.LineupId})
-		} else {
-
-			return l.Stations
-		}
-	}
-
-	client := &http.Client{}
-	//TODO Actually set the correct Lineup id in the URL here
-	//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
-	url := fmt.Sprintf("%v/%v/grid", LineupsUri, "USA-TX42500-X")
-	req, err := http.NewRequest("GET", url, nil)
-
-	com.Check(err)
-
-	curr_time := time.Now().Format(time.RFC3339)
-
-	params := map[string]string{
-		"api_key":      ApiKey,
-		"starDateTime": curr_time,
-		//"lineupId" : "USA-ECHOST-DEFAULT",
-		//"imageSize":"Md",
-		"imageAspectTV":    "16x9",
-		"size":             "Basic",
-		"imageSize":        "Sm",
-		"excludeChannels":  "music, ppv, adult",
-		"enhancedCallSign": "true",
-	}
-
-	com.BuildQuery(req, params)
-
-	res, err := client.Do(req)
-
-	//body, err := ioutil.ReadAll(res.Body)
-
-	//if err != nil {
-	//	log.Fatalf("ERROR: %s", err)
-	//}
+	//if count > 0 {
 	//
-	//fmt.Printf("%s", body)
+	//	err = query.One(&l)
+	//
+	//	if err != nil {
+	//		c.Remove(bson.M{"linup_id": lineup.LineupId})
+	//	} else {
+	//
+	//		return l.Stations
+	//	}
+	//}
+	rc := r.Context().Value("redis_client").(*redis.Client)
 
-	decoder := json.NewDecoder(res.Body)
+	val, err := rc.Get(lineup.LineupId).Result()
 
-	err = decoder.Decode(&lineup.Stations)
+	if err == redis.Nil {
 
-	com.Check(err)
+		client := &http.Client{}
+		//TODO Actually set the correct Lineup id in the URL here
+		//url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
+		url := fmt.Sprintf("%v/%v/grid", LineupsUri, "USA-TX42500-X")
+		req, err := http.NewRequest("GET", url, nil)
+
+		com.Check(err)
+
+		curr_time := time.Now().Format(time.RFC3339)
+
+		params := map[string]string{
+			"api_key":      ApiKey,
+			"starDateTime": curr_time,
+			//"lineupId" : "USA-ECHOST-DEFAULT",
+			//"imageSize":"Md",
+			"imageAspectTV":    "16x9",
+			"size":             "Basic",
+			"imageSize":        "Sm",
+			"excludeChannels":  "music, ppv, adult",
+			"enhancedCallSign": "true",
+		}
+
+		com.BuildQuery(req, params)
+
+		res, err := client.Do(req)
+
+		//body, err := ioutil.ReadAll(res.Body)
+
+		//if err != nil {
+		//	log.Fatalf("ERROR: %s", err)
+		//}
+		//
+		//fmt.Printf("%s", body)
+
+		decoder := json.NewDecoder(res.Body)
+
+		err = decoder.Decode(&lineup.Stations)
+
+		com.Check(err)
+
+		the_json, err := json.Marshal(lineup.Stations)
+
+		com.Check(err)
+
+		timeout := time.Hour * 4
+		rc.Set(lineup.LineupId, the_json, timeout)
+
+	} else {
+		json.Unmarshal([]byte(val), &lineup.Stations)
+	}
 
 	return lineup.Stations
 

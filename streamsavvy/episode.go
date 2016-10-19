@@ -55,7 +55,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	epi := &GuideBoxEpisodes{}
 
 
-	client := r.Context().Value("client").(*redis.Client)
+	client := r.Context().Value("redis_client").(*redis.Client)
 
 	val, err := client.Get(guideboxId).Result()
 

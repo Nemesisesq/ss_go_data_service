@@ -33,7 +33,7 @@ func NewCacheAccessor(addr, pass string, db int) (*CacheAccessor, error) {
 
 func (ca *CacheAccessor) Set(request *http.Request, client redis.Client) context.Context {
 	//gcontext.Set(request, "client", *client)
-	return context.WithValue(request.Context(), "client", &client)
+	return context.WithValue(request.Context(), "redis_client", &client)
 }
 
 type RedisClient struct {
