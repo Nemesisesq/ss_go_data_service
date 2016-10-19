@@ -4,6 +4,11 @@
 	"GodepVersion": "v74",
 	"Deps": [
 		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.2-20-gab7e46e",
+			"Rev": "ab7e46ea22bd379e660230844f96d20f1dabc21a"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/negroni",
 			"Comment": "v0.2.0-57-g6edff56",
 			"Rev": "6edff56736fa7bd546812f149e8cdaae61e5a38f"
@@ -39,7 +44,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "28d1bd4fbe7e56c9025ffe3a89113fa4f5e48f31"
+			"Rev": "8b4af36cd21a1f85a7484b49feb7c79363106d8e"
 		},
 		{
 			"ImportPath": "gopkg.in/bsm/ratelimit.v1",

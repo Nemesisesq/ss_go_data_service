@@ -2,9 +2,7 @@ package streamsavvy
 
 import (
 	"net/http"
-	//"github.com/gorilla/context"
 	"gopkg.in/mgo.v2"
-	//"gopkg.in/mgo.v2/bson"
 	"encoding/json"
 	"github.com/nemesisesq/ss_data_service/common"
 	"log"
