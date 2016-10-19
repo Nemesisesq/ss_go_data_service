@@ -37,8 +37,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId string   `json:"place_id"`
-	Types   []string `json:"types"`
+	PlaceId           string   `json:"place_id"`
+	Types             []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -106,13 +106,18 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	guideObj.Lat = vars["lat"]
+
 	guideObj.Long = vars["long"]
 
 	guideObj.CheckLineUpsForGeoCoords()
 
 	guideObj.SetZipCode()
+
 	lineup := guideObj.GetLineups(r)
+
 	stations := guideObj.GetTVGrid(r, lineup)
+
+	stations = guideObj.FilterAirings(stations)
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
@@ -303,15 +308,32 @@ func (g *Guide) SetZipCode() {
 	}
 }
 
-
 func (g *Guide) FilterAirings(stations []Station) (filteredStations []Station) {
+	const format = "2006-01-02T15:04Z"
 
-	//for _, station := range stations {
-	//	newAirings := []Airing{}
-	//	for _, airing := range station.Airings {
-	//
-	//	}
-	//}
+	for _, station := range stations {
+
+		newAirings := []Airing{}
+
+		for _, airing := range station.Airings {
+			t, err := time.Parse(format, airing.EndTime)
+			com.Check(err)
+			delta := time.Now().Sub(t)
+
+			if delta > 0 {
+				// happened in the past
+
+			} else {
+				// happening in the future
+				newAirings = append(newAirings, airing)
+			}
+
+		}
+
+		station.Airings = newAirings
+
+		filteredStations = append(filteredStations, station)
+	}
 
 	return filteredStations
 }
