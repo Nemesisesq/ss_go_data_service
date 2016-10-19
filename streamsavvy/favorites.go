@@ -2,7 +2,7 @@ package streamsavvy
 
 import (
 	"net/http"
-	"github.com/gorilla/context"
+	//"github.com/gorilla/context"
 	"gopkg.in/mgo.v2"
 	//"gopkg.in/mgo.v2/bson"
 	"encoding/json"
@@ -20,9 +20,9 @@ func GetTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	testUser.UserName = "test"
 
-	db := context.Get(r, "db").(*mgo.Database)
+	db := r.Context().Value("db").(mgo.Database)
 
-	collection := db.C("favorites")
+	collection := *db.C("favorites")
 
 	collection.Find(bson.M{"user_uuid" : 999 }).One(&favorites)
 
@@ -31,9 +31,9 @@ func GetTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 func DeleteTestFavorites(w http.ResponseWriter, r *http.Request) {
 
-	db := context.Get(r, "db").(*mgo.Database)
+	db := r.Context().Value("db").(mgo.Database)
 
-	c := db.C("favorites")
+	c := *db.C("favorites")
 
 	c.RemoveAll("")
 
@@ -61,8 +61,8 @@ func RemoveContentFromTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	common.Check(err)
 
-	db := context.Get(r, "db").(*mgo.Database)
-	c := db.C("favorites")
+	db := r.Context().Value("db").(mgo.Database)
+	c := *db.C("favorites")
 
 	delQuery := c.Find(bson.M{"user_uuid" : 999})
 
