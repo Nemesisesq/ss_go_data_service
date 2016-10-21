@@ -24,6 +24,7 @@ type Favorites struct {
 
 type User struct {
 	UserName string `json:"user_name" bson:"user_name"`
-	Password string `json:"password"`
-	Email	string `json:"email"`
+	Password string `json:"password" bson:"password"`
+	Email	string `json:"email" bson:"email"`
+	UserId string `json:"user_id" bson:"user_id"`
 }

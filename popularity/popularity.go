@@ -1,14 +1,15 @@
 package popularity
 
 import (
-    "encoding/json"
+	"encoding/json"
 	"fmt"
-	"gopkg.in/mgo.v2"
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/gorilla/context"
-	com "github.com/nemesisesq/ss_data_service/common"
+	"github.com/nemesisesq/ss_data_service/database"
+	"gopkg.in/mgo.v2"
 )
 
 type Results struct {
@@ -39,7 +40,7 @@ func UpdatePopularShows(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*mgo.Database)
 
-	col := com.GetCollection()
+	col := database.GetCollection()
 
 	c := db.C(col)
 
@@ -89,8 +90,6 @@ func GetPopularShows(page int, air_date string, c *mgo.Collection) {
 
 }
 
-
-
 func GetPopularityScore(w http.ResponseWriter, r *http.Request) {
 
 	t := &ShowName{}
@@ -106,7 +105,7 @@ func GetPopularityScore(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*mgo.Database)
 
-	col := com.GetCollection()
+	col := database.GetCollection()
 	//defer session.Close()
 
 	c := db.C(col)

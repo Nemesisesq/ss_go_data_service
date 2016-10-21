@@ -167,7 +167,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 	val, err := rc.Get(lineup.LineupId).Result()
 	if err == redis.Nil {
 		the_json := GetFreshTVListingsGrid(lineup)
-		timeout := time.Hour * 4
+		timeout := time.Hour * 5
 		rc.Set(lineup.LineupId, the_json, timeout)
 
 	} else {

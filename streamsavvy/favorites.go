@@ -1,28 +1,33 @@
 package streamsavvy
 
 import (
-	"net/http"
-	"gopkg.in/mgo.v2"
 	"encoding/json"
-	"github.com/nemesisesq/ss_data_service/common"
-	"log"
 	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/nemesisesq/ss_data_service/common"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func GetTestFavorites(w http.ResponseWriter, r *http.Request) {
+func GetFavorites(w http.ResponseWriter, r *http.Request) {
 
-	testUser := &User{}
+	user := &User{}
 
 	favorites := &Favorites{}
 
-	testUser.UserName = "test"
+	query := r.URL.Query()
+
+ 	user.Email = query["email"][0]
+	user.UserName = query["name"][0]
+	user.UserId = r.Header["User-Id"][0]
 
 	db := r.Context().Value("db").(mgo.Database)
 
 	collection := *db.C("favorites")
 
-	collection.Find(bson.M{"user_uuid" : 999 }).One(&favorites)
+	collection.Find(bson.M{"user.user_id": user.UserId}).One(&favorites)
 
 	json.NewEncoder(w).Encode(&favorites.ContentList)
 }
@@ -48,7 +53,7 @@ func DeleteTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func RemoveContentFromTestFavorites(w http.ResponseWriter, r *http.Request) {
+func RemoveContentFromFavorites(w http.ResponseWriter, r *http.Request) {
 	content := &Content{}
 
 	favorites := &Favorites{}
@@ -59,19 +64,25 @@ func RemoveContentFromTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	common.Check(err)
 
+	userId := r.Header["User-Id"][0]
+
 	db := r.Context().Value("db").(mgo.Database)
 	c := *db.C("favorites")
 
-	delQuery := c.Find(bson.M{"user_uuid" : 999})
-
+	delQuery := c.Find(bson.M{"user.user_id": userId})
 
 	delQuery.One(&favorites)
 
 	newList := favorites.ContentList
 
-	for idx, value := range (favorites.ContentList) {
+	for idx, value := range favorites.ContentList {
 		if value.Title == content.Title {
-			newList = append(newList[:idx], newList[idx + 1:]...)
+			if len(newList) == 1 {
+				newList = []Content{}
+			} else {
+
+			newList = append(newList[:idx], newList[idx+1:]...)
+			}
 		}
 	}
 
@@ -92,14 +103,18 @@ func RemoveContentFromTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
-	testUser := &User{}
+func AddContentToFavorites(w http.ResponseWriter, r *http.Request) {
+	authUser := &User{}
 
 	favorites := &Favorites{}
 
 	content := &Content{}
 
-	testUser.UserName = "test"
+	userId := r.Header["User-Id"][0]
+
+	authUser.UserId = userId
+
+	//authUser.UserName = "test"
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -111,11 +126,10 @@ func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
 
 	c := *db.C("favorites")
 
-	query := c.Find(bson.M{"user_uuid" : 999})
+	query := c.Find(bson.M{"user.user_id": userId})
 
 	if dbCount, _ := query.Count(); dbCount == 0 {
-		favorites.User = *testUser
-		favorites.UserUUID = 999
+		favorites.User = *authUser
 
 		favorites.ContentList = append(favorites.ContentList, *content)
 		err = c.Insert(favorites)
@@ -123,7 +137,7 @@ func AddContentToTestFavorites(w http.ResponseWriter, r *http.Request) {
 	} else {
 		query.One(&favorites)
 		favorites.ContentList = append(favorites.ContentList, *content)
-		colQuery := bson.M{"user_uuid" : 999}
+		colQuery := bson.M{"user.user_id": userId}
 		err = c.Update(colQuery, favorites)
 	}
 

@@ -11,6 +11,7 @@ import (
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
 	"github.com/joho/godotenv"
 	com "github.com/nemesisesq/ss_data_service/common"
+	dbase "github.com/nemesisesq/ss_data_service/database"
 	edr "github.com/nemesisesq/ss_data_service/email_data_service"
 	gnote "github.com/nemesisesq/ss_data_service/gracenote"
 	"github.com/nemesisesq/ss_data_service/middleware"
@@ -31,20 +32,7 @@ func main() {
 
 	port := com.GetPort()
 
-	// Use the MongoDB `DATABASE_URL` from the env
-	dbURL := os.Getenv("MONGODB_URI")
-	// Use the MongoDB `DATABASE_NAME` from the env
-	dbName := com.GetDatabase()
-	// Set the MongoDB collection name
-	dbColl := com.GetCollection()
-
-	com.AnnounceMongoConnection(dbURL, dbName, dbColl)
-
-	// Creating the database accessor here.
-	// Pointer to this database accessor will be passed to the middleware.
-	dbAccessor, err := nigronimgosession.NewDatabaseAccessor(dbURL, dbName, dbColl)
-
-	com.Check(err)
+	dbAccessor := dbase.DBStartup()
 
 	// Create Redis Client
 	redis_url := os.Getenv("REDIS_URL")
@@ -63,10 +51,11 @@ func main() {
 	com.Check(err)
 
 	n := negroni.Classic()
-	n.Use(nigronimgosession.NewDatabase(*dbAccessor).Middleware())
+	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
 	x := middleware.NewRedisClient(*cacheAccessor)
 	n.Use(x.Middleware())
+
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", com.Index).Methods("GET")
@@ -76,9 +65,9 @@ func main() {
 	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices).Methods("POST")
 	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices).Methods("POST")
 	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings)
-	r.HandleFunc("/favorites/test", ss.GetTestFavorites)
-	r.HandleFunc("/favorites/add/test", ss.AddContentToTestFavorites)
-	r.HandleFunc("/favorites/remove/test", ss.RemoveContentFromTestFavorites).Methods("DELETE")
+	r.HandleFunc("/favorites", ss.GetFavorites)
+	r.HandleFunc("/favorites/add", ss.AddContentToFavorites)
+	r.HandleFunc("/favorites/remove", ss.RemoveContentFromFavorites).Methods("DELETE")
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
