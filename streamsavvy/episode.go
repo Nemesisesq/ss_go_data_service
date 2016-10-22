@@ -34,6 +34,8 @@ type Episode struct {
 	Thumbnail304X171           string      `json:"thumbnail_304x171"`
 	Thumbnail400X225           string      `json:"thumbnail_400x225"`
 	Thumbnail608X342           string      `json:"thumbnail_608x342"`
+	FreeWebSources             interface{} `json:"free_web_sources"`
+	FreeIosSources             interface{} `json:"free_ios_sources"`
 	SubscriptionWebSources     interface{} `json:"subscription_web_sources"`
 	SubscriptionIosSources     interface{} `json:"subscription_ios_sources"`
 	SubscriptionAndroidSources interface{} `json:"subscription_android_sources"`
@@ -54,7 +56,6 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	epi := &GuideBoxEpisodes{}
 
-
 	client := r.Context().Value("redis_client").(*redis.Client)
 
 	val, err := client.Get(guideboxId).Result()
@@ -70,6 +71,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
+
+		print(total_results)
 		epi.Results = episode_list
 
 		epi.GuideboxId = guideboxId

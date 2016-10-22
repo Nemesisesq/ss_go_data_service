@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
