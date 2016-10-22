@@ -45,7 +45,7 @@ type Episode struct {
 }
 type GuideBoxEpisodes struct {
 	GuideboxId    string    `bson:"guidebox_id"`
-	Results       []Episode `json:"results"`
+	Results       []interface{} `json:"results"`
 	TotalResults  int       `json:"total_results" bson:"total_results"`
 	TotalReturned int       `json:"total_returned" bson:"total_returned"`
 }
@@ -93,7 +93,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []Episode) {
+func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []interface{}) {
 
 	//TODO Logging
 
@@ -104,6 +104,7 @@ func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId stri
 	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
 	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
+	fmt.Println(url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
