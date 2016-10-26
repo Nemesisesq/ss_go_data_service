@@ -35,7 +35,7 @@ func main() {
 	dbAccessor := dbase.DBStartup()
 
 	// Create Redis Client
-	redis_url := os.Getenv("REDIS_URL")
+	redis_url := os.Getenv("REDISCLOUD_URL")
 
 	u, err := url.Parse(redis_url)
 
