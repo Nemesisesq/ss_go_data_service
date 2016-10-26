@@ -163,10 +163,10 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	return the_json
 }
 func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
-
+	log.SetFormatter(&log.JSONFormatter{})
 	rc := r.Context().Value("redis_client").(*redis.Client)
 	val, err := rc.Get(lineup.LineupId).Result()
-	log.Info(val)
+
 	if err == redis.Nil {
 		the_json := lineup.GetFreshTVListingsGrid()
 		timeout := time.Hour * 5
@@ -175,7 +175,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		com.Check(err)
 
 	} else {
-
+		log.Info("Redis Value Found")
 		json.Unmarshal([]byte(val), &lineup.Stations)
 	}
 
