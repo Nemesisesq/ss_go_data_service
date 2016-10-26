@@ -16,7 +16,6 @@ import (
 
 const format = "2006-01-02T15:04Z"
 
-
 type GeoCode struct {
 	Results []Result `json:"results"`
 }
@@ -69,20 +68,21 @@ type Guide struct {
 }
 
 type Program struct {
-	TMSID            string   `json:"tmsId"`
-	RootId           string   `json:"rootId"`
-	SeriesId         string   `json:"seriesId"`
-	SubType          string   `json:"subType"`
-	Title            string   `json:"title"`
-	EpisodeTitle     string   `json:"episodeTitle"`
-	ReleaseYear      int      `json:"releaseYear"`
-	ReleaseDate      string   `json:"releaseDate"`
-	OrigAirDate      string   `json:"origAirDate"`
-	TitleLang        string   `json:"titleLang"`
-	DescriptionLang  string   `json:"descriptionLang"`
-	EntityType       string   `json:"entityType"`
-	Genres           []string `json:"genres"`
-	ShortDescription string   `json:"shortDescription"`
+	TMSID            string  		`json:"tmsId"`
+	RootId           string  		`json:"rootId"`
+	SeriesId         string  		`json:"seriesId"`
+	SubType          string  		`json:"subType"`
+	Title            string  		`json:"title"`
+	EpisodeTitle     string  		`json:"episodeTitle"`
+	ReleaseYear      int     		`json:"releaseYear"`
+	ReleaseDate      string  		`json:"releaseDate"`
+	OrigAirDate      string  		`json:"origAirDate"`
+	TitleLang        string  		`json:"titleLang"`
+	DescriptionLang  string  		`json:"descriptionLang"`
+	EntityType       string  		`json:"entityType"`
+	Genres           []string		`json:"genres"`
+	ShortDescription string   		`json:"shortDescription"`
+	PreferredImage   map[string]interface{} `json:"preferredImage"`
 }
 
 type Station struct {
@@ -127,7 +127,6 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	req, err := http.NewRequest("GET", url, nil)
 
 	com.Check(err)
-
 
 	start_time := time.Now().Format(format)
 	end_time := time.Now().Add(time.Hour * 6).Format(format)
