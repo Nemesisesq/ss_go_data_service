@@ -120,7 +120,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	com.Check(err)
 }
 
-func GetFreshTVListingsGrid(lineup Lineup) []byte {
+func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	log.SetFormatter(&log.JSONFormatter{})
 	iClient := &http.Client{}
 	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
@@ -137,12 +137,14 @@ func GetFreshTVListingsGrid(lineup Lineup) []byte {
 		"endDateTime" : end_time,
 
 		"imageAspectTV":    "16x9",
-		"size":             "Basic",
+		"size":             "Detailed",
 		"imageSize":        "Sm",
-		"excludeChannels":  "music, ppv, adult",
+		"excludeChannels":  "music,ppv,adult",
 		"enhancedCallSign": "true",
 	}
 	com.BuildQuery(req, params)
+
+	fmt.Println(req.URL.RawQuery)
 
 	log.Info(req)
 
@@ -155,7 +157,7 @@ func GetFreshTVListingsGrid(lineup Lineup) []byte {
 
 	com.Check(err)
 
-	the_json, err := json.Marshal(lineup.Stations)
+	the_json, err := json.Marshal(&lineup.Stations)
 
 	com.Check(err)
 
@@ -166,9 +168,11 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 	rc := r.Context().Value("redis_client").(*redis.Client)
 	val, err := rc.Get(lineup.LineupId).Result()
 	if err == redis.Nil {
-		the_json := GetFreshTVListingsGrid(lineup)
+		the_json := lineup.GetFreshTVListingsGrid()
 		timeout := time.Hour * 5
 		rc.Set(lineup.LineupId, the_json, timeout)
+		err = json.Unmarshal(the_json, &lineup.Stations)
+		com.Check(err)
 
 	} else {
 		json.Unmarshal([]byte(val), &lineup.Stations)
