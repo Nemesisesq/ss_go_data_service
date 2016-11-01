@@ -49,7 +49,7 @@ type GuideBoxEpisodes struct {
 	TotalResults  int       `json:"total_results" bson:"total_results"`
 	TotalReturned int       `json:"total_returned" bson:"total_returned"`
 }
-it 
+
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	guideboxId := r.URL.Query().Get("guidebox_id")
