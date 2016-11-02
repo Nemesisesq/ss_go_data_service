@@ -10,7 +10,7 @@ import (
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"gopkg.in/redis.v4"
+	"gopkg.in/redis.v5"
 	log "github.com/Sirupsen/logrus"
 )
 

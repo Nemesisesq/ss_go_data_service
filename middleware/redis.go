@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"gopkg.in/redis.v4"
+	"gopkg.in/redis.v5"
 	"net/http"
 	"github.com/codegangsta/negroni"
 	//gcontext"github.com/gorilla/context"

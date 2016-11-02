@@ -7,8 +7,9 @@ import (
 	"encoding/json"
 
 	com "github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/redis.v4"
+	"gopkg.in/redis.v5"
 	"time"
+	log "github.com/Sirupsen/logrus"
 )
 
 type Episode struct {
@@ -49,6 +50,10 @@ type GuideBoxEpisodes struct {
 	TotalResults  int       `json:"total_results" bson:"total_results"`
 	TotalReturned int       `json:"total_returned" bson:"total_returned"`
 }
+func init()  {
+	log.SetFormatter(&log.JSONFormatter{})
+}
+
 
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
@@ -59,33 +64,31 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	client := r.Context().Value("redis_client").(*redis.Client)
 
 	val, err := client.Get(guideboxId).Result()
+	ttl, err := client.TTL(guideboxId).Result()
 
-	if err == redis.Nil {
+	log.Info(fmt.Sprintf("the redis error is %v", err))
+	log.Info(fmt.Sprintf("the value is %v", val))
 
-		total_results, episode_list := epi.GetAllEpisodes(0, 25, guideboxId)
 
-		if total_results > len(episode_list) {
-			for total_results > len(episode_list) {
-				_, res := epi.GetAllEpisodes(len(episode_list), 25, guideboxId)
-				episode_list = append(episode_list, res...)
-			}
+	if err == redis.Nil || len(val) == 0  {
 
+		log.Info(fmt.Sprintf("Getting %v, not present in cache", guideboxId))
+
+		episode_list, total_results := epi.GetAllEpisodes(guideboxId)
+
+		epi.CacheEpisode(total_results, episode_list, guideboxId, *client)
+
+		epi.Results = episode_list
+		log.Info(fmt.Sprintf("this is the value of epi %v", epi))
+
+	} else {
+		log.Info("checking TTL")
+		if ttl < 60 * 60 * 12 {
+			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
+			go epi.RefreshEpisodes(guideboxId, *client)
 		}
 
-		print(total_results)
-		epi.Results = episode_list
-
-		epi.GuideboxId = guideboxId
-		epi.TotalResults = total_results
-		epi.TotalReturned = len(episode_list)
-
-		val, err := json.Marshal(epi)
-		com.Check(err)
-
-		timeout := time.Hour * 24 * 3
-		err = client.Set(guideboxId, val, timeout).Err()
-		com.Check(err)
-	} else {
+		log.Info(fmt.Sprintf("%v found in cache", guideboxId))
 		json.Unmarshal([]byte(val), &epi)
 	}
 
@@ -93,7 +96,51 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []interface{}) {
+func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []interface{}, guideboxId string, client redis.Client){
+	print(total_results)
+	epi.Results = episode_list
+
+	log.Info(fmt.Sprintf("length of episode list %v", len(episode_list)))
+
+	epi.GuideboxId = guideboxId
+	epi.TotalResults = total_results
+	epi.TotalReturned = len(episode_list)
+
+	val, err := json.Marshal(epi)
+	com.Check(err)
+
+	timeout := time.Hour * 24 * 3
+	err = client.Set(guideboxId, val, timeout).Err()
+	com.Check(err)
+
+	json.Unmarshal([]byte(val), &epi)
+}
+
+func (epi GuideBoxEpisodes) RefreshEpisodes(guideboxId string, client redis.Client){
+	episode_list, total_results := epi.GetAllEpisodes(guideboxId)
+	epi.CacheEpisode(total_results, episode_list, guideboxId, client)
+
+}
+
+func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []interface{}, total_results int) {
+
+	total_results, episode_list = epi.GetEpisodes(0, 25, guideboxId)
+
+	if total_results > len(episode_list) {
+		for total_results > len(episode_list) {
+			_, res := epi.GetEpisodes(len(episode_list), 25, guideboxId)
+			episode_list = append(episode_list, res...)
+		}
+
+	}
+
+	print(total_results)
+	epi.Results = episode_list
+
+	return episode_list, total_results
+}
+
+func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []interface{}) {
 
 	//TODO Logging
 
@@ -104,7 +151,7 @@ func (gbe GuideBoxEpisodes) GetAllEpisodes(start int, chunk int, guideboxId stri
 	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
 	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
-	fmt.Println(url)
+
 
 	req, err := http.NewRequest("GET", url, nil)
 
