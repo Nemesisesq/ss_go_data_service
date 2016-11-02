@@ -2,17 +2,16 @@ package proto
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
 
-	ierrors "gopkg.in/redis.v4/internal/errors"
+	"gopkg.in/redis.v5/internal"
 )
 
-type MultiBulkParse func(*Reader, int64) (interface{}, error)
+const errEmptyReply = internal.RedisError("redis: reply is empty")
 
-var errEmptyReply = errors.New("redis: reply is empty")
+type MultiBulkParse func(*Reader, int64) (interface{}, error)
 
 type Reader struct {
 	src *bufio.Reader
@@ -59,7 +58,7 @@ func (p *Reader) ReadLine() ([]byte, error) {
 		return nil, errEmptyReply
 	}
 	if isNilReply(line) {
-		return nil, ierrors.Nil
+		return nil, internal.Nil
 	}
 	return line, nil
 }
@@ -78,7 +77,7 @@ func (p *Reader) ReadReply(m MultiBulkParse) (interface{}, error) {
 	case IntReply:
 		return parseIntValue(line)
 	case StringReply:
-		return p.parseBytesValue(line)
+		return p.readBytesValue(line)
 	case ArrayReply:
 		n, err := parseArrayLen(line)
 		if err != nil {
@@ -113,7 +112,7 @@ func (p *Reader) ReadBytesReply() ([]byte, error) {
 	case ErrorReply:
 		return nil, parseErrorValue(line)
 	case StringReply:
-		return p.parseBytesValue(line)
+		return p.readBytesValue(line)
 	case StatusReply:
 		return parseStatusValue(line)
 	default:
@@ -207,9 +206,9 @@ func (p *Reader) ReadScanReply() ([]string, uint64, error) {
 	return keys, cursor, err
 }
 
-func (p *Reader) parseBytesValue(line []byte) ([]byte, error) {
+func (p *Reader) readBytesValue(line []byte) ([]byte, error) {
 	if isNilReply(line) {
-		return nil, ierrors.Nil
+		return nil, internal.Nil
 	}
 
 	replyLen, err := strconv.Atoi(string(line[1:]))
@@ -245,7 +244,7 @@ func isNilReply(b []byte) bool {
 }
 
 func parseErrorValue(line []byte) error {
-	return ierrors.RedisError(string(line[1:]))
+	return internal.RedisError(string(line[1:]))
 }
 
 func parseStatusValue(line []byte) ([]byte, error) {
@@ -258,7 +257,7 @@ func parseIntValue(line []byte) (int64, error) {
 
 func parseArrayLen(line []byte) (int64, error) {
 	if isNilReply(line) {
-		return 0, ierrors.Nil
+		return 0, internal.Nil
 	}
 	return parseIntValue(line)
 }

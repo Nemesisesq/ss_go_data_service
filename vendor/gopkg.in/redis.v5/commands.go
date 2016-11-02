@@ -5,8 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"gopkg.in/redis.v4/internal"
-	"gopkg.in/redis.v4/internal/errors"
+	"gopkg.in/redis.v5/internal"
 )
 
 func readTimeout(timeout time.Duration) time.Duration {
@@ -200,7 +199,7 @@ type Cmdable interface {
 	ShutdownSave() *StatusCmd
 	ShutdownNoSave() *StatusCmd
 	SlaveOf(host, port string) *StatusCmd
-	Time() *StringSliceCmd
+	Time() *TimeCmd
 	Eval(script string, keys []string, args ...interface{}) *Cmd
 	EvalSha(sha1 string, keys []string, args ...interface{}) *Cmd
 	ScriptExists(scripts ...string) *BoolSliceCmd
@@ -789,10 +788,14 @@ func (c *cmdable) SetNX(key string, value interface{}, expiration time.Duration)
 // Zero expiration means the key has no expiration time.
 func (c *cmdable) SetXX(key string, value interface{}, expiration time.Duration) *BoolCmd {
 	var cmd *BoolCmd
-	if usePrecise(expiration) {
-		cmd = NewBoolCmd("set", key, value, "px", formatMs(expiration), "xx")
+	if expiration == 0 {
+		cmd = NewBoolCmd("set", key, value, "xx")
 	} else {
-		cmd = NewBoolCmd("set", key, value, "ex", formatSec(expiration), "xx")
+		if usePrecise(expiration) {
+			cmd = NewBoolCmd("set", key, value, "px", formatMs(expiration), "xx")
+		} else {
+			cmd = NewBoolCmd("set", key, value, "ex", formatSec(expiration), "xx")
+		}
 	}
 	c.process(cmd)
 	return cmd
@@ -1710,7 +1713,7 @@ func (c *cmdable) shutdown(modifier string) *StatusCmd {
 		}
 	} else {
 		// Server did not quit. String reply contains the reason.
-		cmd.err = errors.RedisError(cmd.val)
+		cmd.err = internal.RedisError(cmd.val)
 		cmd.val = ""
 	}
 	return cmd
@@ -1742,9 +1745,8 @@ func (c *cmdable) Sync() {
 	panic("not implemented")
 }
 
-// TODO: add TimeCmd and use it here
-func (c *cmdable) Time() *StringSliceCmd {
-	cmd := NewStringSliceCmd("time")
+func (c *cmdable) Time() *TimeCmd {
+	cmd := NewTimeCmd("time")
 	c.process(cmd)
 	return cmd
 }

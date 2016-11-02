@@ -71,39 +71,34 @@
 			"Rev": "3569c88678d88179dcbd68d02ab081cbca3cd4d0"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4/internal",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5/internal",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4/internal/consistenthash",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5/internal/consistenthash",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4/internal/errors",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5/internal/hashtag",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4/internal/hashtag",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5/internal/pool",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		},
 		{
-			"ImportPath": "gopkg.in/redis.v4/internal/pool",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
-		},
-		{
-			"ImportPath": "gopkg.in/redis.v4/internal/proto",
-			"Comment": "v4.2.1",
-			"Rev": "5a272d03b960a72c61e5025a7d6e8da5d8815442"
+			"ImportPath": "gopkg.in/redis.v5/internal/proto",
+			"Comment": "v5.0.1",
+			"Rev": "80cf5d1652d5590c35edc6c2dc1aa354790e3010"
 		}
 	]
 }

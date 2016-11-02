@@ -7,8 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/redis.v4/internal/pool"
-	"gopkg.in/redis.v4/internal/proto"
+	"gopkg.in/redis.v5/internal"
+	"gopkg.in/redis.v5/internal/pool"
+	"gopkg.in/redis.v5/internal/proto"
 )
 
 var (
@@ -88,6 +89,22 @@ func cmdString(cmd Cmder, val interface{}) string {
 
 }
 
+func cmdFirstKeyPos(cmd Cmder, info *CommandInfo) int {
+	switch cmd.arg(0) {
+	case "eval", "evalsha":
+		if cmd.arg(2) != "0" {
+			return 3
+		} else {
+			return 0
+		}
+	}
+	if info == nil {
+		internal.Logf("info for cmd=%s not found", cmd.arg(0))
+		return -1
+	}
+	return int(info.FirstKeyPos)
+}
+
 //------------------------------------------------------------------------------
 
 type baseCmd struct {
@@ -109,12 +126,11 @@ func (cmd *baseCmd) args() []interface{} {
 }
 
 func (cmd *baseCmd) arg(pos int) string {
-	if len(cmd._args) > pos {
-		if s, ok := cmd._args[pos].(string); ok {
-			return s
-		}
+	if pos < 0 || pos >= len(cmd._args) {
+		return ""
 	}
-	return ""
+	s, _ := cmd._args[pos].(string)
+	return s
 }
 
 func (cmd *baseCmd) readTimeout() *time.Duration {
@@ -130,6 +146,10 @@ func (cmd *baseCmd) setErr(e error) {
 }
 
 func newBaseCmd(args []interface{}) baseCmd {
+	if len(args) > 0 {
+		// Cmd name is expected to be in lower case.
+		args[0] = internal.ToLower(args[0].(string))
+	}
 	return baseCmd{_args: args}
 }
 
@@ -330,6 +350,48 @@ func (cmd *DurationCmd) readReply(cn *pool.Conn) error {
 		return err
 	}
 	cmd.val = time.Duration(n) * cmd.precision
+	return nil
+}
+
+//------------------------------------------------------------------------------
+
+type TimeCmd struct {
+	baseCmd
+
+	val time.Time
+}
+
+func NewTimeCmd(args ...interface{}) *TimeCmd {
+	cmd := newBaseCmd(args)
+	return &TimeCmd{
+		baseCmd: cmd,
+	}
+}
+
+func (cmd *TimeCmd) reset() {
+	cmd.val = time.Time{}
+	cmd.err = nil
+}
+
+func (cmd *TimeCmd) Val() time.Time {
+	return cmd.val
+}
+
+func (cmd *TimeCmd) Result() (time.Time, error) {
+	return cmd.val, cmd.err
+}
+
+func (cmd *TimeCmd) String() string {
+	return cmdString(cmd, cmd.val)
+}
+
+func (cmd *TimeCmd) readReply(cn *pool.Conn) error {
+	v, err := cn.Rd.ReadArrayReply(timeParser)
+	if err != nil {
+		cmd.err = err
+		return err
+	}
+	cmd.val = v.(time.Time)
 	return nil
 }
 

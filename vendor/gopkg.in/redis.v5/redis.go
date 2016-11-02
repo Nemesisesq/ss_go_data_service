@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"gopkg.in/redis.v4/internal"
-	"gopkg.in/redis.v4/internal/errors"
-	"gopkg.in/redis.v4/internal/pool"
+	"gopkg.in/redis.v5/internal"
+	"gopkg.in/redis.v5/internal/pool"
 )
 
 // Redis nil reply, .e.g. when key does not exist.
-const Nil = errors.Nil
+const Nil = internal.Nil
 
 func SetLogger(logger *log.Logger) {
 	internal.Logger = logger
@@ -24,7 +23,7 @@ type baseClient struct {
 }
 
 func (c *baseClient) String() string {
-	return fmt.Sprintf("Redis<%s db:%d>", c.opt.Addr, c.opt.DB)
+	return fmt.Sprintf("Redis<%s db:%d>", c.getAddr(), c.opt.DB)
 }
 
 func (c *baseClient) conn() (*pool.Conn, bool, error) {
@@ -42,7 +41,7 @@ func (c *baseClient) conn() (*pool.Conn, bool, error) {
 }
 
 func (c *baseClient) putConn(cn *pool.Conn, err error, allowTimeout bool) bool {
-	if errors.IsBadConn(err, allowTimeout) {
+	if internal.IsBadConn(err, allowTimeout) {
 		_ = c.connPool.Remove(cn, err)
 		return false
 	}
@@ -101,7 +100,7 @@ func (c *baseClient) Process(cmd Cmder) error {
 		if err := writeCmd(cn, cmd); err != nil {
 			c.putConn(cn, err, false)
 			cmd.setErr(err)
-			if err != nil && errors.IsRetryable(err) {
+			if err != nil && internal.IsRetryableError(err) {
 				continue
 			}
 			return err
@@ -109,7 +108,7 @@ func (c *baseClient) Process(cmd Cmder) error {
 
 		err = cmd.readReply(cn)
 		c.putConn(cn, err, readTimeout != nil)
-		if err != nil && errors.IsRetryable(err) {
+		if err != nil && internal.IsRetryableError(err) {
 			continue
 		}
 
@@ -138,6 +137,10 @@ func (c *baseClient) Close() error {
 		retErr = err
 	}
 	return retErr
+}
+
+func (c *baseClient) getAddr() string {
+	return c.opt.Addr
 }
 
 //------------------------------------------------------------------------------
@@ -194,28 +197,31 @@ func (c *Client) Pipelined(fn func(*Pipeline) error) ([]Cmder, error) {
 }
 
 func (c *Client) pipelineExec(cmds []Cmder) error {
-	var retErr error
-	failedCmds := cmds
+	var firstErr error
 	for i := 0; i <= c.opt.MaxRetries; i++ {
+		if i > 0 {
+			resetCmds(cmds)
+		}
+
 		cn, _, err := c.conn()
 		if err != nil {
-			setCmdsErr(failedCmds, err)
+			setCmdsErr(cmds, err)
 			return err
 		}
 
-		if i > 0 {
-			resetCmds(failedCmds)
-		}
-		failedCmds, err = execCmds(cn, failedCmds)
+		retry, err := execCmds(cn, cmds)
 		c.putConn(cn, err, false)
-		if err != nil && retErr == nil {
-			retErr = err
+		if err == nil {
+			return nil
 		}
-		if len(failedCmds) == 0 {
+		if firstErr == nil {
+			firstErr = err
+		}
+		if !retry {
 			break
 		}
 	}
-	return retErr
+	return firstErr
 }
 
 func (c *Client) pubSub() *PubSub {
