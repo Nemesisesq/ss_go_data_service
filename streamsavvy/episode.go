@@ -10,6 +10,7 @@ import (
 	"gopkg.in/redis.v5"
 	"time"
 	log "github.com/Sirupsen/logrus"
+	"reflect"
 )
 
 type Episode struct {
@@ -82,8 +83,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		log.Info(fmt.Sprintf("this is the value of epi %v", epi))
 
 	} else {
-		log.Info("checking TTL")
-		if ttl < 60 * 60 * 12 {
+		log.Info("checking TTL" , reflect.TypeOf(ttl))
+		if ttl < time.Hour * 12 {
 			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
 			go epi.RefreshEpisodes(guideboxId, *client)
 		}
