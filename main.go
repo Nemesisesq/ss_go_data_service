@@ -70,6 +70,7 @@ func main() {
 	r.HandleFunc("/favorites/remove", ss.RemoveContentFromFavorites).Methods("DELETE")
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
+	r.HandleFunc("/fff", func()(int){return 1})
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
 
 	c := cors.New(cors.Options{
