@@ -223,43 +223,43 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	seen := map[string]bool{}
-	resSS := []StreamingSource{}
-	for i, val := range NewPP.StreamingSources {
+	//seen := map[string]bool{}
+	//resSS := []StreamingSource{}
+	//for i, val := range NewPP.StreamingSources {
+	//
+	//	switch {
+	//
+	//	case GSM(`sling`, val.Source):
+	//
+	//		if seen["sling"] {
+	//
+	//		} else {
+	//
+	//			NewPP.StreamingSources[i].Source = "sling"
+	//			resSS = append(resSS, NewPP.StreamingSources[i])
+	//			seen["sling"] = true
+	//		}
+	//	case GSM(`vue`, val.Source):
+	//		if seen["ps_vue"] {
+	//
+	//		} else {
+	//
+	//			NewPP.StreamingSources[i].Source = "ps_vue"
+	//			resSS = append(resSS, NewPP.StreamingSources[i])
+	//			seen["ps_vue"] = true
+	//		}
+	//
+	//	case GSM(`ota`, val.Source):
+	//		continue
+	//
+	//	default:
+	//		resSS = append(resSS, NewPP.StreamingSources[i])
+	//
+	//	}
+	//
+	//}
 
-		switch {
-
-		case GSM(`sling`, val.Source):
-
-			if seen["sling"] {
-
-			} else {
-
-				NewPP.StreamingSources[i].Source = "sling"
-				resSS = append(resSS, NewPP.StreamingSources[i])
-				seen["sling"] = true
-			}
-		case GSM(`vue`, val.Source):
-			if seen["ps_vue"] {
-
-			} else {
-
-				NewPP.StreamingSources[i].Source = "ps_vue"
-				resSS = append(resSS, NewPP.StreamingSources[i])
-				seen["ps_vue"] = true
-			}
-
-		case GSM(`ota`, val.Source):
-			continue
-
-		default:
-			resSS = append(resSS, NewPP.StreamingSources[i])
-
-		}
-
-	}
-
-	NewPP.StreamingSources = resSS
+	//NewPP.StreamingSources = resSS
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewPP)
