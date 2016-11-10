@@ -10,6 +10,8 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type RawPayload struct {
@@ -31,8 +33,25 @@ type StreamingSource struct {
 //	TypeName []*StreamingSource
 //}
 
-type PP struct {
-	StreamingSources []StreamingSource `json:"streamingServices"`
+type LiveShowStreamingMetaData struct {
+	StreamingSources               []StreamingSource `json:"streamingServices" bson:"streamingServices"`
+	StreamingSourceLiveShowMatches ShowServiceMatchList `json:"streaming_source_live_show_matches" bson:"streaming_source_live_show_matches"`
+}
+
+type ShowServiceMatchList struct {
+	NetworkName       string `json:"network_name"bson:"network_name"`
+	CallsignPrimary   string `json:"callsign_primary" bson:"callsign_primary"`
+	CallsignSecondary string `json:"callsign_secondary" bson:"callsign_secondary"`
+	Services          []App  `json:"services" bson:"services"`
+	DefaultRank       string `json:"default_rank" bson:"default_rank"`
+}
+
+type App struct {
+	App      string                `json:"app" bson:"app"`
+	Service  string                `json:"service" bson:"service"`
+	Template map[string]interface{} `json:"template" bson:"template"`
+	Link     map[string]interface{} `json:"link" bson:"link"`
+	Price    map[string]interface{} `json:"price" bson:"price"`
 }
 
 type Links struct {
@@ -46,6 +65,13 @@ type ViewingWindows struct {
 	Live       []StreamingSource `json:"live"`
 	OnDemand   []StreamingSource `json:"on_demand"`
 	Misc       []StreamingSource `json:"misc"`
+}
+
+type NotificationContent struct {
+	AppName     string `json:"app_name" bson:"app_name"`
+	Template    string `json:"template" bson:"template"`
+	Versions    string `json:"versions" bson:"versions"`
+	ServiceName string `json:"service_name" bson:"service_name"`
 }
 
 func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +142,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 		ss_slice[idx] = *streamSource
 	}
 
-	ODPayload := &PP{}
+	ODPayload := &LiveShowStreamingMetaData{}
 
 	for _, val := range ss_slice {
 		if CheckIfLowestTier(ss_slice, val.Source) {
@@ -133,7 +159,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 
 func CheckIfLowestTier(ss_slice []StreamingSource, source string) bool {
 
-	source_slice := &PP{}
+	source_slice := &LiveShowStreamingMetaData{}
 
 	source_slice.StreamingSources = ss_slice
 
@@ -157,7 +183,7 @@ func CheckIfLowestTier(ss_slice []StreamingSource, source string) bool {
 	return x
 }
 
-func (a PP) CheckStreamingServicesForSource(source string) bool {
+func (a LiveShowStreamingMetaData) CheckStreamingServicesForSource(source string) bool {
 	for _, val := range a.StreamingSources {
 		if val.Source == source {
 			return true
@@ -167,7 +193,7 @@ func (a PP) CheckStreamingServicesForSource(source string) bool {
 	return false
 }
 
-func (a *PP) RemoveDuplicates() {
+func (a *LiveShowStreamingMetaData) RemoveDuplicates() {
 	m := map[string]bool{}
 
 	for _, i := range a.StreamingSources {
@@ -199,7 +225,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	com.Check(err)
 
-	processedPayloads := &PP{}
+	processedPayloads := &LiveShowStreamingMetaData{}
 	decoder = json.NewDecoder(res.Body)
 	err = decoder.Decode(&processedPayloads)
 	com.Check(err)
@@ -215,7 +241,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	NewPP := &PP{}
+	NewPP := &LiveShowStreamingMetaData{}
 
 	for _, val := range processedPayloads.StreamingSources {
 		if CheckIfLowestTier(processedPayloads.StreamingSources, val.Source) {
@@ -223,43 +249,72 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//seen := map[string]bool{}
-	//resSS := []StreamingSource{}
-	//for i, val := range NewPP.StreamingSources {
-	//
-	//	switch {
-	//
-	//	case GSM(`sling`, val.Source):
-	//
-	//		if seen["sling"] {
-	//
-	//		} else {
-	//
-	//			NewPP.StreamingSources[i].Source = "sling"
-	//			resSS = append(resSS, NewPP.StreamingSources[i])
-	//			seen["sling"] = true
-	//		}
-	//	case GSM(`vue`, val.Source):
-	//		if seen["ps_vue"] {
-	//
-	//		} else {
-	//
-	//			NewPP.StreamingSources[i].Source = "ps_vue"
-	//			resSS = append(resSS, NewPP.StreamingSources[i])
-	//			seen["ps_vue"] = true
-	//		}
-	//
-	//	case GSM(`ota`, val.Source):
-	//		continue
-	//
-	//	default:
-	//		resSS = append(resSS, NewPP.StreamingSources[i])
-	//
-	//	}
-	//
-	//}
+	seen := map[string]bool{}
+	resSS := []StreamingSource{}
+	for i, val := range NewPP.StreamingSources {
 
-	//NewPP.StreamingSources = resSS
+		switch {
+
+		case GSM(`sling`, val.Source):
+
+			if seen["sling"] {
+
+			} else {
+
+				NewPP.StreamingSources[i].Source = "sling"
+				resSS = append(resSS, NewPP.StreamingSources[i])
+				seen["sling"] = true
+			}
+		case GSM(`vue`, val.Source):
+			if seen["ps_vue"] {
+
+			} else {
+
+				NewPP.StreamingSources[i].Source = "ps_vue"
+				resSS = append(resSS, NewPP.StreamingSources[i])
+				seen["ps_vue"] = true
+			}
+
+		case GSM(`ota`, val.Source):
+			continue
+
+		default:
+			resSS = append(resSS, NewPP.StreamingSources[i])
+
+		}
+
+	}
+
+	NewPP.StreamingSources = resSS
+
+	db := r.Context().Value("db").(mgo.Database)
+
+	col := db.C("live_streaming_services")
+
+	ss_detail := &ShowServiceMatchList{}
+
+	//fmt.Println(rawPayload.CallLetters, rawPayload.DisplayName)
+
+	var mgoQuery = []bson.M{}
+
+	if rawPayload.CallLetters != "" {
+		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.CallLetters})
+		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.CallLetters})
+	}
+
+	if rawPayload.DisplayName != "" {
+		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.DisplayName})
+		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.DisplayName})
+	}
+
+	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
+
+	//fmt.Println(NewPP)
+	fmt.Println(ss_detail)
+
+	if err == nil {
+		NewPP.StreamingSourceLiveShowMatches = *ss_detail
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewPP)
