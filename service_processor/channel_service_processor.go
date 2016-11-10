@@ -48,6 +48,7 @@ type ShowServiceMatchList struct {
 
 type App struct {
 	App      string                `json:"app" bson:"app"`
+	AppIdentifier string		`json:"app_identifier" bson:"app_identifier"`
 	Service  string                `json:"service" bson:"service"`
 	Template map[string]interface{} `json:"template" bson:"template"`
 	Link     map[string]interface{} `json:"link" bson:"link"`
@@ -309,9 +310,7 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
 
-	//fmt.Println(NewPP)
-	fmt.Println(ss_detail)
-
+	
 	if err == nil {
 		NewPP.StreamingSourceLiveShowMatches = *ss_detail
 	}
