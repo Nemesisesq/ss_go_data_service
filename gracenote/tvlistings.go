@@ -12,6 +12,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/redis.v5"
+	"sort"
+	"strconv"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -58,7 +60,7 @@ type Lineup struct {
 	Name     string                 `json:"name" bson:"name"`
 	Location string                 `json:"location" bson:"location"`
 	MSO      map[string]interface{} `json:"mso" bson:"mso"`
-	Stations []Station
+	Stations
 }
 
 type Guide struct {
@@ -85,6 +87,10 @@ type Program struct {
 	PreferredImage   map[string]interface{} `json:"preferredImage"`
 }
 
+type StationMetaData struct {
+	DefaultRank string `json:"default_rank" bson:"default_rank"`
+}
+
 type Station struct {
 	StationId         string                 `json:"stationId"`
 	CallSign          string                 `json:"callSign"`
@@ -92,20 +98,22 @@ type Station struct {
 	Channel           string                 `json:"channel"`
 	PreferredImage    map[string]interface{} `json:"preferredImage"`
 	Airings           []Airing               `json:"airings"`
-
-
+	DefaultRank       int                    `json:"default_rank"`
 }
 
 type Stations []Station
 
-func(slice Stations) Len() int {
+func (slice Stations) Len() int {
 	return len(slice)
 }
 
-func(slice Stations) Less(i, j int) bool {
-	return true
+func (slice Stations) Less(i, j int) bool {
+	return slice[i].DefaultRank < slice[j].DefaultRank
 }
 
+func (slice Stations) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
+}
 type Airing struct {
 	StartTime string   `json:"startTime"`
 	EndTime   string   `json:"endTime"`
@@ -285,7 +293,7 @@ func (g *Guide) SetZipCode() {
 	}
 }
 
-func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStations []Station) {
+func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStations Stations) {
 
 	db := r.Context().Value("db").(mgo.Database)
 	col := db.C("live_streaming_services")
@@ -309,7 +317,11 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 			fmt.Println(count, station.CallSign)
 		}
 		if count > 0 {
+			md := &StationMetaData{}
+			err := col.Find(bson.M{"$or": query}).One(&md)
+			com.Check(err)
 
+			station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
 			//fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
 			newAirings := []Airing{}
 			for _, airing := range station.Airings {
@@ -329,9 +341,17 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 			filteredStations = append(filteredStations, station)
 		}
 	}
+
+	for _, value := range filteredStations {
+		fmt.Println(value.CallSign, value.DefaultRank)
+	}
 	fmt.Println(len(filteredStations))
 
+	sort.Sort(filteredStations)
 
+	for _, value := range filteredStations {
+		fmt.Println(value.CallSign, value.DefaultRank)
+	}
 
 	return filteredStations
 }
