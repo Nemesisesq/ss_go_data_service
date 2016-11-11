@@ -92,6 +92,18 @@ type Station struct {
 	Channel           string                 `json:"channel"`
 	PreferredImage    map[string]interface{} `json:"preferredImage"`
 	Airings           []Airing               `json:"airings"`
+
+
+}
+
+type Stations []Station
+
+func(slice Stations) Len() int {
+	return len(slice)
+}
+
+func(slice Stations) Less(i, j int) bool {
+	return true
 }
 
 type Airing struct {
@@ -113,7 +125,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.SetZipCode()
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
-	//stations = guideObj.FilterAirings(stations, r)
+	stations = guideObj.FilterAirings(stations, r)
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
@@ -318,5 +330,8 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 		}
 	}
 	fmt.Println(len(filteredStations))
+
+
+
 	return filteredStations
 }
