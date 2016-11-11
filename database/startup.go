@@ -1,13 +1,12 @@
 package database
 
 import (
-	"os"
 	"github.com/joeljames/nigroni-mgo-session"
 	com "github.com/nemesisesq/ss_data_service/common"
-
+	"os"
 )
 
-func DBStartup() nigronimgosession.DatabaseAccessor{
+func DBStartup() nigronimgosession.DatabaseAccessor {
 	dbURL := os.Getenv("MONGODB_URI")
 	// Use the MongoDB `DATABASE_NAME` from the env
 	dbName := GetDatabase()

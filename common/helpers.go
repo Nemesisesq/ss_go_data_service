@@ -1,13 +1,13 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net/http"
-	"encoding/json"
 	"os"
-	"github.com/joho/godotenv"
-	log "github.com/Sirupsen/logrus"
 )
 
 func Check(e error) {
@@ -24,7 +24,6 @@ func BuildQuery(r *http.Request, m map[string]string) {
 	}
 	r.URL.RawQuery = q.Encode()
 }
-
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello world")

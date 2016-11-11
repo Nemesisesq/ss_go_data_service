@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/redis.v5"
-	log "github.com/Sirupsen/logrus"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -68,20 +68,20 @@ type Guide struct {
 }
 
 type Program struct {
-	TMSID            string  		`json:"tmsId"`
-	RootId           string  		`json:"rootId"`
-	SeriesId         string  		`json:"seriesId"`
-	SubType          string  		`json:"subType"`
-	Title            string  		`json:"title"`
-	EpisodeTitle     string  		`json:"episodeTitle"`
-	ReleaseYear      int     		`json:"releaseYear"`
-	ReleaseDate      string  		`json:"releaseDate"`
-	OrigAirDate      string  		`json:"origAirDate"`
-	TitleLang        string  		`json:"titleLang"`
-	DescriptionLang  string  		`json:"descriptionLang"`
-	EntityType       string  		`json:"entityType"`
-	Genres           []string		`json:"genres"`
-	ShortDescription string   		`json:"shortDescription"`
+	TMSID            string                 `json:"tmsId"`
+	RootId           string                 `json:"rootId"`
+	SeriesId         string                 `json:"seriesId"`
+	SubType          string                 `json:"subType"`
+	Title            string                 `json:"title"`
+	EpisodeTitle     string                 `json:"episodeTitle"`
+	ReleaseYear      int                    `json:"releaseYear"`
+	ReleaseDate      string                 `json:"releaseDate"`
+	OrigAirDate      string                 `json:"origAirDate"`
+	TitleLang        string                 `json:"titleLang"`
+	DescriptionLang  string                 `json:"descriptionLang"`
+	EntityType       string                 `json:"entityType"`
+	Genres           []string               `json:"genres"`
+	ShortDescription string                 `json:"shortDescription"`
 	PreferredImage   map[string]interface{} `json:"preferredImage"`
 }
 
@@ -113,7 +113,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.SetZipCode()
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
-	stations = guideObj.FilterAirings(stations)
+	stations = guideObj.FilterAirings(stations, r)
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
@@ -128,17 +128,18 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 
 	com.Check(err)
 
-	start_time := time.Now().Format(format)
-	end_time := time.Now().Add(time.Hour * 6).Format(format)
+	start_time := time.Now().Add(time.Hour * 5).Format(format)
+	fmt.Println(start_time)
+	end_time := time.Now().Add(time.Hour * 11).Format(format)
 	params := map[string]string{
-		"api_key":      ApiKey,
+		"api_key":       ApiKey,
 		"startDateTime": start_time,
-		"endDateTime" : end_time,
+		"endDateTime":   end_time,
 
 		"imageAspectTV":    "16x9",
 		"size":             "Detailed",
 		"imageSize":        "Sm",
-		"excludeChannels":  "music,ppv,adult",
+		"excludeChannels":  "ppv,adult",
 		"enhancedCallSign": "true",
 	}
 	com.BuildQuery(req, params)
@@ -175,7 +176,7 @@ func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
 		com.Check(err)
 
 	} else {
-		log.Info("Redis Value Found")
+		log.Info("Redis Value Found for ", lineup.LineupId)
 		json.Unmarshal([]byte(val), &lineup.Stations)
 	}
 
@@ -260,25 +261,45 @@ func (g *Guide) SetZipCode() {
 	}
 }
 
-func (g *Guide) FilterAirings(stations []Station) (filteredStations []Station) {
+func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStations []Station) {
+
+	db := r.Context().Value("db").(mgo.Database)
+	col := db.C("live_streaming_services")
+
 	for _, station := range stations {
-		newAirings := []Airing{}
-		for _, airing := range station.Airings {
-			t, err := time.Parse(format, airing.EndTime)
-			now := time.Now()
+		query := []bson.M{}
 
-			com.Check(err)
-
-			delta := t.Before(now)
-			if delta {
-				// happened in the past
-			} else {
-				newAirings = append(newAirings, airing)
-			}
+		if station.CallSign != "" {
+			query = append(query, bson.M{"callSign": station.CallSign})
+			query = append(query, bson.M{"affliateCallSign": station.CallSign})
 		}
-		station.Airings = newAirings
-		filteredStations = append(filteredStations, station)
-	}
 
+		if station.AffiliateCallSign != "" {
+			query = append(query, bson.M{"affiliateCallSign": station.AffiliateCallSign})
+			query = append(query, bson.M{"callSign": station.AffiliateCallSign})
+		}
+		count, _ := col.Find(bson.M{"$or": query}).Count()
+		fmt.Println(count)
+
+			fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
+			newAirings := []Airing{}
+			for _, airing := range station.Airings {
+				t, err := time.Parse(format, airing.EndTime)
+				now := time.Now()
+
+				com.Check(err)
+
+				delta := t.Before(now)
+				if delta {
+					// happened in the past
+				} else {
+					newAirings = append(newAirings, airing)
+				}
+			}
+			station.Airings = newAirings
+			filteredStations = append(filteredStations, station)
+
+	}
+	fmt.Println(len(filteredStations))
 	return filteredStations
 }

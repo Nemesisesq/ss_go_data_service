@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	com "github.com/nemesisesq/ss_data_service/common"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
 	"regexp"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type RawPayload struct {
@@ -34,7 +34,7 @@ type StreamingSource struct {
 //}
 
 type LiveShowStreamingMetaData struct {
-	StreamingSources               []StreamingSource `json:"streamingServices" bson:"streamingServices"`
+	StreamingSources               []StreamingSource    `json:"streamingServices" bson:"streamingServices"`
 	StreamingSourceLiveShowMatches ShowServiceMatchList `json:"streaming_source_live_show_matches" bson:"streaming_source_live_show_matches"`
 }
 
@@ -47,12 +47,12 @@ type ShowServiceMatchList struct {
 }
 
 type App struct {
-	App      string                `json:"app" bson:"app"`
-	AppIdentifier string		`json:"app_identifier" bson:"app_identifier"`
-	Service  string                `json:"service" bson:"service"`
-	Template map[string]interface{} `json:"template" bson:"template"`
-	Link     map[string]interface{} `json:"link" bson:"link"`
-	Price    map[string]interface{} `json:"price" bson:"price"`
+	App           string                 `json:"app" bson:"app"`
+	AppIdentifier string                 `json:"app_identifier" bson:"app_identifier"`
+	Service       string                 `json:"service" bson:"service"`
+	Template      map[string]interface{} `json:"template" bson:"template"`
+	Link          map[string]interface{} `json:"link" bson:"link"`
+	Price         map[string]interface{} `json:"price" bson:"price"`
 }
 
 type Links struct {
@@ -299,18 +299,17 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	var mgoQuery = []bson.M{}
 
 	if rawPayload.CallLetters != "" {
-		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.CallLetters})
+		mgoQuery = append(mgoQuery, bson.M{"callSign": rawPayload.CallLetters})
 		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.CallLetters})
 	}
 
 	if rawPayload.DisplayName != "" {
-		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.DisplayName})
+		mgoQuery = append(mgoQuery, bson.M{"callSign": rawPayload.DisplayName})
 		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.DisplayName})
 	}
 
 	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
 
-	
 	if err == nil {
 		NewPP.StreamingSourceLiveShowMatches = *ss_detail
 	}
@@ -476,7 +475,7 @@ func GetDeepLinks() map[string]Links {
 	}
 	deepLinks["itunes"] = Links{
 		DeepLinks: []string{"nil"},
-		AppStore: "https://itunes.apple.com",
+		AppStore:  "https://itunes.apple.com",
 	}
 	deepLinks["google_play"] = Links{
 		DeepLinks: []string{"nil"},

@@ -1,7 +1,5 @@
 package authentication
 
-
-
 //
 //import (
 //	"crypto/sha256"

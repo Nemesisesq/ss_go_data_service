@@ -6,11 +6,11 @@ import (
 	//"github.com/gorilla/context"
 	"encoding/json"
 
+	log "github.com/Sirupsen/logrus"
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/redis.v5"
-	"time"
-	log "github.com/Sirupsen/logrus"
 	"reflect"
+	"time"
 )
 
 type Episode struct {
@@ -46,15 +46,15 @@ type Episode struct {
 	PurchaseAndroidSources     interface{} `json:"purchase_android_sources"`
 }
 type GuideBoxEpisodes struct {
-	GuideboxId    string    `bson:"guidebox_id"`
+	GuideboxId    string        `bson:"guidebox_id"`
 	Results       []interface{} `json:"results"`
-	TotalResults  int       `json:"total_results" bson:"total_results"`
-	TotalReturned int       `json:"total_returned" bson:"total_returned"`
-}
-func init()  {
-	log.SetFormatter(&log.JSONFormatter{})
+	TotalResults  int           `json:"total_results" bson:"total_results"`
+	TotalReturned int           `json:"total_returned" bson:"total_returned"`
 }
 
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+}
 
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
@@ -70,8 +70,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	log.Info(fmt.Sprintf("the redis error is %v", err))
 	log.Info(fmt.Sprintf("the value is %v", val))
 
-
-	if err == redis.Nil || len(val) == 0  {
+	if err == redis.Nil || len(val) == 0 {
 
 		log.Info(fmt.Sprintf("Getting %v, not present in cache", guideboxId))
 
@@ -83,8 +82,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		log.Info(fmt.Sprintf("this is the value of epi %v", epi))
 
 	} else {
-		log.Info("checking TTL" , reflect.TypeOf(ttl))
-		if ttl < time.Hour * 12 {
+		log.Info("checking TTL", reflect.TypeOf(ttl))
+		if ttl < time.Hour*12 {
 			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
 			go epi.RefreshEpisodes(guideboxId, *client)
 		}
@@ -97,7 +96,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []interface{}, guideboxId string, client redis.Client){
+func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []interface{}, guideboxId string, client redis.Client) {
 	print(total_results)
 	epi.Results = episode_list
 
@@ -117,7 +116,7 @@ func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []inter
 	json.Unmarshal([]byte(val), &epi)
 }
 
-func (epi GuideBoxEpisodes) RefreshEpisodes(guideboxId string, client redis.Client){
+func (epi GuideBoxEpisodes) RefreshEpisodes(guideboxId string, client redis.Client) {
 	episode_list, total_results := epi.GetAllEpisodes(guideboxId)
 	epi.CacheEpisode(total_results, episode_list, guideboxId, client)
 
@@ -152,7 +151,6 @@ func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string)
 	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
 	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
-
 
 	req, err := http.NewRequest("GET", url, nil)
 

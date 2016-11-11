@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	//"github.com/gorilla/context"
-	mgo "gopkg.in/mgo.v2"
 	"context"
+	mgo "gopkg.in/mgo.v2"
 )
 
 type DatabaseAccessor struct {

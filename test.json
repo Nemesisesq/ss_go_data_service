@@ -1,0 +1,414 @@
+[
+  {
+    "stationId": "15079",
+    "callSign": "WSFJ",
+    "affiliateCallSign": "TBN",
+    "channel": "002",
+    "preferredImage": {
+      "category": "Logo",
+      "height": "135",
+      "primary": "true",
+      "uri": "h5/NowShowing/14767/s14767_h5_aa.png",
+      "width": "180"
+    },
+    "airings": [
+      {
+        "startTime": "2016-11-11T11:30Z",
+        "endTime": "2016-11-11T12:00Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "EP008062771704",
+          "rootId": "13238959",
+          "seriesId": "395218",
+          "subType": "Series",
+          "title": "The Gospel Truth With Andrew Wommack",
+          "episodeTitle": "",
+          "releaseYear": 2016,
+          "releaseDate": "2016-11-10",
+          "origAirDate": "2016-11-10",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Episode",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Biblical principles with Andrew Wommack.",
+          "preferredImage": {
+            "category": "Banner-L2",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p395218_b_h13_ab.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T12:00Z",
+        "endTime": "2016-11-11T12:30Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH002830790000",
+          "rootId": "186405",
+          "seriesId": "186405",
+          "subType": "Series",
+          "title": "Joel Osteen",
+          "episodeTitle": "",
+          "releaseYear": 1999,
+          "releaseDate": "1999-10-03",
+          "origAirDate": "1999-10-03",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Pastor Joel Osteen preaches in Houston.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p186405_b_h13_ad.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T12:30Z",
+        "endTime": "2016-11-11T13:00Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "EP011434540279",
+          "rootId": "11298519",
+          "seriesId": "3504541",
+          "subType": "Series",
+          "title": "Joseph Prince",
+          "episodeTitle": "Protection From Danger, Accidents and Disease",
+          "releaseYear": 2014,
+          "releaseDate": "2014-12-05",
+          "origAirDate": "2014-12-05",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Episode",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Why one can be unafraid despite troubling times.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p3504541_b_h13_ab.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T13:00Z",
+        "endTime": "2016-11-11T13:30Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH005180330000",
+          "rootId": "527301",
+          "seriesId": "527301",
+          "subType": "Series",
+          "title": "Walk in the Word with James MacDonald",
+          "episodeTitle": "",
+          "releaseYear": 0,
+          "releaseDate": "",
+          "origAirDate": "",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "A Bible-teaching broadcast ministry reaches people with the life-changing message of the Gospel.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p527301_b_h13_ad.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T13:30Z",
+        "endTime": "2016-11-11T14:00Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH008091540000",
+          "rootId": "186406",
+          "seriesId": "186406",
+          "subType": "Series",
+          "title": "Joyce Meyer: Enjoying Everyday Life",
+          "episodeTitle": "",
+          "releaseYear": 2006,
+          "releaseDate": "2006-02-06",
+          "origAirDate": "2006-02-06",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Author and Bible teacher Joyce Meyer shares encouragement to help people enjoy daily life.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p186406_b_h13_ad.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T14:00Z",
+        "endTime": "2016-11-11T14:30Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH006211840000",
+          "rootId": "186538",
+          "seriesId": "186538",
+          "subType": "Series",
+          "title": "Creflo Dollar",
+          "episodeTitle": "",
+          "releaseYear": 2015,
+          "releaseDate": "2015",
+          "origAirDate": "2015-02-01",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Join the dynamic leadership and teaching of Dr. Creflo and Taffi Dollar.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p186538_b_h13_ac.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T14:30Z",
+        "endTime": "2016-11-11T15:00Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH022058520000",
+          "rootId": "11862346",
+          "seriesId": "11862346",
+          "subType": "Series",
+          "title": "John Hagee",
+          "episodeTitle": "",
+          "releaseYear": 1993,
+          "releaseDate": "1993-12-04",
+          "origAirDate": "1993-12-04",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "The mission of John Hagee Ministries is to take the Gospel to all the world and to all generations.",
+          "preferredImage": {
+            "category": "Banner-L2",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p11862346_b_h13_ab.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T15:00Z",
+        "endTime": "2016-11-11T15:30Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH002830790000",
+          "rootId": "186405",
+          "seriesId": "186405",
+          "subType": "Series",
+          "title": "Joel Osteen",
+          "episodeTitle": "",
+          "releaseYear": 1999,
+          "releaseDate": "1999-10-03",
+          "origAirDate": "1999-10-03",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Pastor Joel Osteen preaches in Houston.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p186405_b_h13_ad.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T15:30Z",
+        "endTime": "2016-11-11T16:00Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "EP011434540799",
+          "rootId": "13435332",
+          "seriesId": "3504541",
+          "subType": "Series",
+          "title": "Joseph Prince",
+          "episodeTitle": "Positioned in His Protection",
+          "releaseYear": 2016,
+          "releaseDate": "2016-11-11",
+          "origAirDate": "2016-11-11",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Episode",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Experiencing God's promises of protection and living fearlessly in dangerous times.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p3504541_b_h13_ab.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T16:00Z",
+        "endTime": "2016-11-11T16:30Z",
+        "duration": 30,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "EP000005182191",
+          "rootId": "13239944",
+          "seriesId": "415890",
+          "subType": "Series",
+          "title": "Kenneth Copeland",
+          "episodeTitle": "The Call to Pray in the End of Days",
+          "releaseYear": 2016,
+          "releaseDate": "2016-11-11",
+          "origAirDate": "2016-11-11",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Episode",
+          "genres": [
+            "Religious"
+          ],
+          "shortDescription": "Guest Billye Brim; host Gloria Copeland.",
+          "preferredImage": {
+            "category": "Banner-L1",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p415890_b_h13_ae.jpg",
+            "width": "480"
+          }
+        }
+      },
+      {
+        "startTime": "2016-11-11T16:30Z",
+        "endTime": "2016-11-11T18:00Z",
+        "duration": 90,
+        "channels": [
+          "002"
+        ],
+        "stationId": "15079",
+        "program": {
+          "tmsId": "SH000034370000",
+          "rootId": "277094",
+          "seriesId": "277094",
+          "subType": "Series",
+          "title": "Praise the Lord",
+          "episodeTitle": "",
+          "releaseYear": 1973,
+          "releaseDate": "1973-05-28",
+          "origAirDate": "1973-05-28",
+          "titleLang": "en",
+          "descriptionLang": "en",
+          "entityType": "Show",
+          "genres": [
+            "Variety",
+            "Religious"
+          ],
+          "shortDescription": "Inspirational discussions and music at the intersections of culture, faith and current trends.",
+          "preferredImage": {
+            "category": "Banner-L2",
+            "height": "270",
+            "primary": "true",
+            "text": "yes",
+            "tier": "Series",
+            "uri": "assets/p277094_b_h13_aa.jpg",
+            "width": "480"
+          }
+        }
+      }
+    ]
+  }
+]

@@ -3,11 +3,11 @@ package streamsavvy
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 	"github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
+	"net/http"
 )
 
 func GetFavorites(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +18,7 @@ func GetFavorites(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
- 	user.Email = query["email"][0]
+	user.Email = query["email"][0]
 	user.UserName = query["name"][0]
 	user.UserId = r.Header["User-Id"][0]
 
@@ -80,7 +80,7 @@ func RemoveContentFromFavorites(w http.ResponseWriter, r *http.Request) {
 				newList = []Content{}
 			} else {
 
-			newList = append(newList[:idx], newList[idx+1:]...)
+				newList = append(newList[:idx], newList[idx+1:]...)
 			}
 		}
 	}

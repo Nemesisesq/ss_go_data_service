@@ -1,0 +1,52 @@
+{
+  "stationId": "15079",
+  "callSign": "WSFJ",
+  "affiliateCallSign": "TBN",
+  "channel": "002",
+  "preferredImage": {
+    "category": "Logo",
+    "height": "135",
+    "primary": "true",
+    "uri": "h5/NowShowing/14767/s14767_h5_aa.png",
+    "width": "180"
+  },
+  "airings": [
+    {
+      "startTime": "2016-11-11T16:30Z",
+      "endTime": "2016-11-11T18:00Z",
+      "duration": 90,
+      "channels": [
+        "002"
+      ],
+      "stationId": "15079",
+      "program": {
+        "tmsId": "SH000034370000",
+        "rootId": "277094",
+        "seriesId": "277094",
+        "subType": "Series",
+        "title": "Praise the Lord",
+        "episodeTitle": "",
+        "releaseYear": 1973,
+        "releaseDate": "1973-05-28",
+        "origAirDate": "1973-05-28",
+        "titleLang": "en",
+        "descriptionLang": "en",
+        "entityType": "Show",
+        "genres": [
+          "Variety",
+          "Religious"
+        ],
+        "shortDescription": "Inspirational discussions and music at the intersections of culture, faith and current trends.",
+        "preferredImage": {
+          "category": "Banner-L2",
+          "height": "270",
+          "primary": "true",
+          "text": "yes",
+          "tier": "Series",
+          "uri": "assets/p277094_b_h13_aa.jpg",
+          "width": "480"
+        }
+      }
+    }
+  ]
+},
