@@ -113,7 +113,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.SetZipCode()
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
-	stations = guideObj.FilterAirings(stations, r)
+	//stations = guideObj.FilterAirings(stations, r)
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
@@ -125,6 +125,7 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	iClient := &http.Client{}
 	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
 	req, err := http.NewRequest("GET", url, nil)
+	fmt.Println(lineup.LineupId)
 
 	com.Check(err)
 
@@ -192,6 +193,16 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 
 	db := r.Context().Value("db").(mgo.Database)
 	c := db.C("lineups")
+	fmt.Println("boout", c)
+
+	//pipeline := []bson.M{
+	//	{"$match": bson.M{"zipcode": g.ZipCode}},
+	//	{"unwind":"lineups"},
+	//	{"$or": []bson.M{
+	//		{"lineups.lineup_id": "USA-ECHOST-DEFAULT"},
+	//		{"lineups.name": /U-verse/i},
+	//	}},
+	//}
 	query := *c.Find(bson.M{"zip_code": g.ZipCode})
 	count, err := query.Count()
 
@@ -220,8 +231,9 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 	com.Check(err)
 
 	//TODO Do something to pick the correct lineup here
-
-	c.Insert(g.Lineups)
+	//fmt.Println(g.Lineups)
+	err = c.Insert(&g)
+	com.Check(err)
 
 	return g.Lineups[0]
 
@@ -281,9 +293,12 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 			query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
 		}
 		count, _ := col.Find(bson.M{"$or": query}).Count()
-		fmt.Println(count)
+		if count == 0 {
+			fmt.Println(count, station.CallSign)
+		}
 		if count > 0 {
-			fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
+
+			//fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
 			newAirings := []Airing{}
 			for _, airing := range station.Airings {
 				t, err := time.Parse(format, airing.EndTime)
