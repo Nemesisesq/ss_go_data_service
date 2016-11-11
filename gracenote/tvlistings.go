@@ -269,18 +269,20 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 	for _, station := range stations {
 		query := []bson.M{}
 
+		query = append(query, bson.M{"stationId_primary": station.StationId})
+		query = append(query, bson.M{"stationId_second": station.StationId})
 		if station.CallSign != "" {
-			query = append(query, bson.M{"callSign": station.CallSign})
-			query = append(query, bson.M{"affliateCallSign": station.CallSign})
+			query = append(query, bson.M{"callsign_primary": station.CallSign})
+			query = append(query, bson.M{"callsign_secondary": station.CallSign})
 		}
 
 		if station.AffiliateCallSign != "" {
-			query = append(query, bson.M{"affiliateCallSign": station.AffiliateCallSign})
-			query = append(query, bson.M{"callSign": station.AffiliateCallSign})
+			query = append(query, bson.M{"callsign_secondary": station.AffiliateCallSign})
+			query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
 		}
 		count, _ := col.Find(bson.M{"$or": query}).Count()
 		fmt.Println(count)
-
+		if count > 0 {
 			fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
 			newAirings := []Airing{}
 			for _, airing := range station.Airings {
@@ -298,7 +300,7 @@ func (g *Guide) FilterAirings(stations []Station, r *http.Request) (filteredStat
 			}
 			station.Airings = newAirings
 			filteredStations = append(filteredStations, station)
-
+		}
 	}
 	fmt.Println(len(filteredStations))
 	return filteredStations
