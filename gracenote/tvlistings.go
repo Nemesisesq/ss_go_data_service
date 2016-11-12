@@ -14,6 +14,7 @@ import (
 	"gopkg.in/redis.v5"
 	"sort"
 	"strconv"
+	"regexp"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -209,30 +210,36 @@ func (g *Guide) CheckLineUpsForGeoCoords() {
 	//TODO check the geo coordinates for
 }
 
-func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
+func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 
 	db := r.Context().Value("db").(mgo.Database)
 	c := db.C("lineups")
 	fmt.Println("boout", c)
 
-	//pipeline := []bson.M{
-	//	{"$match": bson.M{"zipcode": g.ZipCode}},
-	//	{"unwind":"lineups"},
-	//	{"$or": []bson.M{
-	//		{"lineups.lineup_id": "USA-ECHOST-DEFAULT"},
-	//		{"lineups.name": /U-verse/i},
-	//	}},
-	//}
+	pipeline := []bson.M{
+		{"$match": bson.M{"zipcode": g.ZipCode}},
+		{"unwind":"lineups"},
+		{"$or": []bson.M{
+			{"lineups.lineup_id": "USA-ECHOST-DEFAULT"},
+			{"lineups.name": `/U-verse/i`},
+		}},
+	}
+
 	query := *c.Find(bson.M{"zip_code": g.ZipCode})
 	count, err := query.Count()
 
 	com.Check(err)
 
 	if count > 0 {
-		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
-		query.One(&lineup)
 
-		return lineup
+		pipe := c.Pipe(pipeline)
+
+		err := pipe.All(&lineups)
+		com.Check(err)
+
+		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
+
+		return lineups[0]
 	}
 
 	iClient := &http.Client{}
@@ -254,6 +261,17 @@ func (g *Guide) GetLineups(r *http.Request) (lineup Lineup) {
 	//fmt.Println(g.Lineups)
 	err = c.Insert(&g)
 	com.Check(err)
+
+	//filteredLineups := []Lineup{}
+	//for _, l := range g.Lineups {
+	//	d, _ := regexp.Compile("Dish")
+	//	u, _ := regexp.Compile("U-verse")
+	//
+	//	if d.Match(l.Name) || u.Match(l.Name){
+	//		append
+	//	}
+	//}
+
 
 	return g.Lineups[0]
 

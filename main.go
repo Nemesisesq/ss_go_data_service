@@ -57,7 +57,7 @@ func main() {
 	n.Use(x.Middleware())
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", com.Index).Methods("GET")
+	r.HandleFunc("/", com.HomePage).Methods("GET")
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
 	r.HandleFunc("/popular", pop.GetPopularityScore).Methods("POST")
