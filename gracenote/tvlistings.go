@@ -169,7 +169,7 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	com.BuildQuery(req, params)
 
 
-	log.Info(req)
+	log.Debug(req)
 
 	res, err := iClient.Do(req)
 
