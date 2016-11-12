@@ -134,7 +134,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.SetZipCode()
 	lineup := guideObj.GetLineups(r)
 	stations := guideObj.GetTVGrid(r, lineup)
-	stations = guideObj.FilterAirings(stations, r)
+	//stations = guideObj.FilterAirings(stations, r)
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
@@ -152,9 +152,9 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 
 
 	fmt.Println("\n\nnow", time.Now())
-	start_time := time.Now().Add(time.Hour * 5).Format(format)
+	start_time := time.Now().Format(format)
 	fmt.Println("\nstart",start_time)
-	end_time := time.Now().Add(time.Hour * 11).Format(format)
+	end_time := time.Now().Add(time.Hour * 6).Format(format)
 	params := map[string]string{
 		"api_key":       ApiKey,
 		"startDateTime": start_time,
