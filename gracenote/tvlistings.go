@@ -150,8 +150,10 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 
 	com.Check(err)
 
+
+	fmt.Println("\n\nnow", time.Now())
 	start_time := time.Now().Add(time.Hour * 5).Format(format)
-	fmt.Println(start_time)
+	fmt.Println("\nstart",start_time)
 	end_time := time.Now().Add(time.Hour * 11).Format(format)
 	params := map[string]string{
 		"api_key":       ApiKey,
@@ -166,7 +168,6 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	}
 	com.BuildQuery(req, params)
 
-	fmt.Println(req.URL.RawQuery)
 
 	log.Info(req)
 
@@ -214,7 +215,6 @@ func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 
 	db := r.Context().Value("db").(mgo.Database)
 	c := db.C("lineups")
-	fmt.Println("boout", c)
 
 	pipeline := []bson.M{
 		{"$match": bson.M{"zipcode": g.ZipCode}},
@@ -251,7 +251,6 @@ func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 
 	com.Check(err)
 
-	fmt.Println(res.Status)
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&g.Lineups)
 
@@ -331,9 +330,6 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 			query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
 		}
 		count, _ := col.Find(bson.M{"$or": query}).Count()
-		if count == 0 {
-			fmt.Println(count, station.CallSign)
-		}
 		if count > 0 {
 			md := &StationMetaData{}
 			err := col.Find(bson.M{"$or": query}).One(&md)
@@ -360,16 +356,10 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 		}
 	}
 
-	for _, value := range filteredStations {
-		fmt.Println(value.CallSign, value.DefaultRank)
-	}
-	fmt.Println(len(filteredStations))
+	//fmt.Println(len(filteredStations))
 
 	sort.Sort(filteredStations)
 
-	for _, value := range filteredStations {
-		fmt.Println(value.CallSign, value.DefaultRank)
-	}
 
 	return filteredStations
 }

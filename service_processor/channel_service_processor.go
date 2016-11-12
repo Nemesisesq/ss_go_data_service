@@ -311,7 +311,6 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
-	fmt.Println(ss_detail)
 
 	if err == nil {
 		NewPP.StreamingSourceLiveShowMatches = *ss_detail
