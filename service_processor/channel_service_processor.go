@@ -299,16 +299,19 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	var mgoQuery = []bson.M{}
 
 	if rawPayload.CallLetters != "" {
-		mgoQuery = append(mgoQuery, bson.M{"callSign": rawPayload.CallLetters})
+		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.CallLetters})
+		mgoQuery = append(mgoQuery, bson.M{"callsign_secondary": rawPayload.CallLetters})
 		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.CallLetters})
 	}
 
 	if rawPayload.DisplayName != "" {
-		mgoQuery = append(mgoQuery, bson.M{"callSign": rawPayload.DisplayName})
+		mgoQuery = append(mgoQuery, bson.M{"callsign_primary": rawPayload.DisplayName})
+		mgoQuery = append(mgoQuery, bson.M{"callsign_secondary": rawPayload.DisplayName})
 		mgoQuery = append(mgoQuery, bson.M{"network_name": rawPayload.DisplayName})
 	}
 
 	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
+	fmt.Println(ss_detail)
 
 	if err == nil {
 		NewPP.StreamingSourceLiveShowMatches = *ss_detail

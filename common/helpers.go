@@ -3,12 +3,12 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"github.com/stretchr/testify/http"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/joho/godotenv"
 )
 
 func Check(e error) {
@@ -76,7 +76,6 @@ func GetLogger() *log.Logger {
 	return log.New()
 }
 
-
 func Index(vs []string, t string) int {
 	for i, v := range vs {
 		if v == t {
@@ -85,10 +84,12 @@ func Index(vs []string, t string) int {
 	}
 	return -1
 }
+
 //Returns true if the target string t is in the slice.
 func Include(vs []string, t string) bool {
 	return Index(vs, t) >= 0
 }
+
 //Returns true if one of the strings in the slice satisfies the predicate f.
 func Any(vs []string, f func(string) bool) bool {
 	for _, v := range vs {
@@ -98,6 +99,7 @@ func Any(vs []string, f func(string) bool) bool {
 	}
 	return false
 }
+
 //Returns true if all of the strings in the slice satisfy the predicate f.
 func All(vs []string, f func(string) bool) bool {
 	for _, v := range vs {
@@ -107,6 +109,7 @@ func All(vs []string, f func(string) bool) bool {
 	}
 	return true
 }
+
 //Returns a new slice containing all strings in the slice that satisfy the predicate f.
 func Filter(vs []string, f func(string) bool) []string {
 	vsf := make([]string, 0)
@@ -117,6 +120,7 @@ func Filter(vs []string, f func(string) bool) []string {
 	}
 	return vsf
 }
+
 //Returns a new slice containing the results of applying the function f to each string in the original slice.
 func Map(vs []string, f func(string) string) []string {
 	vsm := make([]string, len(vs))

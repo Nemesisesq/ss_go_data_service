@@ -14,7 +14,7 @@ import (
 	"gopkg.in/redis.v5"
 	"sort"
 	"strconv"
-	"regexp"
+	//"regexp"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -234,12 +234,12 @@ func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 
 		pipe := c.Pipe(pipeline)
 
-		err := pipe.All(&lineups)
+		err := pipe.One(&lineups)
 		com.Check(err)
 
 		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
 
-		return lineups[0]
+		return lineups
 	}
 
 	iClient := &http.Client{}
