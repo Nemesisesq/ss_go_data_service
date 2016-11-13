@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strconv"
 	//"regexp"
+	"regexp"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -115,6 +116,7 @@ func (slice Stations) Less(i, j int) bool {
 func (slice Stations) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
+
 type Airing struct {
 	StartTime string   `json:"startTime"`
 	EndTime   string   `json:"endTime"`
@@ -132,13 +134,61 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	guideObj.Long = vars["long"]
 	guideObj.CheckLineUpsForGeoCoords()
 	guideObj.SetZipCode()
-	lineup := guideObj.GetLineups(r)
-	stations := guideObj.GetTVGrid(r, lineup)
+	guideObj.GetLineups(r)
+	lineups := guideObj.GetTVGrid(r)
+	stations := GetCombinedGrid(lineups)
 	stations = guideObj.FilterAirings(stations, r)
+	stations = RemoveDuplicates(stations)
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
 	com.Check(err)
+}
+
+func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
+
+	seen := map[string]bool{}
+
+	for _, station := range stations {
+		channelNumber, _ := strconv.Atoi(station.Channel)
+		rank := strconv.Itoa(station.DefaultRank)
+
+		log.WithFields(log.Fields{
+			"default rank": station.DefaultRank,
+			"rank" : rank,
+			"rank seen": seen[rank],
+
+
+		}).Info("logging ranks")
+
+		if !seen[station.StationId] && channelNumber < 8000 &&  !seen[rank] {
+			dedupedStations = append(dedupedStations, station)
+			seen[station.StationId] = true
+			seen[rank] = true
+		}
+	}
+
+
+	log.WithField("deduped station list length", len(dedupedStations)).Info("logging the length of stations list with duplicates removed")
+	return dedupedStations
+}
+
+
+
+
+func GetCombinedGrid(lineups []Lineup) (combinedStations Stations) {
+
+	for _, lineup := range lineups {
+
+		log.WithField("before", len(lineup.Stations)).Info("number of stations")
+		for _, station := range lineup.Stations {
+
+			combinedStations = append(combinedStations, station)
+
+		}
+	}
+	log.WithField("after", len(combinedStations)).Info("number of stations")
+	return combinedStations
 }
 
 func (lineup Lineup) GetFreshTVListingsGrid() []byte {
@@ -150,10 +200,9 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 
 	com.Check(err)
 
-
 	fmt.Println("\n\nnow", time.Now())
 	start_time := time.Now().Format(format)
-	fmt.Println("\nstart",start_time)
+	fmt.Println("\nstart", start_time)
 	end_time := time.Now().Add(time.Hour * 6).Format(format)
 	params := map[string]string{
 		"api_key":       ApiKey,
@@ -167,7 +216,6 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 		"enhancedCallSign": "true",
 	}
 	com.BuildQuery(req, params)
-
 
 	log.Debug(req)
 
@@ -186,24 +234,41 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 
 	return the_json
 }
-func (g *Guide) GetTVGrid(r *http.Request, lineup Lineup) []Station {
+func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 	log.SetFormatter(&log.JSONFormatter{})
 	rc := r.Context().Value("redis_client").(*redis.Client)
-	val, err := rc.Get(lineup.LineupId).Result()
+	log.WithFields(log.Fields{
+		"zip code" : g.ZipCode,
+		"number of lineups": len(g.Lineups),
+	}).Info()
+	for _, lineup := range g.Lineups {
 
-	if err == redis.Nil {
-		the_json := lineup.GetFreshTVListingsGrid()
-		timeout := time.Hour * 5
-		rc.Set(lineup.LineupId, the_json, timeout)
-		err = json.Unmarshal(the_json, &lineup.Stations)
-		com.Check(err)
+		//log.WithField("id", lineup.LineupId).Info("checking for regular expressions")
+		uverseMatch, _ := regexp.Match("U-verse", []byte(lineup.Name))
 
-	} else {
-		log.Info("Redis Value Found for ", lineup.LineupId)
-		json.Unmarshal([]byte(val), &lineup.Stations)
+		if lineup.LineupId == "USA-ECHOST-DEFAULT" || uverseMatch {
+			log.Info("Getting ", lineup.LineupId)
+			val, err := rc.Get(lineup.LineupId).Result()
+
+			if err == redis.Nil {
+				the_json := lineup.GetFreshTVListingsGrid()
+				timeout := time.Hour * 5
+				rc.Set(lineup.LineupId, the_json, timeout)
+				err = json.Unmarshal(the_json, &lineup.Stations)
+				com.Check(err)
+
+				lineups = append(lineups, lineup)
+
+			} else {
+				log.Info("Redis Value Found for ", lineup.LineupId)
+				json.Unmarshal([]byte(val), &lineup.Stations)
+
+				lineups = append(lineups, lineup)
+			}
+		}
 	}
 
-	return lineup.Stations
+	return lineups
 
 }
 
@@ -211,7 +276,7 @@ func (g *Guide) CheckLineUpsForGeoCoords() {
 	//TODO check the geo coordinates for
 }
 
-func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
+func (g *Guide) GetLineups(r *http.Request) {
 
 	db := r.Context().Value("db").(mgo.Database)
 	c := db.C("lineups")
@@ -234,12 +299,12 @@ func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 
 		pipe := c.Pipe(pipeline)
 
-		err := pipe.One(&lineups)
+		err := pipe.One(&g.Lineups)
 		com.Check(err)
 
 		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
 
-		return lineups
+		//return lineups
 	}
 
 	iClient := &http.Client{}
@@ -272,7 +337,7 @@ func (g *Guide) GetLineups(r *http.Request) (lineups Lineup) {
 	//}
 
 
-	return g.Lineups[0]
+	//return g.Lineups[0]
 
 }
 
@@ -359,7 +424,6 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 	//fmt.Println(len(filteredStations))
 
 	sort.Sort(filteredStations)
-
 
 	return filteredStations
 }
