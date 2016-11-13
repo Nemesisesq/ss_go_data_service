@@ -44,8 +44,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string   `json:"place_id"`
-	Types             []string `json:"types"`
+	PlaceId string   `json:"place_id"`
+	Types   []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -155,32 +155,25 @@ func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 
 		log.WithFields(log.Fields{
 			"default rank": station.DefaultRank,
-			"rank" : rank,
-			"rank seen": seen[rank],
-
-
+			"rank":         rank,
+			"rank seen":    seen[rank],
 		}).Info("logging ranks")
 
-		if !seen[station.StationId] && channelNumber < 8000 &&  !seen[rank] {
+		if !seen[station.StationId] && channelNumber < 8000 && !seen[rank] {
 			dedupedStations = append(dedupedStations, station)
 			seen[station.StationId] = true
 			seen[rank] = true
 		}
 	}
 
-
 	log.WithField("deduped station list length", len(dedupedStations)).Info("logging the length of stations list with duplicates removed")
 	return dedupedStations
 }
-
-
-
 
 func GetCombinedGrid(lineups []Lineup) (combinedStations Stations) {
 
 	for _, lineup := range lineups {
 
-		log.WithField("before", len(lineup.Stations)).Info("number of stations")
 		for _, station := range lineup.Stations {
 
 			combinedStations = append(combinedStations, station)
@@ -196,13 +189,13 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	iClient := &http.Client{}
 	url := fmt.Sprintf("%v/%v/grid", LineupsUri, lineup.LineupId)
 	req, err := http.NewRequest("GET", url, nil)
-	fmt.Println(lineup.LineupId)
+	//fmt.Println(lineup.LineupId)
 
 	com.Check(err)
 
-	fmt.Println("\n\nnow", time.Now())
+	//fmt.Println("\n\nnow", time.Now())
 	start_time := time.Now().Format(format)
-	fmt.Println("\nstart", start_time)
+	//fmt.Println("\nstart", start_time)
 	end_time := time.Now().Add(time.Hour * 6).Format(format)
 	params := map[string]string{
 		"api_key":       ApiKey,
@@ -238,12 +231,18 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 	log.SetFormatter(&log.JSONFormatter{})
 	rc := r.Context().Value("redis_client").(*redis.Client)
 	log.WithFields(log.Fields{
-		"zip code" : g.ZipCode,
+		"zip code":          g.ZipCode,
 		"number of lineups": len(g.Lineups),
 	}).Info()
+
+	lineupsChan := make(chan Lineup)
+
+	//wg := sync.WaitGroup{}
+
+	//wg.Add(2)
+
 	for _, lineup := range g.Lineups {
 
-		//log.WithField("id", lineup.LineupId).Info("checking for regular expressions")
 		uverseMatch, _ := regexp.Match("U-verse", []byte(lineup.Name))
 
 		if lineup.LineupId == "USA-ECHOST-DEFAULT" || uverseMatch {
@@ -251,24 +250,62 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 			val, err := rc.Get(lineup.LineupId).Result()
 
 			if err == redis.Nil {
-				the_json := lineup.GetFreshTVListingsGrid()
-				timeout := time.Hour * 5
-				rc.Set(lineup.LineupId, the_json, timeout)
-				err = json.Unmarshal(the_json, &lineup.Stations)
-				com.Check(err)
+				go AsyncGetListings(lineup, lineupsChan, rc)
 
-				lineups = append(lineups, lineup)
+				//the_json := lineup.GetFreshTVListingsGrid()
+				//timeout := time.Hour * 5
+				//rc.Set(lineup.LineupId, the_json, timeout)
+				//err = json.Unmarshal(the_json, &lineup.Stations)
+				//com.Check(err)
+
+				//lineups = append(lineups, lineup)
 
 			} else {
-				log.Info("Redis Value Found for ", lineup.LineupId)
-				json.Unmarshal([]byte(val), &lineup.Stations)
 
-				lineups = append(lineups, lineup)
+				go func() {
+					log.Info("Redis Value Found for ", lineup.LineupId)
+					json.Unmarshal([]byte(val), &lineup.Stations)
+
+					lineupsChan <- lineup
+				}()
+				//lineups = append(lineups, lineup)
 			}
 		}
 	}
 
+	log.Info("blocking return of lineups")
+	//go func() {
+	for i := 0; i < 2; i++ {
+		x := <-lineupsChan
+		log.WithField("channel result", x.LineupId).Info("recieved channel contents")
+		lineups = append(lineups, x)
+
+	}
+	//}()
+
+	//log.Info("Waiting for all go routines to return")
+	//wg.Wait()
+	log.Info("done waiting")
+	//close(lineupsChan)
+
+	log.Info("returning lineups")
 	return lineups
+
+}
+
+func AsyncGetListings(lineup Lineup, lchan chan<- Lineup, rc *redis.Client) {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.WithField("lineup id", lineup.LineupId).Info("getting Listings")
+
+	the_json := lineup.GetFreshTVListingsGrid()
+	timeout := time.Hour * 5
+	rc.Set(lineup.LineupId, the_json, timeout)
+	err := json.Unmarshal(the_json, &lineup.Stations)
+	com.Check(err)
+
+	log.WithField("lineup id", lineup.LineupId).Info("sending Listing results to channel")
+	lchan <- lineup
+	log.Info("exiting")
 
 }
 
@@ -283,7 +320,7 @@ func (g *Guide) GetLineups(r *http.Request) {
 
 	pipeline := []bson.M{
 		{"$match": bson.M{"zipcode": g.ZipCode}},
-		{"unwind":"lineups"},
+		{"unwind": "lineups"},
 		{"$or": []bson.M{
 			{"lineups.lineup_id": "USA-ECHOST-DEFAULT"},
 			{"lineups.name": `/U-verse/i`},
@@ -322,7 +359,6 @@ func (g *Guide) GetLineups(r *http.Request) {
 	com.Check(err)
 
 	//TODO Do something to pick the correct lineup here
-	//fmt.Println(g.Lineups)
 	err = c.Insert(&g)
 	com.Check(err)
 
@@ -335,7 +371,6 @@ func (g *Guide) GetLineups(r *http.Request) {
 	//		append
 	//	}
 	//}
-
 
 	//return g.Lineups[0]
 
