@@ -203,7 +203,7 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	fmt.Println("\n\nnow", time.Now())
 	start_time := time.Now().Format(format)
 	fmt.Println("\nstart", start_time)
-	end_time := time.Now().Add(time.Hour * 6).Format(format)
+	end_time := time.Now().Add(time.Minute * 30).Format(format)
 	params := map[string]string{
 		"api_key":       ApiKey,
 		"startDateTime": start_time,
@@ -373,6 +373,8 @@ func (g *Guide) SetZipCode() {
 			}
 		}
 	}
+
+
 }
 
 func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStations Stations) {
