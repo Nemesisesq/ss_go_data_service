@@ -153,14 +153,6 @@ func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 		channelNumber, _ := strconv.Atoi(station.Channel)
 		rank := strconv.Itoa(station.DefaultRank)
 
-		log.WithFields(log.Fields{
-			"default rank": station.DefaultRank,
-			"rank" : rank,
-			"rank seen": seen[rank],
-
-
-		}).Info("logging ranks")
-
 		if !seen[station.StationId] && channelNumber < 8000 &&  !seen[rank] {
 			dedupedStations = append(dedupedStations, station)
 			seen[station.StationId] = true
@@ -404,21 +396,23 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 
 			station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
 			//fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
-			newAirings := []Airing{}
-			for _, airing := range station.Airings {
-				t, err := time.Parse(format, airing.EndTime)
-				now := time.Now()
-
-				com.Check(err)
-
-				delta := t.Before(now)
-				if delta {
-					// happened in the past
-				} else {
-					newAirings = append(newAirings, airing)
-				}
-			}
-			station.Airings = newAirings
+			//newAirings := []Airing{}
+			//log.Println(station.Airings)
+			//for _, airing := range station.Airings {
+			//
+			//	t, err := time.Parse(format, airing.EndTime)
+			//	now := time.Now()
+			//
+			//	com.Check(err)
+			//
+			//	delta := t.Before(now)
+			//	if delta {
+			//		// happened in the past
+			//	} else {
+			//		newAirings = append(newAirings, airing)
+			//	}
+			//}
+			//station.Airings = newAirings
 			filteredStations = append(filteredStations, station)
 		}
 	}
