@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"time"
 
+	"sort"
+	"strconv"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/redis.v5"
-	"sort"
-	"strconv"
 	//"regexp"
 	"regexp"
 	"sync"
@@ -45,8 +46,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string   `json:"place_id"`
-	Types             []string `json:"types"`
+	PlaceId string   `json:"place_id"`
+	Types   []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -91,6 +92,9 @@ type Program struct {
 }
 
 type StationMetaData struct {
+	CallsignPrimary string `json:"callsign_primary" bson:"callsign_primary"`
+	CallsignSecondary string `json:"callsign_secondary" bson:"callsign_secondary"`
+
 	DefaultRank string `json:"default_rank" bson:"default_rank"`
 }
 
@@ -154,7 +158,7 @@ func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 		channelNumber, _ := strconv.Atoi(station.Channel)
 		rank := strconv.Itoa(station.DefaultRank)
 
-		if !seen[station.StationId] && channelNumber < 8000 &&  !seen[rank] {
+		if !seen[station.StationId] && channelNumber < 8000 && !seen[rank] {
 			dedupedStations = append(dedupedStations, station)
 			seen[station.StationId] = true
 			seen[rank] = true
@@ -227,7 +231,7 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 	log.SetFormatter(&log.JSONFormatter{})
 	rc := r.Context().Value("redis_client").(*redis.Client)
 	log.WithFields(log.Fields{
-		"zip code" : g.ZipCode,
+		"zip code":          g.ZipCode,
 		"number of lineups": len(g.Lineups),
 	}).Info()
 	for _, lineup := range g.Lineups {
@@ -271,14 +275,13 @@ func (g *Guide) GetLineups(r *http.Request) {
 	db := r.Context().Value("db").(mgo.Database)
 	c := db.C("lineups")
 
-	pipeline := []bson.M{
-		{"$match": bson.M{"zipcode": g.ZipCode}},
-		{"unwind":"lineups"},
-		{"$or": []bson.M{
-			{"lineups.lineup_id": "USA-ECHOST-DEFAULT"},
-			{"lineups.name": `/U-verse/i`},
-		}},
-	}
+	//pipeline := []bson.M{
+	//	{"$match": bson.M{"zip_code": g.ZipCode}},
+	//	{"$or": []bson.M{
+	//		{"lineup_id": "USA-ECHOST-DEFAULT"},
+	//		{"name": `/U-verse/i`},
+	//	}},
+	//}
 
 	query := *c.Find(bson.M{"zip_code": g.ZipCode})
 	count, err := query.Count()
@@ -287,10 +290,13 @@ func (g *Guide) GetLineups(r *http.Request) {
 
 	if count > 0 {
 
-		pipe := c.Pipe(pipeline)
-
-		err := pipe.One(&g.Lineups)
+		err := query.All(&g.Lineups)
 		com.Check(err)
+
+		log.WithField("count", count).Info("Lineups were found in the database")
+
+		return
+		//err := pipe.All(&g.Lineups)
 
 		//TODO do some stuff here we would want to return all the lineups for a zipcode evenrtually or crtain lineups based on query
 
@@ -302,6 +308,8 @@ func (g *Guide) GetLineups(r *http.Request) {
 	params := map[string]string{"country": "USA", "postalCode": g.ZipCode, "api_key": ApiKey}
 	com.BuildQuery(req, params)
 	res, err := iClient.Do(req)
+
+	log.Info("got reponse from call to lineups")
 	defer res.Body.Close()
 
 	com.Check(err)
@@ -319,23 +327,20 @@ func (g *Guide) GetLineups(r *http.Request) {
 	//fmt.Println(g.Lineups)
 
 	for _, l := range g.Lineups {
+		l.ZipCode = g.ZipCode
 		err = c.Insert(l)
 		com.Check(err)
 	}
 
-	//filteredLineups := []Lineup{}
-	//for _, l := range g.Lineups {
-	//	d, _ := regexp.Compile("Dish")
-	//	u, _ := regexp.Compile("U-verse")
-	//
-	//	if d.Match(l.Name) || u.Match(l.Name){
-	//		append
-	//	}
-	//}
-
-
-	//return g.Lineups[0]
-
+	index := mgo.Index{
+		Key: []string{"zip_code"},
+		Unique:     false,
+		DropDups:   true,
+		Background: true,
+		Sparse:     false,
+	}
+	err = c.EnsureIndex(index)
+	com.Check(err)
 }
 
 func (g *Guide) SetZipCode() {
@@ -396,12 +401,24 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 }
 
 func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
+	var md []StationMetaData
 	var wg sync.WaitGroup
+
+	err := col.Find(nil).All(&md)
+	com.Check(err)
 
 	for _, station := range stations {
 
 		wg.Add(1)
 		go func(station Station, wg *sync.WaitGroup) {
+
+			//for record := range md{
+			//	switch record {
+			//	case record.sta
+			//
+			//	}
+			//}
+
 			query := []bson.M{}
 
 			query = append(query, bson.M{"stationId_primary": station.StationId})
@@ -424,7 +441,7 @@ func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
 
 				station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
 				filtered <- station
-				log.Println("passing station to filterd channel")
+				//log.Println("passing station to filterd channel")
 				wg.Done()
 			} else {
 				wg.Done()
