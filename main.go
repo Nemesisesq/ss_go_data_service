@@ -91,7 +91,6 @@ log.SetFormatter(&log.JSONFormatter{})
 			case <- ticker.C:
 				log.Println("ticker fired")
 				gnote.RefreshListings()
-				close(quit)
 			case <- quit:
 				log.Println("ticker Stoping")
 				ticker.Stop()
