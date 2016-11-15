@@ -16,6 +16,7 @@ import (
 	"strconv"
 	//"regexp"
 	"regexp"
+	"sync"
 )
 
 const format = "2006-01-02T15:04Z"
@@ -145,7 +146,6 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	com.Check(err)
 }
 
-
 func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 
 	seen := map[string]bool{}
@@ -161,13 +161,9 @@ func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 		}
 	}
 
-
 	log.WithField("deduped station list length", len(dedupedStations)).Info("logging the length of stations list with duplicates removed")
 	return dedupedStations
 }
-
-
-
 
 func GetCombinedGrid(lineups []Lineup) (combinedStations Stations) {
 
@@ -315,14 +311,14 @@ func (g *Guide) GetLineups(r *http.Request) {
 
 	com.Check(err)
 
-	for _, val := range g.Lineups{
+	for _, val := range g.Lineups {
 		val.ZipCode = g.ZipCode
 	}
 
 	//TODO Do something to pick the correct lineup here
 	//fmt.Println(g.Lineups)
 
-	for _, l := range g.Lineups{
+	for _, l := range g.Lineups {
 		err = c.Insert(l)
 		com.Check(err)
 	}
@@ -375,7 +371,6 @@ func (g *Guide) SetZipCode() {
 		}
 	}
 
-
 }
 
 func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStations Stations) {
@@ -383,52 +378,65 @@ func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStati
 	db := r.Context().Value("db").(mgo.Database)
 	col := db.C("live_streaming_services")
 
-	for _, station := range stations {
-		query := []bson.M{}
+	filtered := make(chan Station)
 
-		query = append(query, bson.M{"stationId_primary": station.StationId})
-		query = append(query, bson.M{"stationId_second": station.StationId})
-		if station.CallSign != "" {
-			query = append(query, bson.M{"callsign_primary": station.CallSign})
-			query = append(query, bson.M{"callsign_secondary": station.CallSign})
-		}
+	log.Print("entering")
+	go stations.Process(col, filtered)
 
-		if station.AffiliateCallSign != "" {
-			query = append(query, bson.M{"callsign_secondary": station.AffiliateCallSign})
-			query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
-		}
-		count, _ := col.Find(bson.M{"$or": query}).Count()
-		if count > 0 {
-			md := &StationMetaData{}
-			err := col.Find(bson.M{"$or": query}).One(&md)
-			com.Check(err)
-
-			station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
-			//fmt.Printf("%v,%v\n", station.CallSign, station.AffiliateCallSign)
-			//newAirings := []Airing{}
-			//log.Println(station.Airings)
-			//for _, airing := range station.Airings {
-			//
-			//	t, err := time.Parse(format, airing.EndTime)
-			//	now := time.Now()
-			//
-			//	com.Check(err)
-			//
-			//	delta := t.Before(now)
-			//	if delta {
-			//		// happened in the past
-			//	} else {
-			//		newAirings = append(newAirings, airing)
-			//	}
-			//}
-			//station.Airings = newAirings
-			filteredStations = append(filteredStations, station)
-		}
+	for s := range filtered {
+		filteredStations = append(filteredStations, s)
 	}
 
 	//fmt.Println(len(filteredStations))
 
 	sort.Sort(filteredStations)
 
+	log.Print("exiting")
 	return filteredStations
+}
+
+func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
+	var wg sync.WaitGroup
+
+	for _, station := range stations {
+
+		wg.Add(1)
+		go func(station Station, wg *sync.WaitGroup) {
+			query := []bson.M{}
+
+			query = append(query, bson.M{"stationId_primary": station.StationId})
+			query = append(query, bson.M{"stationId_second": station.StationId})
+			if station.CallSign != "" {
+				query = append(query, bson.M{"callsign_primary": station.CallSign})
+				query = append(query, bson.M{"callsign_secondary": station.CallSign})
+			}
+
+			if station.AffiliateCallSign != "" {
+				query = append(query, bson.M{"callsign_secondary": station.AffiliateCallSign})
+				query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
+			}
+			count, _ := col.Find(bson.M{"$or": query}).Count()
+			if count > 0 {
+				//wg.Add(1)
+				md := &StationMetaData{}
+				err := col.Find(bson.M{"$or": query}).One(&md)
+				com.Check(err)
+
+				station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
+				filtered <- station
+				log.Println("passing station to filterd channel")
+				wg.Done()
+			} else {
+				wg.Done()
+			}
+
+		}(station, &wg)
+		//
+	}
+
+	log.Println("waiting")
+	wg.Wait()
+	log.Println("Done Waiting")
+	close(filtered)
+
 }
