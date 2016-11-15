@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"net/http"
 	"os"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
@@ -20,10 +20,11 @@ import (
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	"github.com/rs/cors"
 	"net/url"
+	"time"
 )
 
 func main() {
-
+log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
 
 	err := godotenv.Load()
@@ -36,6 +37,7 @@ func main() {
 
 	// Create Redis Client
 	redis_url := os.Getenv("REDISCLOUD_URL")
+
 
 	u, err := url.Parse(redis_url)
 
@@ -57,6 +59,7 @@ func main() {
 	n.Use(x.Middleware())
 
 	r := mux.NewRouter()
+	quit := make(chan struct{})
 	r.HandleFunc("/", com.HomePage).Methods("GET")
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
@@ -70,6 +73,7 @@ func main() {
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
 	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "1") })
+	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
 
 	c := cors.New(cors.Options{
@@ -78,6 +82,21 @@ func main() {
 
 	n.Use(c)
 	n.UseHandler(r)
+
+	//
+	ticker := time.NewTicker(30 * time.Minute)
+	go func(){
+		for {
+			select {
+			case <- ticker.C:
+				log.Println("ticker fired")
+			case <- quit:
+				log.Println("ticker Stoping")
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
 	log.Fatal(http.ListenAndServe(":"+port, n))

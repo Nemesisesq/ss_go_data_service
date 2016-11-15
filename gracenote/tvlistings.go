@@ -132,7 +132,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	guideObj.Lat = vars["lat"]
 	guideObj.Long = vars["long"]
-	guideObj.CheckLineUpsForGeoCoords()
+	//guideObj.CheckLineUpsForGeoCoords()
 	guideObj.SetZipCode()
 	guideObj.GetLineups(r)
 	lineups := guideObj.GetTVGrid(r)
@@ -144,6 +144,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 
 	com.Check(err)
 }
+
 
 func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 
@@ -262,10 +263,6 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 
 	return lineups
 
-}
-
-func (g *Guide) CheckLineUpsForGeoCoords() {
-	//TODO check the geo coordinates for
 }
 
 func (g *Guide) GetLineups(r *http.Request) {
