@@ -120,11 +120,11 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		the_json, _ = json.Marshal(x_epi)
 		err = json.Unmarshal(the_json, &val)
 
-		if indx == 0{
+		//if indx == 0{
 
-			pretty, _ := json.MarshalIndent(val,"", "\t")
-			fmt.Println(string(pretty[:]))
-		}
+			//pretty, _ := json.MarshalIndent(val,"", "\t")
+			//fmt.Println(string(pretty[:]))
+		//}
 		com.Check(err)
 
 		epi_list[indx] = val
@@ -175,7 +175,7 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 
 	}
 
-	print(total_results)
+	//print(total_results)
 	epi.Results = episode_list
 
 	return episode_list, total_results
