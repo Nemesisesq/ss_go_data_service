@@ -237,9 +237,8 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 	for _, lineup := range g.Lineups {
 
 		//log.WithField("id", lineup.LineupId).Info("checking for regular expressions")
-		uverseMatch, _ := regexp.Match("U-verse", []byte(lineup.Name))
 
-		if lineup.LineupId == "USA-ECHOST-DEFAULT" || uverseMatch {
+		if IsRightLinup(lineup) {
 			log.Info("Getting ", lineup.LineupId)
 			val, err := rc.Get(lineup.LineupId).Result()
 
@@ -263,6 +262,12 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 
 	return lineups
 
+}
+
+func IsRightLinup(lineup Lineup) bool {
+	uverseMatch, _ := regexp.Match("U-verse", []byte(lineup.Name))
+
+	return lineup.LineupId == "USA-ECHOST-DEFAULT" || uverseMatch
 }
 
 func (g *Guide) GetLineups(r *http.Request) {
@@ -310,10 +315,17 @@ func (g *Guide) GetLineups(r *http.Request) {
 
 	com.Check(err)
 
+	for _, val := range g.Lineups{
+		val.ZipCode = g.ZipCode
+	}
+
 	//TODO Do something to pick the correct lineup here
 	//fmt.Println(g.Lineups)
-	err = c.Insert(&g)
-	com.Check(err)
+
+	for _, l := range g.Lineups{
+		err = c.Insert(l)
+		com.Check(err)
+	}
 
 	//filteredLineups := []Lineup{}
 	//for _, l := range g.Lineups {

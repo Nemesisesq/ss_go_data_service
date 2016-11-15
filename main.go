@@ -84,18 +84,22 @@ log.SetFormatter(&log.JSONFormatter{})
 	n.UseHandler(r)
 
 	//
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(25 * time.Minute)
 	go func(){
 		for {
 			select {
 			case <- ticker.C:
 				log.Println("ticker fired")
+				gnote.RefreshListings()
+				close(quit)
 			case <- quit:
 				log.Println("ticker Stoping")
 				ticker.Stop()
 				return
 			}
 		}
+
+		log.Println("Cleaning up!!")
 	}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
