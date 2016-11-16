@@ -46,8 +46,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId string   `json:"place_id"`
-	Types   []string `json:"types"`
+	PlaceId           string   `json:"place_id"`
+	Types             []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -165,7 +165,6 @@ func RemoveDuplicates(stations Stations) (dedupedStations Stations) {
 		}
 	}
 
-	log.WithField("deduped station list length", len(dedupedStations)).Info("logging the length of stations list with duplicates removed")
 	return dedupedStations
 }
 
@@ -173,14 +172,12 @@ func GetCombinedGrid(lineups []Lineup) (combinedStations Stations) {
 
 	for _, lineup := range lineups {
 
-		log.WithField("before", len(lineup.Stations)).Info("number of stations")
 		for _, station := range lineup.Stations {
 
 			combinedStations = append(combinedStations, station)
 
 		}
 	}
-	log.WithField("after", len(combinedStations)).Info("number of stations")
 	return combinedStations
 }
 
@@ -213,12 +210,11 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	log.Debug(req)
 
 	res, err := iClient.Do(req)
-
 	com.Check(err)
 
 	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&lineup.Stations)
 
+	err = decoder.Decode(&lineup.Stations)
 	com.Check(err)
 
 	the_json, err := json.Marshal(&lineup.Stations)
@@ -228,38 +224,53 @@ func (lineup Lineup) GetFreshTVListingsGrid() []byte {
 	return the_json
 }
 func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
+
+	var wg sync.WaitGroup
+
 	log.SetFormatter(&log.JSONFormatter{})
 	rc := r.Context().Value("redis_client").(*redis.Client)
-	log.WithFields(log.Fields{
-		"zip code":          g.ZipCode,
-		"number of lineups": len(g.Lineups),
-	}).Info()
+
+	lchan := make(chan Lineup, 2)
+
 	for _, lineup := range g.Lineups {
 
-		//log.WithField("id", lineup.LineupId).Info("checking for regular expressions")
-
 		if IsRightLinup(lineup) {
-			log.Info("Getting ", lineup.LineupId)
-			val, err := rc.Get(lineup.LineupId).Result()
+			wg.Add(1)
+			go func(lineup Lineup, wg *sync.WaitGroup, rc *redis.Client, lchan chan Lineup) {
+				log.Info("Getting ", lineup.LineupId)
+				val, err := rc.Get(lineup.LineupId).Result()
 
-			if err == redis.Nil {
-				the_json := lineup.GetFreshTVListingsGrid()
-				timeout := time.Hour * 5
-				rc.Set(lineup.LineupId, the_json, timeout)
-				err = json.Unmarshal(the_json, &lineup.Stations)
-				com.Check(err)
+				if err == redis.Nil {
+					the_json := lineup.GetFreshTVListingsGrid()
+					timeout := time.Hour * 5
+					rc.Set(lineup.LineupId, the_json, timeout)
+					err = json.Unmarshal(the_json, &lineup.Stations)
+					com.Check(err)
 
-				lineups = append(lineups, lineup)
+					//lineups = append(lineups, lineup)
+					lchan <- lineup
+					wg.Done()
 
-			} else {
-				log.Info("Redis Value Found for ", lineup.LineupId)
-				json.Unmarshal([]byte(val), &lineup.Stations)
+				} else {
+					log.Info("Redis Value Found for ", lineup.LineupId)
+					json.Unmarshal([]byte(val), &lineup.Stations)
 
-				lineups = append(lineups, lineup)
-			}
+					//lineups = append(lineups, lineup)
+
+					lchan <- lineup
+					wg.Done()
+				}
+			}(lineup, &wg, rc, lchan)
 		}
 	}
 
+	wg.Wait()
+
+	close(lchan)
+
+	for x := range lchan {
+		lineups = append(lineups, x)
+	}
 	return lineups
 
 }
@@ -307,9 +318,15 @@ func (g *Guide) GetLineups(r *http.Request) {
 	req, err := http.NewRequest("GET", LineupsUri, nil)
 	params := map[string]string{"country": "USA", "postalCode": g.ZipCode, "api_key": ApiKey}
 	com.BuildQuery(req, params)
+	log.WithFields(log.Fields{
+		"request url": req.URL.Path,
+		"postal code": g.ZipCode,
+		"API key" : ApiKey,
+	}).Info()
 	res, err := iClient.Do(req)
+	log.WithField("request status", res.Status).Info()
 
-	log.Info("got reponse from call to lineups")
+	//log.Info("got reponse from call to lineups")
 	defer res.Body.Close()
 
 	com.Check(err)
@@ -423,23 +440,22 @@ func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
 					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
 
 					filtered <- station
-				}else if record.CallsignSecondary == station.CallSign && record.CallsignSecondary != "" {
+				} else if record.CallsignSecondary == station.CallSign && record.CallsignSecondary != "" {
 					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
 					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
 
 					filtered <- station
-				}else if record.CallsignPrimary == station.AffiliateCallSign && record.CallsignPrimary != "" {
+				} else if record.CallsignPrimary == station.AffiliateCallSign && record.CallsignPrimary != "" {
 					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
 					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
 
 					filtered <- station
-				}else if record.CallsignSecondary == station.AffiliateCallSign && record.CallsignSecondary != "" {
+				} else if record.CallsignSecondary == station.AffiliateCallSign && record.CallsignSecondary != "" {
 					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
 					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
 
 					filtered <- station
 				}
-
 
 			}
 
