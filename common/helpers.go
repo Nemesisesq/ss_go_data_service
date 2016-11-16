@@ -13,6 +13,7 @@ import (
 
 func Check(e error) {
 	if e != nil {
+		GetLogger().Debug(e)
 		panic(e)
 	}
 }

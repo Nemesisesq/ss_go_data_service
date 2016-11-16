@@ -92,10 +92,10 @@ type Program struct {
 }
 
 type StationMetaData struct {
-	CallsignPrimary string `json:"callsign_primary" bson:"callsign_primary"`
+	StationIdPrimary  string `json:"stationId_primary" json:"stationId_primary"`
+	CallsignPrimary   string `json:"callsign_primary" bson:"callsign_primary"`
 	CallsignSecondary string `json:"callsign_secondary" bson:"callsign_secondary"`
-
-	DefaultRank string `json:"default_rank" bson:"default_rank"`
+	DefaultRank       string `json:"default_rank" bson:"default_rank"`
 }
 
 type Station struct {
@@ -333,7 +333,7 @@ func (g *Guide) GetLineups(r *http.Request) {
 	}
 
 	index := mgo.Index{
-		Key: []string{"zip_code"},
+		Key:        []string{"zip_code"},
 		Unique:     false,
 		DropDups:   true,
 		Background: true,
@@ -405,50 +405,78 @@ func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
 	var wg sync.WaitGroup
 
 	err := col.Find(nil).All(&md)
+
 	com.Check(err)
+	//log.Println(len(md))
 
 	for _, station := range stations {
 
 		wg.Add(1)
 		go func(station Station, wg *sync.WaitGroup) {
 
-			//for record := range md{
-			//	switch record {
-			//	case record.sta
+			//start := time.Now()
+			for _, record := range md {
+				//r, _ := json.MarshalIndent(record, "","\t")
+				//fmt.Println(string(r))
+				if record.CallsignPrimary == station.CallSign && record.CallsignPrimary != "" {
+					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
+					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
+
+					filtered <- station
+				}else if record.CallsignSecondary == station.CallSign && record.CallsignSecondary != "" {
+					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
+					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
+
+					filtered <- station
+				}else if record.CallsignPrimary == station.AffiliateCallSign && record.CallsignPrimary != "" {
+					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
+					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
+
+					filtered <- station
+				}else if record.CallsignSecondary == station.AffiliateCallSign && record.CallsignSecondary != "" {
+					station.DefaultRank, err = strconv.Atoi(record.DefaultRank)
+					//log.Printf("passing station to filterd channel %v", record.DefaultRank)
+
+					filtered <- station
+				}
+
+
+			}
+
+
+
+			//log.Printf("records loop duration %v", time.Since(start))
+			wg.Done()
+
+			//query := []bson.M{}
 			//
-			//	}
+			//query = append(query, bson.M{"stationId_primary": station.StationId})
+			//query = append(query, bson.M{"stationId_second": station.StationId})
+			//if station.CallSign != "" {
+			//	query = append(query, bson.M{"callsign_primary": station.CallSign})
+			//	query = append(query, bson.M{"callsign_secondary": station.CallSign})
+			//}
+			//
+			//if station.AffiliateCallSign != "" {
+			//	query = append(query, bson.M{"callsign_secondary": station.AffiliateCallSign})
+			//	query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
+			//}
+			//count, _ := col.Find(bson.M{"$or": query}).Count()
+			//if count > 0 {
+			//	//wg.Add(1)
+			//	md := &StationMetaData{}
+			//	err := col.Find(bson.M{"$or": query}).One(&md)
+			//	com.Check(err)
+			//
+			//	station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
+			//	filtered <- station
+			//	wg.Done()
+			//} else {
+			//	wg.Done()
 			//}
 
-			query := []bson.M{}
-
-			query = append(query, bson.M{"stationId_primary": station.StationId})
-			query = append(query, bson.M{"stationId_second": station.StationId})
-			if station.CallSign != "" {
-				query = append(query, bson.M{"callsign_primary": station.CallSign})
-				query = append(query, bson.M{"callsign_secondary": station.CallSign})
-			}
-
-			if station.AffiliateCallSign != "" {
-				query = append(query, bson.M{"callsign_secondary": station.AffiliateCallSign})
-				query = append(query, bson.M{"callsign_primary": station.AffiliateCallSign})
-			}
-			count, _ := col.Find(bson.M{"$or": query}).Count()
-			if count > 0 {
-				//wg.Add(1)
-				md := &StationMetaData{}
-				err := col.Find(bson.M{"$or": query}).One(&md)
-				com.Check(err)
-
-				station.DefaultRank, err = strconv.Atoi(md.DefaultRank)
-				filtered <- station
-				//log.Println("passing station to filterd channel")
-				wg.Done()
-			} else {
-				wg.Done()
-			}
-
 		}(station, &wg)
-		//
+
 	}
 
 	log.Println("waiting")
