@@ -9,7 +9,7 @@ func GuideboxEpisodeTimer () {
 
 	quit := make(chan struct{})
 	//ticker := time.NewTicker(24 * time.Hour)
-	ticker := time.NewTicker(4 * time.Minute)
+	ticker := time.NewTicker(72 * time.Hour)
 	go func(ticker *time.Ticker, quit chan struct{}) {
 		log.WithFields(log.Fields{
 			"timer": "ticker",
