@@ -46,8 +46,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string   `json:"place_id"`
-	Types             []string `json:"types"`
+	PlaceId string   `json:"place_id"`
+	Types   []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -321,7 +321,7 @@ func (g *Guide) GetLineups(r *http.Request) {
 	log.WithFields(log.Fields{
 		"request url": req.URL.Path,
 		"postal code": g.ZipCode,
-		"API key" : ApiKey,
+		"API key":     ApiKey,
 	}).Info()
 	res, err := iClient.Do(req)
 	log.WithField("request status", res.Status).Info()
@@ -458,8 +458,6 @@ func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
 				}
 
 			}
-
-
 
 			//log.Printf("records loop duration %v", time.Since(start))
 			wg.Done()

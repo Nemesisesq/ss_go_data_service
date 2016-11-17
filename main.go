@@ -4,7 +4,9 @@ import (
 	"fmt"
 	//"log"
 	"net/http"
+	"net/url"
 	"os"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -19,12 +21,11 @@ import (
 	serv_proc "github.com/nemesisesq/ss_data_service/service_processor"
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	"github.com/rs/cors"
-	"net/url"
-	"time"
+	"github.com/nemesisesq/ss_data_service/timers"
 )
 
 func main() {
-log.SetFormatter(&log.JSONFormatter{})
+	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
 
 	err := godotenv.Load()
@@ -37,7 +38,6 @@ log.SetFormatter(&log.JSONFormatter{})
 
 	// Create Redis Client
 	redis_url := os.Getenv("REDISCLOUD_URL")
-
 
 	u, err := url.Parse(redis_url)
 
@@ -59,7 +59,9 @@ log.SetFormatter(&log.JSONFormatter{})
 	n.Use(x.Middleware())
 
 	r := mux.NewRouter()
-	quit := make(chan struct{})
+
+	//quit := make(chan struct{})
+
 	r.HandleFunc("/", com.HomePage).Methods("GET")
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
@@ -83,23 +85,28 @@ log.SetFormatter(&log.JSONFormatter{})
 	n.Use(c)
 	n.UseHandler(r)
 
-	//
-	ticker := time.NewTicker(25 * time.Minute)
-	go func(){
-		for {
-			select {
-			case <- ticker.C:
-				log.Println("ticker fired")
-				gnote.RefreshListings()
-			case <- quit:
-				log.Println("ticker Stoping")
-				ticker.Stop()
-				return
-			}
-		}
 
-		log.Println("Cleaning up!!")
-	}()
+	//timers
+	timers.GraceNoteListingTimer()
+	timers.GuideboxEpisodeTimer()
+
+	//
+	//ticker := time.NewTicker(25 * time.Minute)
+	//go func() {
+	//	for {
+	//		select {
+	//		case <-ticker.C:
+	//			log.Println("ticker fired")
+	//			gnote.RefreshListings()
+	//		case <-quit:
+	//			log.Println("ticker Stoping")
+	//			ticker.Stop()
+	//			return
+	//		}
+	//	}
+	//
+	//	log.Println("Cleaning up!!")
+	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
 	log.Fatal(http.ListenAndServe(":"+port, n))
