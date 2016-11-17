@@ -114,9 +114,9 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		com.Check(err)
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
-				log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
+				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
 				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
-				log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
+				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 
 		}
