@@ -22,6 +22,7 @@ import (
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	"github.com/rs/cors"
 	"github.com/nemesisesq/ss_data_service/timers"
+	"github.com/nemesisesq/ss_data_service/socket"
 )
 
 func main() {
@@ -62,7 +63,8 @@ func main() {
 
 	//quit := make(chan struct{})
 
-	r.HandleFunc("/", com.HomePage).Methods("GET")
+	r.HandleFunc("/echo", socket.EchoHandler)
+	r.HandleFunc("/epis", ss.HandleEpisodeSocket)
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
 	r.HandleFunc("/popular", pop.GetPopularityScore).Methods("POST")
@@ -75,8 +77,12 @@ func main() {
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
 	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "1") })
+	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
+
+	//Socket
+
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

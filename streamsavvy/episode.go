@@ -15,6 +15,7 @@ import (
 	com "github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/redis.v5"
 	"sync"
+	"github.com/gorilla/websocket"
 )
 
 type Episode struct {
@@ -60,6 +61,59 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 }
 
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	com.Check(err)
+
+	for {
+		messageType, p, err := conn.ReadMessage()
+		com.Check(err)
+
+		guideboxId := string(p[:])
+
+		epi := &GuideBoxEpisodes{}
+		start := time.Now()
+		log.Info("Getting Initial")
+		total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
+
+		for i := 1; (i * 25) <= total_results; i++ {
+			s := i * 25
+			//log.Printf("getting episodes starting with %v", s)
+
+			go func(s int, guideboxId string, conn *websocket.Conn) {
+				_, res := epi.GetEpisodes(s, 25, guideboxId)
+
+				//log.Printf("sending reuslts for %v to chan", s)
+				//log.Println(len(res))
+				//fmt.Println(wg)
+				response, err := json.Marshal(res)
+				com.Check(err)
+
+				err = conn.WriteMessage(messageType,response)
+
+				log.Info(time.Since(start))
+			}(s, guideboxId, conn)
+			//time.Sleep(25 * time.Millisecond)
+		}
+
+		log.Info(time.Since(start))
+
+		response, err := json.Marshal(episode_list)
+
+		com.Check(err)
+		err = conn.WriteMessage(messageType, response)
+
+	}
+}
+
 func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	guideboxId := r.URL.Query().Get("guidebox_id")
@@ -87,7 +141,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		log.Info("checking TTL", reflect.TypeOf(ttl))
-		if ttl < time.Hour*12 {
+		if ttl < time.Hour * 12 {
 			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
 			go epi.RefreshEpisodes(guideboxId, *client)
 		}
@@ -115,7 +169,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
 				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
-				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
+				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
 				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 
@@ -170,13 +224,13 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 	total_results, episode_list = epi.GetEpisodes(0, 25, guideboxId)
 	//log.Info("Im out")
 
-	chanBuffer := total_results/25
+	chanBuffer := total_results / 25
 	episodeListChan := make(chan []interface{}, chanBuffer)
 
 	wg := sync.WaitGroup{}
 
 	for i := 1; (i * 25) <= total_results; i++ {
-		s := i *25
+		s := i * 25
 		//log.Printf("getting episodes starting with %v", s)
 		wg.Add(1)
 		go func(s int, guideboxId string, wg *sync.WaitGroup, c chan []interface{}) {
@@ -256,9 +310,9 @@ func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string)
 	return total_results, epiList
 }
 
-func  RefreshEpisodes() {
+func RefreshEpisodes() {
 	popularShowList := []Content{}
-	//epis := &GuideBoxEpisodes{}
+	epis := &GuideBoxEpisodes{}
 
 	redis_url := os.Getenv("REDISCLOUD_URL")
 
@@ -283,7 +337,7 @@ func  RefreshEpisodes() {
 
 	fmt.Printf("redis %v", pong)
 
-	url := fmt.Sprintf("%v/popular_shows",os.Getenv("SS_MASTER"))
+	url := fmt.Sprintf("%v/popular_shows", os.Getenv("SS_MASTER"))
 
 	res, err := http.Get(url)
 
@@ -294,13 +348,13 @@ func  RefreshEpisodes() {
 
 	for _, show := range popularShowList {
 
-		id := show.GuideboxData["id"]
+		id := show.GuideboxData["id"].(string)
 
 		log.Printf("getting episodes for &v", id)
 
-		//episode_list, total_results := epis.GetAllEpisodes(id)
+		episode_list, total_results := epis.GetAllEpisodes(id)
 		//
-		//epis.CacheEpisode(total_results, episode_list, id, *client)
+		epis.CacheEpisode(total_results, episode_list, id, *client)
 
 	}
 
