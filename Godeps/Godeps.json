@@ -24,6 +24,11 @@
 			"Rev": "a49d62f618e6dc4a7a7d1f0ad69744a158c21f23"
 		},
 		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.0.0-39-ge8f0f8a",
+			"Rev": "e8f0f8aaa98dfb6586cbdf2978d511e3199a960a"
+		},
+		{
 			"ImportPath": "github.com/joeljames/nigroni-mgo-session",
 			"Rev": "b6c640fc84abca11c85b67f8d7f08713d0c99234"
 		},
