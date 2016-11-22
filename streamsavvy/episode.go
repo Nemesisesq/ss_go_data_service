@@ -70,17 +70,20 @@ var upgrader = websocket.Upgrader{
 }
 
 func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
+
+	timeout := time.NewTicker(10 * time.Second)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
 
 	for {
+
 		messageType, p, err := conn.ReadMessage()
 		com.Check(err)
 
 		guideboxId := string(p[:])
 
 		epi := &GuideBoxEpisodes{}
-		start := time.Now()
+
 		log.Info("Getting Initial")
 		total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
 
@@ -89,6 +92,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			//log.Printf("getting episodes starting with %v", s)
 
 			go func(s int, guideboxId string, conn *websocket.Conn) {
+				start := time.Now()
 				_, res := epi.GetEpisodes(s, 25, guideboxId)
 
 				//log.Printf("sending reuslts for %v to chan", s)
@@ -97,19 +101,33 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				response, err := json.Marshal(res)
 				com.Check(err)
 
-				err = conn.WriteMessage(messageType,response)
+				err = conn.WriteMessage(messageType, response)
+				timeout = time.NewTicker(1 * time.Second)
 
-				log.Info(time.Since(start))
+				log.WithFields(log.Fields{
+
+					"Starting At": s,
+					"start time": start,
+
+				}).Info(time.Since(start))
 			}(s, guideboxId, conn)
 			//time.Sleep(25 * time.Millisecond)
 		}
-
-		log.Info(time.Since(start))
 
 		response, err := json.Marshal(episode_list)
 
 		com.Check(err)
 		err = conn.WriteMessage(messageType, response)
+
+		//set timeout
+		for {
+			select {
+			case <-timeout.C:
+				log.Info("closing socket connection")
+				conn.Close()
+				return
+			}
+		}
 
 	}
 }
