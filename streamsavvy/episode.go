@@ -75,6 +75,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
 
+	epiChan := make(chan []interface{}, 100)
+
+	client := r.Context().Value("redis_client").(*redis.Client)
+
+	wg := sync.WaitGroup{}
+
 	for {
 
 		messageType, p, err := conn.ReadMessage()
@@ -84,51 +90,96 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		epi := &GuideBoxEpisodes{}
 
-		log.Info("Getting Initial")
-		total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
+		val, err := client.Get(guideboxId).Result()
 
-		for i := 1; (i * 25) <= total_results; i++ {
-			s := i * 25
-			//log.Printf("getting episodes starting with %v", s)
+		if err == redis.Nil {
 
-			go func(s int, guideboxId string, conn *websocket.Conn) {
-				start := time.Now()
-				_, res := epi.GetEpisodes(s, 25, guideboxId)
+			log.Info("Getting Initial")
+			wg.Add(1)
+			total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
 
-				//log.Printf("sending reuslts for %v to chan", s)
-				//log.Println(len(res))
-				//fmt.Println(wg)
-				response, err := json.Marshal(res)
-				com.Check(err)
+			for i := 1; (i * 5) <= total_results; i++ {
+				//time.Sleep(time.Millisecond * 250)
+				s := i * 5
+				//log.Printf("getting episodes starting with %v", s)
+				wg.Add(1)
+				go func(s int, guideboxId string, conn *websocket.Conn) {
+					start := time.Now()
+					_, res := epi.GetEpisodes(s, 10, guideboxId)
 
-				err = conn.WriteMessage(messageType, response)
-				timeout = time.NewTicker(1 * time.Second)
 
-				log.WithFields(log.Fields{
+					select {
+					case epiChan <- res:
+					default:
 
-					"Starting At": s,
-					"start time": start,
+					}
 
-				}).Info(time.Since(start))
-			}(s, guideboxId, conn)
-			//time.Sleep(25 * time.Millisecond)
-		}
+					response, err := json.Marshal(res)
+					com.Check(err)
 
-		response, err := json.Marshal(episode_list)
+					err = conn.WriteMessage(messageType, response)
+					wg.Done()
+					timeout = time.NewTicker(1 * time.Second)
 
-		com.Check(err)
-		err = conn.WriteMessage(messageType, response)
+					log.WithFields(log.Fields{
 
-		//set timeout
-		for {
-			select {
-			case <-timeout.C:
-				log.Info("closing socket connection")
-				conn.Close()
-				return
+						"Starting At": s,
+						"start time": start,
+
+					}).Info(time.Since(start))
+				}(s, guideboxId, conn)
+				//time.Sleep(25 * time.Millisecond)
 			}
-		}
 
+			select {
+			case epiChan <- episode_list:
+			default:
+			}
+
+			log.WithField("channel length", len(epiChan))
+
+			response, err := json.Marshal(episode_list)
+
+			com.Check(err)
+			err = conn.WriteMessage(messageType, response)
+			wg.Done()
+
+
+			//set timeout
+			for {
+				select {
+				case <-timeout.C:
+					wg.Wait()
+					log.Info("closing the channel")
+					close(epiChan)
+					res := []interface{}{}
+
+					for l := range epiChan {
+
+						log.Info("gettig value from chan")
+						res = append(res, l...)
+
+					}
+
+					log.Info("caching result")
+					epi.CacheEpisode(total_results, res, guideboxId, *client)
+
+					log.Info("closing socket connection")
+					conn.Close()
+					return
+				}
+			}
+
+		} else {
+
+			log.Info(fmt.Sprintf("%v found in cache", guideboxId))
+			json.Unmarshal([]byte(val), &epi)
+			response, err := json.Marshal(epi.Results)
+			com.Check(err)
+			err = conn.WriteMessage(messageType, response)
+
+
+		}
 	}
 }
 
