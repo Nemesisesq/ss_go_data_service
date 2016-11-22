@@ -98,14 +98,14 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
 
-			for i := 1; (i * 5) <= total_results; i++ {
+			for i := 1; (i * 12) <= total_results; i++ {
 				//time.Sleep(time.Millisecond * 250)
-				s := i * 5
+				s := i * 12
 				//log.Printf("getting episodes starting with %v", s)
 				wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
-					_, res := epi.GetEpisodes(s, 10, guideboxId)
+					_, res := epi.GetEpisodes(s, 12, guideboxId)
 
 
 					select {
