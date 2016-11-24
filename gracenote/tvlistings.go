@@ -46,8 +46,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId string   `json:"place_id"`
-	Types   []string `json:"types"`
+	PlaceId           string   `json:"place_id"`
+	Types             []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -361,11 +361,35 @@ func (g *Guide) GetLineups(r *http.Request) {
 }
 
 func (g *Guide) SetZipCode() {
+	geoCode := GetGeoCodeFromGoogle(g.Lat, g.Long)
+
+	g.ZipCode = ExtractZipFromGeoCode(geoCode)
+
+}
+
+func ExtractZipFromGeoCode(geoCode GeoCode) (zip string) {
+
+
+	for _, result := range geoCode.Results {
+		for _, component := range result.AddressComponents {
+			for _, t := range component.Types {
+				if t == "postal_code" {
+
+					zip = component.LongName
+				}
+			}
+		}
+	}
+
+	return zip
+}
+
+func GetGeoCodeFromGoogle(lat, long string) GeoCode {
 
 	req, err := http.NewRequest("GET", GeoCodeUri, nil)
 	com.Check(err)
 	params := map[string]string{
-		"latlng": fmt.Sprintf("%s,%s", g.Lat, g.Long),
+		"latlng": fmt.Sprintf("%s,%s", lat, long),
 		"sensor": "true",
 	}
 	com.BuildQuery(req, params)
@@ -381,18 +405,7 @@ func (g *Guide) SetZipCode() {
 
 	com.Check(err)
 
-	for _, result := range geoCode.Results {
-		for _, component := range result.AddressComponents {
-			for _, t := range component.Types {
-				if t == "postal_code" {
-					g.ZipCode = component.LongName
-
-					return
-				}
-			}
-		}
-	}
-
+	return *geoCode
 }
 
 func (g *Guide) FilterAirings(stations Stations, r *http.Request) (filteredStations Stations) {

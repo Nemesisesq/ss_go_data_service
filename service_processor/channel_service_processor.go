@@ -4,21 +4,25 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	com "github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
 	"regexp"
+
+	"github.com/Sirupsen/logrus"
+	com "github.com/nemesisesq/ss_data_service/common"
+	"github.com/nemesisesq/ss_data_service/gracenote"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type RawPayload struct {
-	CallLetters    string `json:"CallLetters"`
-	DisplayName    string `json:"DisplayName"`
-	SourceLongName string `json:"SourceLongName"`
-	SourceId       string `json:"SourceId"`
+	CallLetters    string                 `json:"CallLetters"`
+	DisplayName    string                 `json:"DisplayName"`
+	SourceLongName string                 `json:"SourceLongName"`
+	SourceId       string                 `json:"SourceId"`
+	Coords         map[string]interface{} `json:"coords"`
 }
 
 type StreamingSource struct {
@@ -146,6 +150,7 @@ func GetOnDemandServices(w http.ResponseWriter, r *http.Request) {
 	ODPayload := &LiveShowStreamingMetaData{}
 
 	for _, val := range ss_slice {
+
 		if CheckIfLowestTier(ss_slice, val.Source) {
 			ODPayload.StreamingSources = append(ODPayload.StreamingSources, val)
 		}
@@ -231,6 +236,8 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&processedPayloads)
 	com.Check(err)
 
+	db := r.Context().Value("db").(mgo.Database)
+
 	for i, sS := range processedPayloads.StreamingSources {
 		//fmt.Println(sS.Source)
 
@@ -243,11 +250,20 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	NewPP := &LiveShowStreamingMetaData{}
+	//TODO remove this old code one day
 
 	for _, val := range processedPayloads.StreamingSources {
-		if CheckIfLowestTier(processedPayloads.StreamingSources, val.Source) {
-			NewPP.StreamingSources = append(NewPP.StreamingSources, val)
+		ok := true
+		if GSM(`sling`, val.Source) && rawPayload.Coords != nil {
+
+			//ok = IsNotBlackedOutNetWork(*rawPayload, &db, zip)
 		}
+
+		if ok && CheckIfLowestTier(processedPayloads.StreamingSources, val.Source) {
+			NewPP.StreamingSources = append(NewPP.StreamingSources, val)
+			logrus.Info("adding")
+		}
+
 	}
 
 	seen := map[string]bool{}
@@ -288,8 +304,6 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	NewPP.StreamingSources = resSS
 
-	db := r.Context().Value("db").(mgo.Database)
-
 	col := db.C("live_streaming_services")
 
 	ss_detail := &ShowServiceMatchList{}
@@ -312,12 +326,55 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 	err = col.Find(bson.M{"$or": mgoQuery}).One(&ss_detail)
 
+	tempApps := []App{}
+
+	var zip string
+
+	if rawPayload.Coords != nil {
+		geoCode := gracenote.GetGeoCodeFromGoogle(rawPayload.Coords["lat"].(string), rawPayload.Coords["long"].(string))
+
+		zip = gracenote.ExtractZipFromGeoCode(geoCode)
+
+	}
+	for _, serv := range ss_detail.Services {
+		if serv.App == "Sling" && IsNotBlackedOutNetWork(*rawPayload, &db, zip) {
+
+			tempApps = append(tempApps, serv)
+
+		} else if rawPayload.Coords == nil {
+			tempApps = append(tempApps, serv)
+		}
+
+		if serv.App != "Sling" {
+			tempApps = append(tempApps, serv)
+		}
+
+	}
+
+	ss_detail.Services = tempApps
+
 	if err == nil {
 		NewPP.StreamingSourceLiveShowMatches = *ss_detail
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewPP)
+}
+
+func IsNotBlackedOutNetWork(payload RawPayload, db *mgo.Database, zip string) bool {
+	col := db.C("dma_zips")
+	logrus.Warn(zip)
+	count, err := col.Find(bson.M{"network": payload.DisplayName, "zip_codes": bson.M{"$in": []string{zip}}}).Count()
+	com.Check(err)
+
+	logrus.WithFields(logrus.Fields{
+		"result of limitied dma search": count,
+		"zip":  zip,
+		"name": payload.DisplayName,
+	}).Info()
+
+	return count > 0
+
 }
 
 func MatchDeepLinks(sS *StreamingSource) *StreamingSource {
