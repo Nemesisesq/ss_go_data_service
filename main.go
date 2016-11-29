@@ -74,8 +74,8 @@ func main() {
 
 	r.HandleFunc("/echo", socket.EchoHandler)
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore)).Methods("POST")
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/live-streaming-service", serv_proc.GetLiveStreamingServices)).Methods("GET")
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore))
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/live-streaming-service", serv_proc.GetLiveStreamingServices))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings))
 	r.HandleFunc(newrelic.WrapHandleFunc(app,"/episodes", ss.GetEpisodes)).Methods("GET")
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
