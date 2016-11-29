@@ -23,13 +23,20 @@ import (
 	"github.com/rs/cors"
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/nemesisesq/ss_data_service/socket"
+	"github.com/newrelic/go-agent"
 )
 
 func main() {
+	//configure new relic
+	config := newrelic.NewConfig("Your App Name", "baa40a4680d3d03079bb6f7bfbc9130934bf33e0")
+	app, err := newrelic.NewApplication(config)
+
+	com.Check(err)
+
 	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
 
-	err := godotenv.Load()
+	err = godotenv.Load()
 
 	com.Check(err)
 
@@ -49,7 +56,7 @@ func main() {
 	if !b {
 		pass = ""
 	}
-	//rURL := fmt.Sprintf("%v://%v",u.Scheme, u.Host)
+
 	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
 	com.Check(err)
 
@@ -63,19 +70,21 @@ func main() {
 
 	//quit := make(chan struct{})
 
+	//nwh := newrelic.WrapHandleFunc
+
 	r.HandleFunc("/echo", socket.EchoHandler)
-	r.HandleFunc("/epis", ss.HandleEpisodeSocket)
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
 	r.HandleFunc("/popular", pop.GetPopularityScore).Methods("POST")
-	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices).Methods("POST")
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/live-streaming-service", serv_proc.GetLiveStreamingServices)).Methods("GET")
 	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices).Methods("POST")
 	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings)
 	r.HandleFunc("/favorites", ss.GetFavorites)
 	r.HandleFunc("/favorites/add", ss.AddContentToFavorites)
 	r.HandleFunc("/favorites/remove", ss.RemoveContentFromFavorites).Methods("DELETE")
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
-	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
+	r.HandleFunc(newrelic.WrapHandleFunc(app,"/episodes", ss.GetEpisodes)).Methods("GET")
 	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "1") })
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})
