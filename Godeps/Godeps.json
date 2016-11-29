@@ -38,6 +38,36 @@
 			"Rev": "4ed13390c0acd2ff4e371e64d8b97c8954138243"
 		},
 		{
+			"ImportPath": "github.com/newrelic/go-agent",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/jsonx",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/logger",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/sysinfo",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
+			"ImportPath": "github.com/newrelic/go-agent/internal/utilization",
+			"Comment": "v1.5.0",
+			"Rev": "7d12ae2201fc160e486197614a6f65afcf3f8170"
+		},
+		{
 			"ImportPath": "github.com/rs/cors",
 			"Comment": "v1.0",
 			"Rev": "a62a804a8a009876ca59105f7899938a1349f4b3"
