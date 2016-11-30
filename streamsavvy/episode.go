@@ -77,13 +77,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
 
-	epiChan := make(chan []interface{}, 100)
+	//epiChan := make(chan []interface{}, 100)
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 
-	wg := sync.WaitGroup{}
+	//wg := sync.WaitGroup{}
 
 	for {
 
@@ -125,19 +125,22 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				)
 
 				com.Check(err)
-
+				x := 1
 				for {
-
 					select {
-
 					case d := <-msgs:
-						log.Info(string(d.Body[:]))
+					//log.Info(string(d.Body[:]))
+						log.Info("sending", x * 12)
+						err = conn.WriteMessage(messageType, d.Body)
+						x+=1
+						com.Check(err)
+
 					}
 				}
 			}()
 
 			log.Info("Getting Initial")
-			wg.Add(1)
+			//wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
 			tx_q, err := rmqc.TX.QueueDeclare(
 				"hello",
@@ -150,10 +153,8 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			com.Check(err)
 
 			for i := 1; (i * 12) <= total_results; i++ {
-				//time.Sleep(time.Millisecond * 250)
 				s := i * 12
-				//log.Printf("getting episodes starting with %v", s)
-				wg.Add(1)
+				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
@@ -162,17 +163,9 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						log.Info(len(res))
 					}
 
-					select {
-					case epiChan <- res:
-					default:
-
-					}
 					response, err := json.Marshal(res)
 					com.Check(err)
 
-					body := fmt.Sprintf("hello %v", s)
-
-					//log.Info(body, "in")
 
 					err = rmqc.TX.Publish(
 						"", // exchange
@@ -181,13 +174,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						false, // immediate
 						amqp.Publishing{
 							ContentType: "text/plain",
-							Body:        []byte(body),
+							Body:        response,
 						})
+
 					com.Check(err)
 
-
-					err = conn.WriteMessage(messageType, response)
-					wg.Done()
+					//err = conn.WriteMessage(messageType, response)
+					//wg.Done()
 					timeout = time.NewTicker(1 * time.Second)
 
 					log.WithFields(log.Fields{
@@ -197,21 +190,14 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					}).Info(time.Since(start))
 				}(s, guideboxId, conn)
-				//time.Sleep(25 * time.Millisecond)
 			}
-
-			select {
-			case epiChan <- episode_list:
-			default:
-			}
-
-			log.WithField("channel length", len(epiChan))
 
 			response, err := json.Marshal(episode_list)
 
 			com.Check(err)
 			err = conn.WriteMessage(messageType, response)
-			wg.Done()
+			com.Check(err)
+			//wg.Done()
 
 		} else {
 
