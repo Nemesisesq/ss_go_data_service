@@ -12,21 +12,21 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	com "github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/redis.v5"
-	"sync"
 	"github.com/gorilla/websocket"
+	com "github.com/nemesisesq/ss_data_service/common"
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
+	"gopkg.in/redis.v5"
+	"sync"
 )
 
 type Episode struct {
 	Id                         interface{}              `json:"id"`
 	Tvdb                       interface{}              `json:"tvdb"`
-	ContentType                interface{}                   `json:"content_type"`
+	ContentType                interface{}              `json:"content_type"`
 	IsShadow                   interface{}              `json:"is_shadow"`
-	AlternateTvdb              []interface{}                 `json:"alternate_tvdb"`
-	ImdbId                     interface{}                 `json:"imdb_id"`
+	AlternateTvdb              []interface{}            `json:"alternate_tvdb"`
+	ImdbId                     interface{}              `json:"imdb_id"`
 	SeasonNumber               interface{}              `json:"season_number"`
 	EpisodeNumber              interface{}              `json:"episode_number"`
 	ShowId                     interface{}              `json:"show_id"`
@@ -38,7 +38,7 @@ type Episode struct {
 	AlternateTitles            []string                 `json:"alternate_titles"`
 	Overview                   string                   `json:"overview"`
 	Duration                   interface{}              `json:"duration"`
-	ProductionCode             interface{}                   `json:"production_code"`
+	ProductionCode             interface{}              `json:"production_code"`
 	Thumbnail208X117           string                   `json:"thumbnail_208x117"`
 	Thumbnail304X171           string                   `json:"thumbnail_304x171"`
 	Thumbnail400X225           string                   `json:"thumbnail_400x225"`
@@ -109,19 +109,19 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			com.Check(err)
 
 			/*
-			Here we set the time out to close the socket connection after there is no more
-			Episodes to send
+				Here we set the time out to close the socket connection after there is no more
+				Episodes to send
 			*/
 			go func() {
 
 				msgs, err := rmqc.RX.Consume(
 					rx_q.Name, // queue
-					"", // consumer
-					true, // auto-ack
-					false, // exclusive
-					false, // no-local
-					false, // no-wait
-					nil, // args
+					"",        // consumer
+					true,      // auto-ack
+					false,     // exclusive
+					false,     // no-local
+					false,     // no-wait
+					nil,       // args
 				)
 
 				com.Check(err)
@@ -129,10 +129,10 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				for {
 					select {
 					case d := <-msgs:
-					//log.Info(string(d.Body[:]))
-						log.Info("sending", x * 12)
+						//log.Info(string(d.Body[:]))
+						log.Info("sending", x*12)
 						err = conn.WriteMessage(messageType, d.Body)
-						x+=1
+						x += 1
 						com.Check(err)
 
 					}
@@ -166,12 +166,11 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					response, err := json.Marshal(res)
 					com.Check(err)
 
-
 					err = rmqc.TX.Publish(
-						"", // exchange
+						"",        // exchange
 						tx_q.Name, // routing key
-						false, // mandatory
-						false, // immediate
+						false,     // mandatory
+						false,     // immediate
 						amqp.Publishing{
 							ContentType: "text/plain",
 							Body:        response,
@@ -186,8 +185,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					log.WithFields(log.Fields{
 
 						"Starting At": s,
-						"start time": start,
-
+						"start time":  start,
 					}).Info(time.Since(start))
 				}(s, guideboxId, conn)
 			}
@@ -238,7 +236,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		log.Info("checking TTL", reflect.TypeOf(ttl))
-		if ttl < time.Hour * 12 {
+		if ttl < time.Hour*12 {
 			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
 			go epi.RefreshEpisodes(guideboxId, *client)
 		}
@@ -266,7 +264,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
 				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
-				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
+				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
 				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 

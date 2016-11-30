@@ -46,8 +46,8 @@ type Result struct {
 	AddressComponents []AddressComponent `json:"address_components"`
 	FormattedAddress  string             `json:"formatted_address"`
 	Geometry
-	PlaceId           string   `json:"place_id"`
-	Types             []string `json:"types"`
+	PlaceId string   `json:"place_id"`
+	Types   []string `json:"types"`
 }
 
 type AddressComponent struct {
@@ -368,7 +368,6 @@ func (g *Guide) SetZipCode() {
 }
 
 func ExtractZipFromGeoCode(geoCode GeoCode) (zip string) {
-
 
 	for _, result := range geoCode.Results {
 		for _, component := range result.AddressComponents {

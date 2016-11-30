@@ -19,11 +19,11 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	pop "github.com/nemesisesq/ss_data_service/popularity"
 	serv_proc "github.com/nemesisesq/ss_data_service/service_processor"
-	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
-	"github.com/rs/cors"
-	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/nemesisesq/ss_data_service/socket"
+	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
+	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/newrelic/go-agent"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -41,7 +41,6 @@ func main() {
 	com.Check(err)
 
 	port := com.GetPort()
-
 
 	// Create Redis Client
 	redis_url := os.Getenv("REDISCLOUD_URL")
@@ -95,7 +94,6 @@ func main() {
 
 	//Socket
 
-
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 	})
@@ -103,13 +101,12 @@ func main() {
 	n.Use(c)
 	n.UseHandler(r)
 
-
 	//timers
 
 	if os.Getenv("DEBUG") != "true" {
 
-		timers.GraceNoteListingTimer()
-		timers.GuideboxEpisodeTimer()
+		//timers.GraceNoteListingTimer()
+		//timers.GuideboxEpisodeTimer()
 	}
 
 	//
@@ -131,6 +128,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":" + port, n))
+	log.Fatal(http.ListenAndServe(":"+port, n))
 
 }

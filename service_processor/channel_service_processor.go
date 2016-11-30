@@ -363,11 +363,10 @@ func GetLiveStreamingServices(w http.ResponseWriter, r *http.Request) {
 
 func IsNotBlackedOutNetWork(payload RawPayload, db *mgo.Database, zip string) bool {
 	if !GSM("FOX", payload.DisplayName) && !GSM("ABC", payload.DisplayName) &&
-		!GSM("CBS", payload.DisplayName) && !GSM("NBC", payload.DisplayName){
+		!GSM("CBS", payload.DisplayName) && !GSM("NBC", payload.DisplayName) {
 		logrus.Warn(GSM("FOX", payload.DisplayName))
 		return true
 	}
-
 
 	col := db.C("dma_zips")
 

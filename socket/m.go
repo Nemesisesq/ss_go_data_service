@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/nemesisesq/ss_data_service/common"
-	"time"
 	"math/rand"
+	"time"
 )
 
 var upgrader = websocket.Upgrader{

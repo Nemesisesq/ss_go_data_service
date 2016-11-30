@@ -36,7 +36,7 @@ func GetDatabase() (db string) {
 
 }
 
-func GetSession() func() *mgo.Session {
+func GetSession() *mgo.Session {
 	fmt.Println("Hello from GetSession")
 
 	mongo_uri := os.Getenv("MONGODB_URI")
@@ -49,10 +49,7 @@ func GetSession() func() *mgo.Session {
 
 	session.SetMode(mgo.Monotonic, true)
 
-	Clone := func() *mgo.Session {
-
-		return session.Copy()
-	}
+	Clone := session.Copy()
 
 	return Clone
 }

@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"github.com/codegangsta/negroni"
-	"gopkg.in/redis.v5"
-	"net/http"
 	"context"
 	"fmt"
+	"github.com/codegangsta/negroni"
 	"github.com/nemesisesq/ss_data_service/common"
+	"gopkg.in/redis.v5"
+	"net/http"
 )
 
 type CacheAccessor struct {
