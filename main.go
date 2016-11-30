@@ -42,7 +42,6 @@ func main() {
 
 	port := com.GetPort()
 
-	dbAccessor := dbase.DBStartup()
 
 	// Create Redis Client
 	redis_url := os.Getenv("REDISCLOUD_URL")
@@ -57,35 +56,39 @@ func main() {
 		pass = ""
 	}
 
-	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
 	com.Check(err)
 
 	n := negroni.Classic()
+
+	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
-	x := middleware.NewRedisClient(*cacheAccessor)
-	n.Use(x.Middleware())
+	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
+	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
+
+	messengerAccessor, err := middleware.NewRabbitMQAccesor(os.Getenv("RABBITMQ_BIGWIG_TX_URL"), os.Getenv("RABBITMQ_BIGWIG_RX_URL"))
+	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
 
-	//quit := make(chan struct{})
-
-	//nwh := newrelic.WrapHandleFunc
-
 	r.HandleFunc("/echo", socket.EchoHandler)
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
+
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore))
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/episodes", ss.GetEpisodes)).Methods("GET")
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/live-streaming-service", serv_proc.GetLiveStreamingServices))
+	r.HandleFunc(newrelic.WrapHandleFunc(app, "/on-demand-streaming-service", serv_proc.GetOnDemandServices))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings))
-	r.HandleFunc(newrelic.WrapHandleFunc(app,"/episodes", ss.GetEpisodes)).Methods("GET")
+
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
-	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices).Methods("POST")
 	r.HandleFunc("/favorites", ss.GetFavorites)
 	r.HandleFunc("/favorites/add", ss.AddContentToFavorites)
 	r.HandleFunc("/favorites/remove", ss.RemoveContentFromFavorites).Methods("DELETE")
 	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
-	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "1") })
+	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "1")
+	})
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")
@@ -102,8 +105,12 @@ func main() {
 
 
 	//timers
-	timers.GraceNoteListingTimer()
-	timers.GuideboxEpisodeTimer()
+
+	if os.Getenv("DEBUG") != "true" {
+
+		timers.GraceNoteListingTimer()
+		timers.GuideboxEpisodeTimer()
+	}
 
 	//
 	//ticker := time.NewTicker(25 * time.Minute)
@@ -124,6 +131,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":"+port, n))
+	log.Fatal(http.ListenAndServe(":" + port, n))
 
 }

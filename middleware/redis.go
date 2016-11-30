@@ -4,7 +4,6 @@ import (
 	"github.com/codegangsta/negroni"
 	"gopkg.in/redis.v5"
 	"net/http"
-	//gcontext"github.com/gorilla/context"
 	"context"
 	"fmt"
 	"github.com/nemesisesq/ss_data_service/common"

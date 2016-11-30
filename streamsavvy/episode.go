@@ -16,6 +16,8 @@ import (
 	"gopkg.in/redis.v5"
 	"sync"
 	"github.com/gorilla/websocket"
+	"github.com/nemesisesq/ss_data_service/middleware"
+	"github.com/streadway/amqp"
 )
 
 type Episode struct {
@@ -79,6 +81,8 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
+	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
+
 	wg := sync.WaitGroup{}
 
 	for {
@@ -94,9 +98,77 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		if err == redis.Nil {
 
+			rx_q, err := rmqc.RX.QueueDeclare(
+				"hello",
+				false,
+				false,
+				false,
+				false,
+				nil,
+			)
+			com.Check(err)
+
+			/*
+			Here we set the time out to close the socket connection after there is no more
+			Episodes to send
+			*/
+			go func() {
+
+				msgs, err := rmqc.RX.Consume(
+					rx_q.Name, // queue
+					"", // consumer
+					true, // auto-ack
+					false, // exclusive
+					false, // no-local
+					false, // no-wait
+					nil, // args
+				)
+
+				com.Check(err)
+
+				for {
+
+					select {
+
+					case d := <-msgs:
+						log.Info(string(d.Body[:]))
+
+
+					//case <-timeout.C:
+					//	wg.Wait()
+					//	log.Info("closing the channel")
+					//	close(epiChan)
+					//	res := []interface{}{}
+					//
+					//	for l := range epiChan {
+					//
+					//		log.Info("gettig value from chan")
+					//		res = append(res, l...)
+					//
+					//	}
+					//
+					//	log.Info("caching result")
+					//	epi.CacheEpisode(total_results, res, guideboxId, *client)
+					//
+					//	log.Info("closing socket connection")
+					//	conn.Close()
+					//	return
+					}
+				}
+			}()
+
 			log.Info("Getting Initial")
 			wg.Add(1)
-			total_results, episode_list := epi.GetEpisodes(0, 5, guideboxId)
+			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
+			tx_q, err := rmqc.TX.QueueDeclare(
+				"hello",
+				false,
+				false,
+				false,
+				false,
+				nil,
+			)
+			com.Check(err)
 
 			for i := 1; (i * 12) <= total_results; i++ {
 				//time.Sleep(time.Millisecond * 250)
@@ -107,15 +179,33 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					start := time.Now()
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
 
+					if s == 72 {
+						log.Info(len(res))
+					}
 
 					select {
 					case epiChan <- res:
 					default:
 
 					}
-
 					response, err := json.Marshal(res)
 					com.Check(err)
+
+					body := fmt.Sprintf("hello %v", s)
+
+					//log.Info(body, "in")
+
+					err = rmqc.TX.Publish(
+						"", // exchange
+						tx_q.Name, // routing key
+						false, // mandatory
+						false, // immediate
+						amqp.Publishing{
+							ContentType: "text/plain",
+							Body:        []byte(body),
+						})
+					com.Check(err)
+
 
 					err = conn.WriteMessage(messageType, response)
 					wg.Done()
@@ -144,32 +234,6 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			err = conn.WriteMessage(messageType, response)
 			wg.Done()
 
-
-			//set timeout
-			for {
-				select {
-				case <-timeout.C:
-					wg.Wait()
-					log.Info("closing the channel")
-					close(epiChan)
-					res := []interface{}{}
-
-					for l := range epiChan {
-
-						log.Info("gettig value from chan")
-						res = append(res, l...)
-
-					}
-
-					log.Info("caching result")
-					epi.CacheEpisode(total_results, res, guideboxId, *client)
-
-					log.Info("closing socket connection")
-					conn.Close()
-					return
-				}
-			}
-
 		} else {
 
 			log.Info(fmt.Sprintf("%v found in cache", guideboxId))
@@ -177,7 +241,6 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			response, err := json.Marshal(epi.Results)
 			com.Check(err)
 			err = conn.WriteMessage(messageType, response)
-
 
 		}
 	}
