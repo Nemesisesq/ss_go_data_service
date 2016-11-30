@@ -132,27 +132,6 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					case d := <-msgs:
 						log.Info(string(d.Body[:]))
-
-
-					//case <-timeout.C:
-					//	wg.Wait()
-					//	log.Info("closing the channel")
-					//	close(epiChan)
-					//	res := []interface{}{}
-					//
-					//	for l := range epiChan {
-					//
-					//		log.Info("gettig value from chan")
-					//		res = append(res, l...)
-					//
-					//	}
-					//
-					//	log.Info("caching result")
-					//	epi.CacheEpisode(total_results, res, guideboxId, *client)
-					//
-					//	log.Info("closing socket connection")
-					//	conn.Close()
-					//	return
 					}
 				}
 			}()
