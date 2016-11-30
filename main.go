@@ -103,10 +103,10 @@ func main() {
 
 	//timers
 
-	if os.Getenv("DEBUG") != "true" {
+	if false {
 
-		//timers.GraceNoteListingTimer()
-		//timers.GuideboxEpisodeTimer()
+		timers.GraceNoteListingTimer()
+		timers.GuideboxEpisodeTimer()
 	}
 
 	//
