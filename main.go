@@ -103,12 +103,12 @@ func main() {
 
 	//timers
 
-	if os.Getenv("DEBUG") != "true" {
+	//if os.Getenv("DEBUG") != "true" {
 
 		timers.GraceNoteListingTimer()
 		timers.GuideboxEpisodeTimer()
 		timers.PopularityTimer()
-	}
+	//}
 
 
 	//
