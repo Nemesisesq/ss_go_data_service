@@ -11,7 +11,7 @@ func PopularityTimer() {
 
 	quit := make(chan struct{})
 	//ticker := time.NewTicker(24 * time.Hour)
-	ticker := time.NewTicker(24 * time.Hour)
+	ticker := time.NewTicker(5 * time.Minute)
 	go func(ticker *time.Ticker, quit chan struct{}) {
 		log.WithFields(log.Fields{
 			"timer": "ticker",
