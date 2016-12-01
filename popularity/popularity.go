@@ -13,6 +13,7 @@ import (
 	"github.com/streadway/amqp"
 	"gopkg.in/mgo.v2"
 	"os"
+	"github.com/Sirupsen/logrus"
 )
 
 type Results struct {
@@ -117,6 +118,7 @@ func GetPopularShows(page int, air_date string, c *mgo.Collection, ch amqp.Chann
 		}
 
 		fmt.Println(fmt.Sprintf("%s saved \n", elem.Name))
+		logrus.WithField("show", elem.Name).Info("popularity added")
 	}
 
 	time.Sleep(2500 * time.Millisecond)

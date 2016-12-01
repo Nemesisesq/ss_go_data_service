@@ -103,11 +103,13 @@ func main() {
 
 	//timers
 
-	if false {
+	if os.Getenv("DEBUG") != "true" {
 
 		timers.GraceNoteListingTimer()
 		timers.GuideboxEpisodeTimer()
+		timers.PopularityTimer()
 	}
+
 
 	//
 	//ticker := time.NewTicker(25 * time.Minute)
