@@ -27,7 +27,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 	r_client := r.Context().Value("redis_client").(*redis.Client)
 
-	SimKey := "p:%v:%v"
+	SimKey := "ss_reco:%v:%v"
 	categories := []string{"genres", "tags", "cast"}
 
 	if err != nil {
