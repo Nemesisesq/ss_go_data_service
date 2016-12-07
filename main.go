@@ -73,6 +73,7 @@ func main() {
 	r.HandleFunc("/echo", socket.EchoHandler)
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/recomendations", ss.HandleRecomendations))
+	//r.HandleFunc("/listings", gnote.HandleListings)
 
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/episodes", ss.GetEpisodes)).Methods("GET")
@@ -104,13 +105,12 @@ func main() {
 
 	//timers
 
-	if os.Getenv("DEBUG") != "true" {
+	if true {
 
 		timers.GraceNoteListingTimer()
 		timers.GuideboxEpisodeTimer()
 		timers.PopularityTimer()
 	}
-
 
 	//
 	//ticker := time.NewTicker(25 * time.Minute)

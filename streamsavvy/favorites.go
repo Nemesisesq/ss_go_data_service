@@ -1,4 +1,4 @@
-    package streamsavvy
+package streamsavvy
 
 import (
 	"encoding/json"

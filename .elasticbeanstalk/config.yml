@@ -1,0 +1,11 @@
+branch-defaults:
+  elasticbeanstalk:
+    environment: eb-go-dev
+    group_suffix: null
+global:
+  application_name: eb-go
+  default_ec2_keyname: aws-eb
+  default_platform: Go 1.5
+  default_region: us-east-1
+  profile: eb-cli
+  sc: git
