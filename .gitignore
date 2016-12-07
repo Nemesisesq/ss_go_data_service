@@ -70,3 +70,8 @@ _testmain.go
 *.test
 *.prof
 
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
