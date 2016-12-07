@@ -2,11 +2,8 @@ package streamsavvy
 
 import (
 	"net/http"
-
 	"sync"
-
 	"fmt"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
 	"github.com/nemesisesq/ss_data_service/common"
