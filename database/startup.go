@@ -7,7 +7,7 @@ import (
 )
 
 func DBStartup() nigronimgosession.DatabaseAccessor {
-	dbURL := os.Getenv("MONGODB_URI")
+	dbURL := os.Getenv("SSDATASERVICE_MONGODB_1_PORT_27017_TCP_ADDR")
 	// Use the MongoDB `DATABASE_NAME` from the env
 	dbName := GetDatabase()
 	// Set the MongoDB collection name

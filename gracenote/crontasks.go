@@ -12,25 +12,27 @@ import (
 	"gopkg.in/redis.v5"
 )
 
-var sesh, err = mgo.Dial(os.Getenv("MONGODB_URI"))
 
-func GetMongoSession() *mgo.Session {
-	common.Check(err)
-	return sesh.Copy()
 
-}
+//func GetMongoSession() *mgo.Session {
+//	common.Check(err)
+//	return sesh.Copy()
+//
+//}
 
 func RefreshListings() {
 
+	var _sesh, err = mgo.Dial(os.Getenv("MONGODB_URI"))
+
 	log.SetFormatter(&log.JSONFormatter{})
-	_sesh := GetMongoSession()
+	//_sesh := GetMongoSession()
 	dbname := dbase.GetDatabase()
 	db := _sesh.DB(dbname)
 	col := db.C("lineups")
 
 	lineups := []Lineup{}
 
-	err := col.Find(nil).All(&lineups)
+	err = col.Find(nil).All(&lineups)
 	log.Println(len(lineups))
 	common.Check(err)
 

@@ -1,0 +1,22 @@
+web:
+  build: .
+  command: ./main
+  ports:
+    - "8080:8080"
+  links:
+    - redis
+    - rabbitmq
+    - mongodb
+  environment:
+    PORT: "8080"
+
+
+
+redis:
+  image: redis
+
+rabbitmq:
+  image: rabbitmq
+
+mongodb:
+  image: mongo

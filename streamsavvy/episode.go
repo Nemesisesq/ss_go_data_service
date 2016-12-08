@@ -99,7 +99,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 		if err == redis.Nil {
 
 			rx_q, err := rmqc.RX.QueueDeclare(
-				"hello",
+				"episodes",
 				false,
 				false,
 				false,
@@ -143,7 +143,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			//wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
 			tx_q, err := rmqc.TX.QueueDeclare(
-				"hello",
+				"episodes",
 				false,
 				false,
 				false,
