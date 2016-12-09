@@ -222,8 +222,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
-	val, err := client.Get(guideboxId).Result()
-	ttl, err := client.TTL(guideboxId).Result()
+	val, _ := client.Get(guideboxId).Result()
+	ttl, _ := client.TTL(guideboxId).Result()
 
 	//log.Info(fmt.Sprintf("the redis error is %v", err))
 	//log.Info(fmt.Sprintf("the value is %v", val))
