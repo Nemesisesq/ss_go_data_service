@@ -116,12 +116,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 				msgs, err := rmqc.RX.Consume(
 					rx_q.Name, // queue
-					"",        // consumer
-					true,      // auto-ack
-					false,     // exclusive
-					false,     // no-local
-					false,     // no-wait
-					nil,       // args
+					"", // consumer
+					true, // auto-ack
+					false, // exclusive
+					false, // no-local
+					false, // no-wait
+					nil, // args
 				)
 
 				com.Check(err)
@@ -129,12 +129,15 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				for {
 					select {
 					case d := <-msgs:
-						log.Info(string(d.Body[:]))
-						log.Info("sending", x*12)
-						err = conn.WriteMessage(messageType, d.Body)
-						x += 1
-						if err != nil {
-							conn.Close()
+						if d != "" {
+
+							log.Info(string(d.Body[:]))
+							log.Info("sending", x * 12)
+							err = conn.WriteMessage(messageType, d.Body)
+							x += 1
+							if err != nil {
+								conn.Close()
+							}
 						}
 
 					}
@@ -172,10 +175,10 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					com.Check(err)
 
 					err = rmqc.TX.Publish(
-						"",        // exchange
+						"", // exchange
 						tx_q.Name, // routing key
-						false,     // mandatory
-						false,     // immediate
+						false, // mandatory
+						false, // immediate
 						amqp.Publishing{
 							ContentType: "text/plain",
 							Body:        response,
@@ -271,7 +274,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
 				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
-				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
+				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
 				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 

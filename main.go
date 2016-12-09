@@ -4,14 +4,12 @@ import (
 	"fmt"
 	//"log"
 	"net/http"
-	"net/url"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
-	"github.com/joho/godotenv"
 	com "github.com/nemesisesq/ss_data_service/common"
 	dbase "github.com/nemesisesq/ss_data_service/database"
 	edr "github.com/nemesisesq/ss_data_service/email_data_service"
@@ -24,6 +22,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/newrelic/go-agent"
 	"github.com/rs/cors"
+	"strings"
 )
 
 func main() {
@@ -36,24 +35,30 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
 
-	err = godotenv.Load()
+	//err = godotenv.Load()
 
-	com.Check(err)
+	//com.Check(err)
 
 	port := com.GetPort()
 
 	// Create Redis Client
-	redis_url := os.Getenv("REDIS_URL")
+	redis_url := fmt.Sprintf("%v:%v", os.Getenv("REDIS_1_PORT_6379_TCP_ADDR"), os.Getenv("REDIS_1_PORT_6379_TCP_PORT"))
 
-	u, err := url.Parse(redis_url)
-
-	com.Check(err)
-
-	pass, b := u.User.Password()
-
-	if !b {
-		pass = ""
+	for _, e := range os.Environ() {
+		pair := strings.Split(e, "=")
+		fmt.Println(pair[0], " : ", pair[1])
 	}
+
+	//u, err := url.Parse(redis_url)
+
+	//log.Info("u here", u)
+	//com.Check(err)
+	//
+	//pass, b := u.User.Password()
+	//
+	//if !b {
+	//	pass = ""
+	//}
 
 	com.Check(err)
 
@@ -62,10 +67,19 @@ func main() {
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
-	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
+
+	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
-	messengerAccessor, err := middleware.NewRabbitMQAccesor(os.Getenv("RABBITMQ_BIGWIG_TX_URL"), os.Getenv("RABBITMQ_BIGWIG_RX_URL"))
+	//TODO fix these urls for AWS ElasticBeanStalk
+	//tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
+	//rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
+	tx_url := os.Getenv("RABBITMQ_URL")
+	rx_url := os.Getenv("RABBITMQ_URL")
+
+	log.Info(tx_url, " ", rx_url)
+
+	messengerAccessor, err := middleware.NewRabbitMQAccesor(tx_url, rx_url)
 	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
@@ -73,7 +87,6 @@ func main() {
 	r.HandleFunc("/echo", socket.EchoHandler)
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/recomendations", ss.HandleRecomendations))
-	//r.HandleFunc("/listings", gnote.HandleListings)
 
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore))
 	r.HandleFunc(newrelic.WrapHandleFunc(app, "/episodes", ss.GetEpisodes)).Methods("GET")
@@ -105,7 +118,7 @@ func main() {
 
 	//timers
 
-	if true {
+	if os.Getenv("DEBUG") != "true" {
 
 		timers.GraceNoteListingTimer()
 		timers.GuideboxEpisodeTimer()
