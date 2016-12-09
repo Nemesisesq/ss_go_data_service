@@ -8,8 +8,9 @@ import (
 
 	"net/url"
 	"os"
-	"reflect"
 	"time"
+
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
@@ -17,7 +18,6 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
 	"gopkg.in/redis.v5"
-	"sync"
 )
 
 type Episode struct {
@@ -162,7 +162,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
-					log.Debug("sending ", )
+					log.Debug("sending ")
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
 
 					if s == 72 {
@@ -222,8 +222,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
-	val, _ := client.Get(guideboxId).Result()
-	ttl, _ := client.TTL(guideboxId).Result()
+	//val, _ := client.Get(guideboxId).Result()
+	//ttl, _ := client.TTL(guideboxId).Result()
 
 	//log.Info(fmt.Sprintf("the redis error is %v", err))
 	//log.Info(fmt.Sprintf("the value is %v", val))
@@ -242,14 +242,14 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		//log.Info(fmt.Sprintf("this is the value of epi %v", epi))
 
 	} else {
-		log.Info("checking TTL", reflect.TypeOf(ttl))
-		if ttl < time.Hour*12 {
-			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
-			go epi.RefreshEpisodes(guideboxId, *client)
-		}
-
-		log.Info(fmt.Sprintf("%v found in cache", guideboxId))
-		json.Unmarshal([]byte(val), &epi)
+		//log.Info("checking TTL", reflect.TypeOf(ttl))
+		//if ttl < time.Hour*12 {
+		//	log.Info(fmt.Sprintf("refreshing %v", guideboxId))
+		//	go epi.RefreshEpisodes(guideboxId, *client)
+		//}
+		//
+		//log.Info(fmt.Sprintf("%v found in cache", guideboxId))
+		//json.Unmarshal([]byte(val), &epi)
 	}
 
 	epi.Results = CleanUpDeepLinks(epi.Results)
