@@ -99,7 +99,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 		if err == redis.Nil {
 
 			rx_q, err := rmqc.RX.QueueDeclare(
-				"hello",
+				"episodes",
 				false,
 				false,
 				false,
@@ -145,7 +145,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			//wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
 			tx_q, err := rmqc.TX.QueueDeclare(
-				"hello",
+				"episodes",
 				false,
 				false,
 				false,
@@ -159,12 +159,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
+					log.Debug("sending ", )
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
 
 					if s == 72 {
 						log.Info(len(res))
 					}
-
 					response, err := json.Marshal(res)
 					com.Check(err)
 
@@ -184,12 +184,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					//wg.Done()
 					timeout = time.NewTicker(1 * time.Second)
 
-				}(s, guideboxId, conn)
-				log.WithFields(log.Fields{
+					log.WithFields(log.Fields{
 
-					"Starting At": s,
-					"start time":  start,
-				}).Info(time.Since(start))
+						"Starting At": s,
+						"start time":  start,
+					}).Info(time.Since(start))
+				}(s, guideboxId, conn)
 			}
 
 			response, err := json.Marshal(episode_list)
@@ -230,6 +230,8 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		log.Info(fmt.Sprintf("Getting %v, not present in cache", guideboxId))
 
 		episode_list, total_results := epi.GetAllEpisodes(guideboxId)
+
+		log.Info(fmt.Sprintf("Got %v, not present in cache", guideboxId))
 
 		epi.CacheEpisode(total_results, episode_list, guideboxId, *client)
 
