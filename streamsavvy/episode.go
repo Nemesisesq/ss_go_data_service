@@ -73,7 +73,7 @@ var upgrader = websocket.Upgrader{
 
 func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
-	timeout := time.NewTicker(10 * time.Second)
+	//timeout := time.NewTicker(10 * time.Second)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
 
@@ -83,9 +83,20 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 
+	timeout := time.NewTicker(20 * time.Minute)
+		stop := make(chan bool)
+
+	select {
+	case <- timeout.C:
+		conn.Close()
+		stop <- true
+	}
 	//wg := sync.WaitGroup{}
 
 	for {
+		timeout.Stop()
+		timeout = time.NewTicker(20 * time.Minute)
+
 
 		messageType, p, err := conn.ReadMessage()
 		com.Check(err)
@@ -127,6 +138,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				com.Check(err)
 				x := 1
 				for {
+
 					select {
 					case d := <-msgs:
 						if d != "" {
@@ -137,8 +149,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 							x += 1
 							if err != nil {
 								conn.Close()
+								stop <- true
+								return
 							}
 						}
+					case <-stop:
+						conn.Close()
+						return
 
 					}
 				}
@@ -193,6 +210,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						"start time":  start,
 					}).Info(time.Since(start))
 				}(s, guideboxId, conn)
+
+
+				select{
+				case <-stop:
+					conn.Close()
+					return
+				}
 			}
 
 			response, err := json.Marshal(episode_list)

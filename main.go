@@ -23,6 +23,7 @@ import (
 	"github.com/newrelic/go-agent"
 	"github.com/rs/cors"
 	"strings"
+	"net/url"
 )
 
 func main() {
@@ -42,14 +43,14 @@ func main() {
 	port := com.GetPort()
 
 	// Create Redis Client
-	redis_url := fmt.Sprintf("%v:%v", os.Getenv("REDIS_1_PORT_6379_TCP_ADDR"), os.Getenv("REDIS_1_PORT_6379_TCP_PORT"))
+	redis_url := os.Getenv("REDISClOUD_URL")
 
 	for _, e := range os.Environ() {
 		pair := strings.Split(e, "=")
 		fmt.Println(pair[0], " : ", pair[1])
 	}
 
-	//u, err := url.Parse(redis_url)
+	u, err := url.Parse(redis_url)
 
 	//log.Info("u here", u)
 	//com.Check(err)
