@@ -131,7 +131,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					case d := <-msgs:
 						if d != "" {
 
-							log.Info(string(d.Body[:]))
+							//log.Info(string(d.Body[:]))
 							log.Info("sending", x * 12)
 							err = conn.WriteMessage(messageType, d.Body)
 							x += 1
@@ -168,9 +168,6 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					log.Debug("sending ")
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
 
-					if s == 72 {
-						log.Info(len(res))
-					}
 					response, err := json.Marshal(res)
 					com.Check(err)
 
