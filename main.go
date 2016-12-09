@@ -22,6 +22,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/newrelic/go-agent"
 	"github.com/rs/cors"
+	"strings"
 )
 
 func main() {
@@ -43,10 +44,10 @@ func main() {
 	// Create Redis Client
 	redis_url := fmt.Sprintf("%v:%v", os.Getenv("REDIS_1_PORT_6379_TCP_ADDR"), os.Getenv("REDIS_1_PORT_6379_TCP_PORT"))
 
-	//for _, e := range os.Environ() {
-	//	pair := strings.Split(e, "=")
-	//	fmt.Println(pair[0], " : ", pair[1])
-	//}
+	for _, e := range os.Environ() {
+		pair := strings.Split(e, "=")
+		fmt.Println(pair[0], " : ", pair[1])
+	}
 
 	//u, err := url.Parse(redis_url)
 
@@ -66,12 +67,15 @@ func main() {
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
+
 	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
 	//TODO fix these urls for AWS ElasticBeanStalk
-	tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
-	rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
+	//tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
+	//rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
+	tx_url := os.Getenv("RABBITMQ_URL")
+	rx_url := os.Getenv("RABBITMQ_URL")
 
 	log.Info(tx_url, " ", rx_url)
 

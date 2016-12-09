@@ -409,7 +409,7 @@ func RefreshEpisodes() {
 	popularShowList := []Content{}
 	epis := &GuideBoxEpisodes{}
 
-	redis_url := os.Getenv("REDISCLOUD_URL")
+	redis_url := os.Getenv("REDIS_URL")
 
 	u, err := url.Parse(redis_url)
 

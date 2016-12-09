@@ -23,7 +23,7 @@ func GetCollection() (col string) {
 }
 
 func GetDatabase() (db string) {
-	mongo_uri := os.Getenv("MONGODB_PORT")
+	mongo_uri := os.Getenv("MONGODB_URI")
 
 	u, err := url.Parse(mongo_uri)
 
@@ -39,7 +39,7 @@ func GetDatabase() (db string) {
 func GetSession() *mgo.Session {
 	fmt.Println("Hello from GetSession")
 
-	mongo_uri := os.Getenv("MONGODB_PORT")
+	mongo_uri := os.Getenv("MONGODB_URI")
 
 	session, err := mgo.Dial(mongo_uri)
 

@@ -127,7 +127,7 @@ func GetPopularShows(page int, air_date string, c *mgo.Collection, ch amqp.Chann
 
 func RefreshPopularityScores() {
 
-	tx_conn, err := amqp.Dial(os.Getenv("RABBITMQ_BIGWIG_TX_URL"))
+	tx_conn, err := amqp.Dial(os.Getenv("RABBITMQ_URL"))
 
 	common.Check(err)
 

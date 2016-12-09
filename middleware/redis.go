@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"context"
-	"fmt"
-	"github.com/codegangsta/negroni"
-	"github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/redis.v5"
 	"net/http"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/codegangsta/negroni"
+	"gopkg.in/redis.v5"
 )
 
 type CacheAccessor struct {
@@ -23,9 +23,11 @@ func NewCacheAccessor(addr, pass string, db int) (*CacheAccessor, error) {
 		DB:       db,
 	})
 
-	pong, err := client.Ping().Result()
-	common.Check(err)
-	fmt.Printf("redis %v", pong)
+	logrus.Info(addr)
+
+	//pong, err := client.Ping().Result()
+	//common.Check(err)
+	//fmt.Printf("redis %v", pong)
 
 	return &CacheAccessor{*client, addr, pass, db}, nil
 }
