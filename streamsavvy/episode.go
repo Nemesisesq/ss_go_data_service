@@ -129,7 +129,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				for {
 					select {
 					case d := <-msgs:
-						//log.Info(string(d.Body[:]))
+						log.Info(string(d.Body[:]))
 						log.Info("sending", x*12)
 						err = conn.WriteMessage(messageType, d.Body)
 						x += 1
