@@ -144,6 +144,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			log.Info("Getting Initial")
 			//wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
+			log.Info("Got Initial")
 			tx_q, err := rmqc.TX.QueueDeclare(
 				"episodes",
 				false,
@@ -157,7 +158,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			for i := 1; (i * 12) <= total_results; i++ {
 				s := i * 12
 
-				log.Info("############## %v #################", s)
+				log.Print("############## %v #################", s)
 				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
@@ -227,7 +228,7 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	//log.Info(fmt.Sprintf("the redis error is %v", err))
 	//log.Info(fmt.Sprintf("the value is %v", val))
 
-	if err == redis.Nil || len(val) == 0 {
+	if true {
 
 		log.Info(fmt.Sprintf("Getting %v, not present in cache", guideboxId))
 
