@@ -156,6 +156,8 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 			for i := 1; (i * 12) <= total_results; i++ {
 				s := i * 12
+
+				log.Info("############## %v #################", s)
 				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
