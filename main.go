@@ -6,13 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"strings"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
-	"github.com/joho/godotenv"
 	com "github.com/nemesisesq/ss_data_service/common"
 	dbase "github.com/nemesisesq/ss_data_service/database"
 	edr "github.com/nemesisesq/ss_data_service/email_data_service"
@@ -37,19 +34,19 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
 
-	err = godotenv.Load()
+	//err = godotenv.Load()
 
-	com.Check(err)
+	//com.Check(err)
 
 	port := com.GetPort()
 
 	// Create Redis Client
 	redis_url := fmt.Sprintf("%v:%v", os.Getenv("REDIS_1_PORT_6379_TCP_ADDR"), os.Getenv("REDIS_1_PORT_6379_TCP_PORT"))
 
-	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
-		fmt.Println(pair[0], " : ", pair[1])
-	}
+	//for _, e := range os.Environ() {
+	//	pair := strings.Split(e, "=")
+	//	fmt.Println(pair[0], " : ", pair[1])
+	//}
 
 	//u, err := url.Parse(redis_url)
 
@@ -72,14 +69,13 @@ func main() {
 	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
-
 	//TODO fix these urls for AWS ElasticBeanStalk
 	tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
 	rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
 
-	log.Info(tx_url, " ",  rx_url)
+	log.Info(tx_url, " ", rx_url)
 
-	messengerAccessor, err := middleware.NewRabbitMQAccesor( tx_url, rx_url )
+	messengerAccessor, err := middleware.NewRabbitMQAccesor(tx_url, rx_url)
 	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
