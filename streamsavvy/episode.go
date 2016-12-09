@@ -133,7 +133,9 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						log.Info("sending", x*12)
 						err = conn.WriteMessage(messageType, d.Body)
 						x += 1
-						com.Check(err)
+						if err != nil {
+							conn.Close()
+						}
 
 					}
 				}
@@ -182,12 +184,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					//wg.Done()
 					timeout = time.NewTicker(1 * time.Second)
 
-					log.WithFields(log.Fields{
-
-						"Starting At": s,
-						"start time":  start,
-					}).Info(time.Since(start))
 				}(s, guideboxId, conn)
+				log.WithFields(log.Fields{
+
+					"Starting At": s,
+					"start time":  start,
+				}).Info(time.Since(start))
 			}
 
 			response, err := json.Marshal(episode_list)
