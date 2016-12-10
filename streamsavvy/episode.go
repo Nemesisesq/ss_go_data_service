@@ -86,11 +86,15 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 	timeout := time.NewTicker(20 * time.Minute)
 		stop := make(chan bool)
 
-	select {
-	case <- timeout.C:
-		conn.Close()
-		stop <- true
-	}
+	go func(){
+		select {
+		case <- timeout.C:
+			conn.Close()
+			stop <- true
+		}
+	}()
+
+
 	//wg := sync.WaitGroup{}
 
 	for {
@@ -141,7 +145,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					select {
 					case d := <-msgs:
-						if d != "" {
+						if d.Body != "" {
 
 							//log.Info(string(d.Body[:]))
 							log.Info("sending", x * 12)
