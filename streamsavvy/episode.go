@@ -145,7 +145,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					select {
 					case d := <-msgs:
-						if d.Body != "" {
+						if d.Body != nil {
 
 							//log.Info(string(d.Body[:]))
 							log.Info("sending", x * 12)

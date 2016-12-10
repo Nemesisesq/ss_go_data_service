@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"net/url"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -22,8 +24,6 @@ import (
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/newrelic/go-agent"
 	"github.com/rs/cors"
-	"strings"
-	"net/url"
 )
 
 func main() {
@@ -43,23 +43,17 @@ func main() {
 	port := com.GetPort()
 
 	// Create Redis Client
-	redis_url := os.Getenv("REDISClOUD_URL")
-
-	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
-		fmt.Println(pair[0], " : ", pair[1])
-	}
+	redis_url := os.Getenv("REDISCLOUD_URL")
 
 	u, err := url.Parse(redis_url)
 
-	//log.Info("u here", u)
-	//com.Check(err)
-	//
-	//pass, b := u.User.Password()
-	//
-	//if !b {
-	//	pass = ""
-	//}
+	com.Check(err)
+
+	pass, b := u.User.Password()
+
+	if !b {
+		pass = ""
+	}
 
 	com.Check(err)
 
@@ -68,19 +62,10 @@ func main() {
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
-
-	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
+	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, pass, 0)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
-	//TODO fix these urls for AWS ElasticBeanStalk
-	//tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
-	//rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
-	tx_url := os.Getenv("RABBITMQ_URL")
-	rx_url := os.Getenv("RABBITMQ_URL")
-
-	log.Info(tx_url, " ", rx_url)
-
-	messengerAccessor, err := middleware.NewRabbitMQAccesor(tx_url, rx_url)
+	messengerAccessor, err := middleware.NewRabbitMQAccesor(os.Getenv("RABBITMQ_BIGWIG_TX_URL"), os.Getenv("RABBITMQ_BIGWIG_RX_URL"))
 	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
