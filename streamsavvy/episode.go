@@ -8,8 +8,9 @@ import (
 
 	"net/url"
 	"os"
-	"reflect"
 	"time"
+
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
@@ -17,7 +18,6 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
 	"gopkg.in/redis.v5"
-	"sync"
 )
 
 type Episode struct {
@@ -73,7 +73,7 @@ var upgrader = websocket.Upgrader{
 
 func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
-	timeout := time.NewTicker(10 * time.Second)
+	//timeout := time.NewTicker(10 * time.Second)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
 
@@ -83,9 +83,24 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 
+	timeout := time.NewTicker(20 * time.Minute)
+		stop := make(chan bool)
+
+	go func(){
+		select {
+		case <- timeout.C:
+			conn.Close()
+			stop <- true
+		}
+	}()
+
+
 	//wg := sync.WaitGroup{}
 
 	for {
+		timeout.Stop()
+		timeout = time.NewTicker(20 * time.Minute)
+
 
 		messageType, p, err := conn.ReadMessage()
 		com.Check(err)
@@ -116,24 +131,35 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 				msgs, err := rmqc.RX.Consume(
 					rx_q.Name, // queue
-					"",        // consumer
-					true,      // auto-ack
-					false,     // exclusive
-					false,     // no-local
-					false,     // no-wait
-					nil,       // args
+					"", // consumer
+					true, // auto-ack
+					false, // exclusive
+					false, // no-local
+					false, // no-wait
+					nil, // args
 				)
 
 				com.Check(err)
 				x := 1
 				for {
+
 					select {
 					case d := <-msgs:
-						//log.Info(string(d.Body[:]))
-						log.Info("sending", x*12)
-						err = conn.WriteMessage(messageType, d.Body)
-						x += 1
-						com.Check(err)
+						if d.Body != nil {
+
+							//log.Info(string(d.Body[:]))
+							log.Info("sending", x * 12)
+							err = conn.WriteMessage(messageType, d.Body)
+							x += 1
+							if err != nil {
+								conn.Close()
+								stop <- true
+								return
+							}
+						}
+					case <-stop:
+						conn.Close()
+						return
 
 					}
 				}
@@ -142,6 +168,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			log.Info("Getting Initial")
 			//wg.Add(1)
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
+			log.Info("Got Initial")
 			tx_q, err := rmqc.TX.QueueDeclare(
 				"episodes",
 				false,
@@ -154,23 +181,22 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 			for i := 1; (i * 12) <= total_results; i++ {
 				s := i * 12
+
+				log.Print("############## %v #################", s)
 				//wg.Add(1)
 				go func(s int, guideboxId string, conn *websocket.Conn) {
 					start := time.Now()
+					log.Debug("sending ")
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
-
-					if s == 72 {
-						log.Info(len(res))
-					}
 
 					response, err := json.Marshal(res)
 					com.Check(err)
 
 					err = rmqc.TX.Publish(
-						"",        // exchange
+						"", // exchange
 						tx_q.Name, // routing key
-						false,     // mandatory
-						false,     // immediate
+						false, // mandatory
+						false, // immediate
 						amqp.Publishing{
 							ContentType: "text/plain",
 							Body:        response,
@@ -188,6 +214,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						"start time":  start,
 					}).Info(time.Since(start))
 				}(s, guideboxId, conn)
+
+
+				select{
+				case <-stop:
+					conn.Close()
+					return
+				}
 			}
 
 			response, err := json.Marshal(episode_list)
@@ -217,17 +250,19 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
-	val, err := client.Get(guideboxId).Result()
-	ttl, err := client.TTL(guideboxId).Result()
+	//val, _ := client.Get(guideboxId).Result()
+	//ttl, _ := client.TTL(guideboxId).Result()
 
 	//log.Info(fmt.Sprintf("the redis error is %v", err))
 	//log.Info(fmt.Sprintf("the value is %v", val))
 
-	if err == redis.Nil || len(val) == 0 {
+	if true {
 
 		log.Info(fmt.Sprintf("Getting %v, not present in cache", guideboxId))
 
 		episode_list, total_results := epi.GetAllEpisodes(guideboxId)
+
+		log.Info(fmt.Sprintf("Got %v, not present in cache", guideboxId))
 
 		epi.CacheEpisode(total_results, episode_list, guideboxId, *client)
 
@@ -235,14 +270,14 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		//log.Info(fmt.Sprintf("this is the value of epi %v", epi))
 
 	} else {
-		log.Info("checking TTL", reflect.TypeOf(ttl))
-		if ttl < time.Hour*12 {
-			log.Info(fmt.Sprintf("refreshing %v", guideboxId))
-			go epi.RefreshEpisodes(guideboxId, *client)
-		}
-
-		log.Info(fmt.Sprintf("%v found in cache", guideboxId))
-		json.Unmarshal([]byte(val), &epi)
+		//log.Info("checking TTL", reflect.TypeOf(ttl))
+		//if ttl < time.Hour*12 {
+		//	log.Info(fmt.Sprintf("refreshing %v", guideboxId))
+		//	go epi.RefreshEpisodes(guideboxId, *client)
+		//}
+		//
+		//log.Info(fmt.Sprintf("%v found in cache", guideboxId))
+		//json.Unmarshal([]byte(val), &epi)
 	}
 
 	epi.Results = CleanUpDeepLinks(epi.Results)
@@ -264,7 +299,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
 				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
-				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
+				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
 				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 

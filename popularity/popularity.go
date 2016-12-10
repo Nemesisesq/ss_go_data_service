@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/context"
 	"github.com/nemesisesq/ss_data_service/common"
 	"github.com/nemesisesq/ss_data_service/database"
 	"github.com/streadway/amqp"
 	"gopkg.in/mgo.v2"
 	"os"
-	"github.com/Sirupsen/logrus"
 )
 
 type Results struct {

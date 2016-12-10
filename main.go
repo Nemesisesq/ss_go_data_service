@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"net/url"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"

@@ -1,8 +1,6 @@
 package streamsavvy
 
 import (
-	"net/http"
-	"sync"
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
@@ -10,6 +8,8 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
 	"gopkg.in/redis.v5"
+	"net/http"
+	"sync"
 )
 
 type Reco struct {
@@ -47,25 +47,22 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 		for _, cat := range categories {
 
-				q := fmt.Sprintf(SimKey, cat, reco.GuideboxId)
+			q := fmt.Sprintf(SimKey, cat, reco.GuideboxId)
 
-				res := r_client.ZRange(q, 0, 9)
+			res := r_client.ZRange(q, 0, 9)
 
-				//common.Check(err)
-				for _, val := range res.Val(){
+			//common.Check(err)
+			for _, val := range res.Val() {
 
-					reco.PublishShowInfo(val, rmqc)
-				}
-
-
+				reco.PublishShowInfo(val, rmqc)
+			}
 
 		}
 
 		//TODO use this to update show recomendations later.
 		//reco.PublishShowInfo(p, rmqc)
 
-		go func() {
-			rx_q, err := rmqc.RX.QueueDeclare(
+		go func() {rx_q, err := rmqc.RX.QueueDeclare(
 				"reco_engine_results",
 				false,
 				false,
@@ -130,6 +127,7 @@ func (r Reco) sendJson(msg int, m interface{}) error {
 	defer r.mu.Unlock()
 	return r.sock.WriteJSON(m)
 }
+
 //TODO it would be nice to access database straight from  go
 func (r Reco) PublishShowInfo(show_id string, rmqc middleware.RMQCH) {
 
@@ -156,7 +154,7 @@ func (r Reco) PublishShowInfo(show_id string, rmqc middleware.RMQCH) {
 		false,     // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:       []byte(show_id),
+			Body:        []byte(show_id),
 		})
 
 	if err != nil {

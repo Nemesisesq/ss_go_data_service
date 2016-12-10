@@ -71,8 +71,10 @@ _testmain.go
 *.prof
 
 
+
 # Elastic Beanstalk Files
 !.elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
 docker-repo-key

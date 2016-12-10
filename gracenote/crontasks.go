@@ -3,7 +3,6 @@ package gracenote
 import (
 	"net/url"
 	"os"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/nemesisesq/ss_data_service/common"
@@ -31,6 +30,7 @@ func RefreshListings() {
 	col := db.C("lineups")
 
 	lineups := []Lineup{}
+	log.WithField("length", len(lineups)).Info("length of line ups in db")
 
 	err = col.Find(nil).All(&lineups)
 	log.Println(len(lineups))
@@ -60,8 +60,8 @@ func RefreshListings() {
 				})
 
 				defer redisClient.Close()
-				timeout := time.Hour * 5
-				redisClient.Set(lineup.LineupId, the_json, timeout)
+
+				redisClient.Set(lineup.LineupId, the_json, 0)
 
 			}(val)
 		}
