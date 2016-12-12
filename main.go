@@ -23,12 +23,10 @@ import (
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	//"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/rs/cors"
+	"net/url"
 )
 
 func main() {
-
-
-
 
 	//configure new relic
 
@@ -42,32 +40,38 @@ func main() {
 	port := com.GetPort()
 
 	// Create Redis Client
-	redis_url := os.Getenv("REDIS_URL")
+	var redis_url string
+	if os.Getenv("REDIS_URL") != "" {
+
+		redis_url = os.Getenv("REDIS_URL")
+	} else {
+		redis_url = os.Getenv("R_PORT")
+	}
 
 	for _, e := range os.Environ() {
 		pair := strings.Split(e, "=")
 		fmt.Println(pair[0], " : ", pair[1])
 	}
 
-	//u, err := url.Parse(redis_url)
+	u, err := url.Parse(redis_url)
 
-	//log.Info("u here", u)
-	//com.Check(err)
-	//
+	log.Info("u here", u)
+	com.Check(err)
+
 	//pass, b := u.User.Password()
 	//
 	//if !b {
 	//	pass = ""
 	//}
 
-	//com.Check(err)
+	com.Check(err)
 
 	n := negroni.Classic()
 
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
-	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
+	cacheAccessor, err := middleware.NewCacheAccessor(u.Host, "", 0)
 	com.Check(err)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
@@ -79,8 +83,8 @@ func main() {
 		tx_url = os.Getenv("RABBITMQ_URL")
 		rx_url = os.Getenv("RABBITMQ_URL")
 	} else {
-		rx_url = fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
-		tx_url = fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
+		rx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
+		tx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
 
 	}
 
@@ -151,6 +155,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":"+port, n))
+	log.Fatal(http.ListenAndServe(":" + port, n))
 
 }

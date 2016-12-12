@@ -90,7 +90,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <- timeout.C:
 			conn.Close()
-			stop <- true
+			//stop <- true
 		}
 	}()
 
@@ -111,7 +111,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		val, err := client.Get(guideboxId).Result()
 
-		if err == redis.Nil {
+		if err == redis.Nil || val == ""{
 
 			rx_q, err := rmqc.RX.QueueDeclare(
 				"episodes",
@@ -179,12 +179,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			)
 			com.Check(err)
 
-			for i := 1; (i * 12) <= total_results; i++ {
+			for i := 1; (i * 12) <= total_results; i += 1 {
 				s := i * 12
 
 				log.Print("############## %v #################", s)
 				//wg.Add(1)
-				go func(s int, guideboxId string, conn *websocket.Conn) {
+				go func(s int, guideboxId string) {
 					start := time.Now()
 					log.Debug("sending ")
 					_, res := epi.GetEpisodes(s, 12, guideboxId)
@@ -213,14 +213,10 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						"Starting At": s,
 						"start time":  start,
 					}).Info(time.Since(start))
-				}(s, guideboxId, conn)
+				}(s, guideboxId)
 
 
-				select{
-				case <-stop:
-					conn.Close()
-					return
-				}
+
 			}
 
 			response, err := json.Marshal(episode_list)
@@ -413,9 +409,9 @@ func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string)
 
 	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
-	url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
+	gbox_url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", gbox_url, nil)
 
 	com.Check(err)
 
