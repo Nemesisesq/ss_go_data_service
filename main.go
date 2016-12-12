@@ -22,7 +22,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/socket"
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	//"github.com/nemesisesq/ss_data_service/timers"
-	"github.com/rs/cors"
+	//"github.com/rs/cors"
 	"net/url"
 )
 
@@ -120,11 +120,11 @@ func main() {
 
 	//Socket
 
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-	})
-
-	n.Use(c)
+	//c := cors.New(cors.Options{
+	//	AllowedOrigins: []string{"*"},
+	//})
+	//
+	//n.Use(c)
 	n.UseHandler(r)
 
 	//timers

@@ -18,6 +18,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
 	"gopkg.in/redis.v5"
+	//"github.com/aws/aws-sdk-go/aws/client"
 )
 
 type Episode struct {
@@ -83,26 +84,30 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 
-	timeout := time.NewTicker(20 * time.Minute)
-		stop := make(chan bool)
+	//timeout := time.NewTicker(20 * time.Minute)
+	//	stop := make(chan bool)
 
-	go func(){
-		select {
-		case <- timeout.C:
-			conn.Close()
-			//stop <- true
-		}
-	}()
-
+	//go func(){
+	//	select {
+	//	case <- timeout.C:
+	//		conn.Close()
+	//		//stop <- true
+	//	}
+	//}()
 
 	//wg := sync.WaitGroup{}
 
 	for {
-		timeout.Stop()
-		timeout = time.NewTicker(20 * time.Minute)
-
+		//timeout.Stop()
+		//timeout = time.NewTicker(20 * time.Minute)
 
 		messageType, p, err := conn.ReadMessage()
+
+		if err != nil {
+			log.Error(err)
+			conn.Close()
+			return
+		}
 		com.Check(err)
 
 		guideboxId := string(p[:])
@@ -111,7 +116,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		val, err := client.Get(guideboxId).Result()
 
-		if err == redis.Nil || val == ""{
+		if err == redis.Nil || val == "" {
 
 			rx_q, err := rmqc.RX.QueueDeclare(
 				"episodes",
@@ -148,19 +153,19 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 						if d.Body != nil {
 
 							//log.Info(string(d.Body[:]))
-							log.Info("sending", x * 12)
+							log.Info("sending to client ", x * 12)
 							err = conn.WriteMessage(messageType, d.Body)
 							x += 1
-							if err != nil {
-								conn.Close()
-								stop <- true
-								return
-							}
+							//if err != nil {
+							//	conn.Close()
+							//	stop <- true
+							//	return
+							//}
 						}
-					case <-stop:
-						conn.Close()
-						return
-
+					//case <-stop:
+					//	conn.Close()
+					//	return
+					//
 					}
 				}
 			}()
@@ -206,7 +211,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					//err = conn.WriteMessage(messageType, response)
 					//wg.Done()
-					timeout = time.NewTicker(1 * time.Second)
+					//timeout = time.NewTicker(1 * time.Second)
 
 					log.WithFields(log.Fields{
 
@@ -402,32 +407,41 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []interface{}) {
 
 	//TODO Logging
+	resChan := make(chan *http.Response)
 
-	client := &http.Client{}
+	go func() {
 
-	baseUrl := "https://api-public.guidebox.com/v1.43/US/%v/show/%v/episodes/all/%v/%v/all/all/true"
+		client := &http.Client{}
 
-	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
+		baseUrl := "https://api-public.guidebox.com/v1.43/US/%v/show/%v/episodes/all/%v/%v/all/all/true"
 
-	gbox_url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
+		apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
-	req, err := http.NewRequest("GET", gbox_url, nil)
+		gbox_url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
 
-	com.Check(err)
+		fmt.Println(gbox_url)
 
-	params := map[string]string{
-		"reverse_ordering": "true",
-	}
+		gbox_req, err := http.NewRequest("GET", gbox_url, nil)
 
-	com.BuildQuery(req, params)
+		com.Check(err)
 
-	res, err := client.Do(req)
+		params := map[string]string{
+			"reverse_ordering": "true",
+		}
 
-	com.Check(err)
+		com.BuildQuery(gbox_req, params)
 
+		res, err := client.Do(gbox_req)
+
+		resChan <- res
+
+	}()
+
+	//com.Check(err)
+	res := <- resChan
 	decoder := json.NewDecoder(res.Body)
 
-	err = decoder.Decode(&gbe)
+	err := decoder.Decode(&gbe)
 	com.Check(err)
 
 	total_results = gbe.TotalResults
@@ -463,9 +477,9 @@ func RefreshEpisodes() {
 
 	fmt.Printf("redis %v", pong)
 
-	url := fmt.Sprintf("%v/popular_shows", os.Getenv("SS_MASTER"))
+	popshows_url := fmt.Sprintf("%v/popular_shows", os.Getenv("SS_MASTER"))
 
-	res, err := http.Get(url)
+	res, err := http.Get(popshows_url)
 
 	com.Check(err)
 
