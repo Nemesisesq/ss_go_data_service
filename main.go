@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"net/url"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
@@ -22,17 +22,11 @@ import (
 	"github.com/nemesisesq/ss_data_service/socket"
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
 	"github.com/nemesisesq/ss_data_service/timers"
-	"github.com/newrelic/go-agent"
 	"github.com/rs/cors"
-	"strings"
 )
 
 func main() {
 	//configure new relic
-	config := newrelic.NewConfig("Your App Name", "baa40a4680d3d03079bb6f7bfbc9130934bf33e0")
-	app, err := newrelic.NewApplication(config)
-
-	com.Check(err)
 
 	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
@@ -44,7 +38,7 @@ func main() {
 	port := com.GetPort()
 
 	// Create Redis Client
-	redis_url := fmt.Sprintf("%v:%v", os.Getenv("REDIS_1_PORT_6379_TCP_ADDR"), os.Getenv("REDIS_1_PORT_6379_TCP_PORT"))
+	redis_url := os.Getenv("REDIS_URL")
 
 	for _, e := range os.Environ() {
 		pair := strings.Split(e, "=")
@@ -62,22 +56,29 @@ func main() {
 	//	pass = ""
 	//}
 
-	com.Check(err)
+	//com.Check(err)
 
 	n := negroni.Classic()
 
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
 
-
 	cacheAccessor, err := middleware.NewCacheAccessor(redis_url, "", 0)
+	com.Check(err)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
 	//TODO fix these urls for AWS ElasticBeanStalk
-	//tx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
-	//rx_url := fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
-	tx_url := os.Getenv("RABBITMQ_URL")
-	rx_url := os.Getenv("RABBITMQ_URL")
+	var tx_url string
+	var rx_url string
+	if os.Getenv("RABBIT_MQ") != "" {
+
+		tx_url = os.Getenv("RABBITMQ_URL")
+		rx_url = os.Getenv("RABBITMQ_URL")
+	} else {
+		rx_url = fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"))
+		tx_url = fmt.Sprintf("amqp://%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"))
+
+	}
 
 	log.Info(tx_url, " ", rx_url)
 
@@ -87,14 +88,14 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/echo", socket.EchoHandler)
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/epis", ss.HandleEpisodeSocket))
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/recomendations", ss.HandleRecomendations))
+	r.HandleFunc("/epis", ss.HandleEpisodeSocket)
+	r.HandleFunc("/recomendations", ss.HandleRecomendations)
 
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/popular", pop.GetPopularityScore))
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/episodes", ss.GetEpisodes)).Methods("GET")
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/live-streaming-service", serv_proc.GetLiveStreamingServices))
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/on-demand-streaming-service", serv_proc.GetOnDemandServices))
-	r.HandleFunc(newrelic.WrapHandleFunc(app, "/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings))
+	r.HandleFunc("/popular", pop.GetPopularityScore)
+	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
+	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices)
+	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices)
+	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings)
 
 	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
 	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
@@ -122,9 +123,9 @@ func main() {
 
 	if os.Getenv("DEBUG") != "true" {
 
-		timers.GraceNoteListingTimer()
-		timers.GuideboxEpisodeTimer()
-		timers.PopularityTimer()
+		//timers.GraceNoteListingTimer()
+		//timers.GuideboxEpisodeTimer()
+		//timers.PopularityTimer()
 	}
 
 	//

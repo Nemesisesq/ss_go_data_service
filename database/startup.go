@@ -1,13 +1,25 @@
 package database
 
 import (
+	"os"
+
+	"github.com/Sirupsen/logrus"
 	"github.com/joeljames/nigroni-mgo-session"
 	com "github.com/nemesisesq/ss_data_service/common"
-	"os"
 )
 
 func DBStartup() nigronimgosession.DatabaseAccessor {
-	dbURL := os.Getenv("MONGODB_URI")
+
+	var f string
+	if os.Getenv("MONGODB_URI") != "" {
+		f = os.Getenv("MONDODB_URI")
+		logrus.Info("f", f)
+	} else {
+
+		f = os.Getenv("MONGODB_PORT_27017_TCP_ADDR")
+	}
+
+	dbURL := f
 	// Use the MongoDB `DATABASE_NAME` from the env
 	dbName := GetDatabase()
 	// Set the MongoDB collection name

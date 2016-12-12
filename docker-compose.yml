@@ -1,22 +1,39 @@
-web:
-  build: .
-  command: ./main
-  ports:
-    - "8080:8080"
-  links:
-    - redis
-    - rabbitmq
-    - mongodb
-  environment:
-    PORT: "8080"
+version: '2'
+services:
+  web:
+    build: .
+    command: ./main
+    ports:
+      - "8080:8080"
+#    links:
+#      - redis
+#      - rabbitmq
+#      - mongodb
+    environment:
+  #    - MONGODB_URI: ${MONGODB_1_PORT}
+
+      PORT: "8080"
+    networks:
+      - streamsavvy
 
 
 
-redis:
-  image: redis
+  redis:
+    image: redis
+    networks:
+        - streamsavvy
 
-rabbitmq:
-  image: rabbitmq
+  rabbitmq:
+    image: rabbitmq
+    networks:
+        - streamsavvy
+  mongodb:
+    image: mongo
+    networks:
+        - streamsavvy
 
-mongodb:
-  image: mongo
+networks:
+  streamsavvy:
+    driver: bridge
+
+

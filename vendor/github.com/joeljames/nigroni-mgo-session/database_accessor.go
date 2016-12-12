@@ -18,7 +18,7 @@ type DatabaseAccessor struct {
 
 func NewDatabaseAccessor(url, name, coll string) (*DatabaseAccessor, error) {
 
-
+	logrus.Print("######%v#######",url)
 	session, err := mgo.Dial(url)
 	logrus.Error(err)
 	if err == nil {

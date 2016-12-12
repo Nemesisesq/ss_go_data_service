@@ -7,6 +7,8 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
 	"gopkg.in/redis.v5"
+	"github.com/nemesisesq/ss_data_service/common"
+	"fmt"
 )
 
 type CacheAccessor struct {
@@ -25,9 +27,9 @@ func NewCacheAccessor(addr, pass string, db int) (*CacheAccessor, error) {
 
 	logrus.Info(addr)
 
-	//pong, err := client.Ping().Result()
-	//common.Check(err)
-	//fmt.Printf("redis %v", pong)
+	pong, err := client.Ping().Result()
+	common.Check(err)
+	fmt.Printf("redis %v", pong)
 
 	return &CacheAccessor{*client, addr, pass, db}, nil
 }
