@@ -12,7 +12,7 @@ func DBStartup() nigronimgosession.DatabaseAccessor {
 
 	var f string
 	if os.Getenv("MONGODB_URI") != "" {
-		f = os.Getenv("MONDODB_URI")
+		f = os.Getenv("MONGODB_URI")
 		logrus.Info("f", f)
 	} else {
 

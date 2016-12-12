@@ -21,11 +21,15 @@ import (
 	serv_proc "github.com/nemesisesq/ss_data_service/service_processor"
 	"github.com/nemesisesq/ss_data_service/socket"
 	ss "github.com/nemesisesq/ss_data_service/streamsavvy"
-	"github.com/nemesisesq/ss_data_service/timers"
+	//"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/rs/cors"
 )
 
 func main() {
+
+
+
+
 	//configure new relic
 
 	log.SetFormatter(&log.JSONFormatter{})
@@ -70,7 +74,7 @@ func main() {
 	//TODO fix these urls for AWS ElasticBeanStalk
 	var tx_url string
 	var rx_url string
-	if os.Getenv("RABBIT_MQ") != "" {
+	if os.Getenv("RABBITMQ_URL") != "" {
 
 		tx_url = os.Getenv("RABBITMQ_URL")
 		rx_url = os.Getenv("RABBITMQ_URL")
