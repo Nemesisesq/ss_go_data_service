@@ -215,7 +215,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					}).Info(time.Since(start))
 				}(s, guideboxId)
 
-
+				// Be careful with select statements with out defaults
 
 			}
 
