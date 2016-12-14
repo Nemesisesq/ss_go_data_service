@@ -62,6 +62,7 @@ func RefreshListings() {
 				defer redisClient.Close()
 
 				redisClient.Set(lineup.LineupId, the_json, 0)
+				return
 
 			}(val)
 		}

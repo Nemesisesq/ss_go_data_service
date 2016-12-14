@@ -144,6 +144,11 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	stations := GetCombinedGrid(lineups)
 	stations = guideObj.FilterAirings(stations, r)
 	stations = RemoveDuplicates(stations)
+
+	for _, i := range stations{
+
+		log.Info(i)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(stations)
 
@@ -260,6 +265,8 @@ func (g *Guide) GetTVGrid(r *http.Request) (lineups []Lineup) {
 					lchan <- lineup
 					wg.Done()
 				}
+
+				return
 			}(lineup, &wg, rc, lchan)
 		}
 	}
@@ -500,7 +507,7 @@ func (stations Stations) Process(col *mgo.Collection, filtered chan Station) {
 			//} else {
 			//	wg.Done()
 			//}
-
+			return
 		}(station, &wg)
 
 	}

@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
 	com "github.com/nemesisesq/ss_data_service/common"
@@ -24,6 +23,7 @@ import (
 	//"github.com/nemesisesq/ss_data_service/timers"
 	//"github.com/rs/cors"
 	"net/url"
+	"github.com/urfave/negroni"
 )
 
 func main() {
@@ -66,7 +66,9 @@ func main() {
 
 	com.Check(err)
 
-	n := negroni.Classic()
+	n := negroni.New()
+
+	n.Use(negroni.NewLogger())
 
 	dbAccessor := dbase.DBStartup()
 	n.Use(nigronimgosession.NewDatabase(dbAccessor).Middleware())
@@ -79,7 +81,7 @@ func main() {
 	var tx_url string
 	var rx_url string
 	if os.Getenv("RABBITMQ_URL") != "" {
-
+		log.Info("*$*$*$*$*$*$*$*$*")
 		tx_url = os.Getenv("RABBITMQ_URL")
 		rx_url = os.Getenv("RABBITMQ_URL")
 	} else {
@@ -95,9 +97,18 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/echo", socket.EchoHandler)
-	r.HandleFunc("/epis", ss.HandleEpisodeSocket)
-	r.HandleFunc("/recomendations", ss.HandleRecomendations)
+	socketRouter := mux.NewRouter().PathPrefix("/sock").Subrouter().StrictSlash(true)
+	socketRouter.HandleFunc("/echo", socket.EchoHandler)
+	socketRouter.HandleFunc("/epis", ss.HandleEpisodeSocket)
+	socketRouter.HandleFunc("/recommendations", ss.HandleRecomendations)
+
+	r.PathPrefix("/sock").Handler(negroni.New(
+		nigronimgosession.NewDatabase(dbAccessor).Middleware(),
+		middleware.NewRedisClient(*cacheAccessor).Middleware(),
+		middleware.NewRabbitMQConnection(*messengerAccessor).Middleware(),
+		middleware.CleanupMiddleware(),
+		negroni.Wrap(socketRouter),
+	))
 
 	r.HandleFunc("/popular", pop.GetPopularityScore)
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")

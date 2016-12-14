@@ -12,28 +12,27 @@ web:
 #    - MONGODB_URI: ${MONGODB_1_PORT}
 
     PORT: "8080"
-
-
-
+    NODE_DATA_SERVICE: "http://ss-node-data-staging.herokuapp.com"
 
 redis:
   image: redis
 
   ports:
     - "6379:6379"
-
+#
 rabbitmq:
   image: rabbitmq
 
   ports:
     - "5672:5672"
+    - "15672:15672"
 
 mongodb:
   image: mongo
 
   ports:
     - "27017:27017"
-
+#
 
 
 

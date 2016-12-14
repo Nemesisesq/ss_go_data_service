@@ -58,6 +58,7 @@ func EchoHandler(w http.ResponseWriter, r *http.Request) {
 				common.Check(err)
 
 			}
+			return
 		}()
 
 	}

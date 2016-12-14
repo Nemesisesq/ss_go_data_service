@@ -23,6 +23,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 	r_client := r.Context().Value("redis_client").(*redis.Client)
+	cleanup := r.Context().Value("cleanup").(chan string)
 
 	SimKey := "ss_reco:%v:%v"
 	categories := []string{"genres", "tags", "cast"}
@@ -32,6 +33,10 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reco := Reco{}
+
+
+
+
 	reco.sock = conn
 
 	for {
@@ -62,7 +67,8 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 		//TODO use this to update show recomendations later.
 		//reco.PublishShowInfo(p, rmqc)
 
-		go func() {rx_q, err := rmqc.RX.QueueDeclare(
+		go func() {
+			rx_q, err := rmqc.RX.QueueDeclare(
 				"reco_engine_results",
 				false,
 				false,
@@ -76,15 +82,15 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 				//rmqc.RX.Close()
 				conn.Close()
 			}
-
+			logrus.Info("Listening to recomendation results channel")
 			msgs, err := rmqc.RX.Consume(
 				rx_q.Name, // queue
-				"",        // consumer
-				true,      // auto-ack
-				false,     // exclusive
-				false,     // no-local
-				false,     // no-wait
-				nil,       // args
+				"", // consumer
+				true, // auto-ack
+				false, // exclusive
+				false, // no-local
+				false, // no-wait
+				nil, // args
 			)
 
 			if err != nil {
@@ -108,9 +114,22 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 
+				case <- cleanup:
+					rmqc.RX.Close()
+					return
 				}
 			}
+
+			return
+
 		}()
+
+		select {
+		case <-cleanup:
+			rmqc.RX.Close()
+			rmqc.TX.Close()
+			return
+		}
 	}
 }
 
@@ -148,10 +167,10 @@ func (r Reco) PublishShowInfo(show_id string, rmqc middleware.RMQCH) {
 	}
 
 	err = rmqc.TX.Publish(
-		"",        // exchange
+		"", // exchange
 		tx_q.Name, // routing key
-		false,     // mandatory
-		false,     // immediate
+		false, // mandatory
+		false, // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(show_id),

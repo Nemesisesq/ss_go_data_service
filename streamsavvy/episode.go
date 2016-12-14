@@ -3,7 +3,6 @@ package streamsavvy
 import (
 	"fmt"
 	"net/http"
-	//"github.com/gorilla/context"
 	"encoding/json"
 
 	"net/url"
@@ -18,7 +17,6 @@ import (
 	"github.com/nemesisesq/ss_data_service/middleware"
 	"github.com/streadway/amqp"
 	"gopkg.in/redis.v5"
-	//"github.com/aws/aws-sdk-go/aws/client"
 )
 
 type Episode struct {
@@ -74,32 +72,16 @@ var upgrader = websocket.Upgrader{
 
 func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
-	//timeout := time.NewTicker(10 * time.Second)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	com.Check(err)
-
-	//epiChan := make(chan []interface{}, 100)
 
 	client := r.Context().Value("redis_client").(*redis.Client)
 
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 
-	//timeout := time.NewTicker(20 * time.Minute)
-	//	stop := make(chan bool)
-
-	//go func(){
-	//	select {
-	//	case <- timeout.C:
-	//		conn.Close()
-	//		//stop <- true
-	//	}
-	//}()
-
-	//wg := sync.WaitGroup{}
+	cleanup := r.Context().Value("cleanup").(chan string)
 
 	for {
-		//timeout.Stop()
-		//timeout = time.NewTicker(20 * time.Minute)
 
 		messageType, p, err := conn.ReadMessage()
 
@@ -152,26 +134,20 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					case d := <-msgs:
 						if d.Body != nil {
 
-							//log.Info(string(d.Body[:]))
 							log.Info("sending to client ", x * 12)
 							err = conn.WriteMessage(messageType, d.Body)
 							x += 1
-							//if err != nil {
-							//	conn.Close()
-							//	stop <- true
-							//	return
-							//}
 						}
-					//case <-stop:
-					//	conn.Close()
-					//	return
-					//
+					case <-cleanup:
+						rmqc.RX.Close()
+						return
 					}
 				}
+				return
 			}()
 
 			log.Info("Getting Initial")
-			//wg.Add(1)
+
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
 			log.Info("Got Initial")
 			tx_q, err := rmqc.TX.QueueDeclare(
@@ -188,7 +164,6 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				s := i * 12
 
 				log.Print("############## %v #################", s)
-				//wg.Add(1)
 				go func(s int, guideboxId string) {
 					start := time.Now()
 					log.Debug("sending ")
@@ -209,18 +184,24 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					com.Check(err)
 
-					//err = conn.WriteMessage(messageType, response)
-					//wg.Done()
-					//timeout = time.NewTicker(1 * time.Second)
-
 					log.WithFields(log.Fields{
 
 						"Starting At": s,
 						"start time":  start,
 					}).Info(time.Since(start))
+
+					select {
+					case <-cleanup:
+						rmqc.TX.Close()
+						return
+					}
+
+					return
 				}(s, guideboxId)
 
-				// Be careful with select statements with out defaults
+				/*
+				Be careful with select statements with out defaults
+				*/
 
 			}
 
@@ -240,6 +221,13 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			err = conn.WriteMessage(messageType, response)
 
 		}
+
+		select {
+		case <-cleanup:
+			rmqc.TX.Close()
+			rmqc.RX.Close()
+			return
+		}
 	}
 }
 
@@ -250,12 +238,6 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 	epi := &GuideBoxEpisodes{}
 
 	client := r.Context().Value("redis_client").(*redis.Client)
-
-	//val, _ := client.Get(guideboxId).Result()
-	//ttl, _ := client.TTL(guideboxId).Result()
-
-	//log.Info(fmt.Sprintf("the redis error is %v", err))
-	//log.Info(fmt.Sprintf("the value is %v", val))
 
 	if true {
 
@@ -268,7 +250,6 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 		epi.CacheEpisode(total_results, episode_list, guideboxId, *client)
 
 		epi.Results = episode_list
-		//log.Info(fmt.Sprintf("this is the value of epi %v", epi))
 
 	} else {
 		//log.Info("checking TTL", reflect.TypeOf(ttl))
@@ -288,7 +269,6 @@ func GetEpisodes(w http.ResponseWriter, r *http.Request) {
 }
 
 func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
-	//res := []Episode{}
 
 	for indx, val := range epi_list {
 		x_epi := &Episode{}
@@ -299,9 +279,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		com.Check(err)
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
-				//log.WithField("length of sources before", len(x_epi.SubscriptionIosSources)).Info()
 				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
-				//log.WithField("length of sources after", len(x_epi.SubscriptionIosSources)).Info()
 			}
 
 		}
@@ -309,11 +287,6 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		the_json, _ = json.Marshal(x_epi)
 		err = json.Unmarshal(the_json, &val)
 
-		//if indx == 0{
-
-		//pretty, _ := json.MarshalIndent(val,"", "\t")
-		//fmt.Println(string(pretty[:]))
-		//}
 		com.Check(err)
 
 		epi_list[indx] = val
@@ -324,10 +297,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 }
 
 func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []interface{}, guideboxId string, client redis.Client) {
-	//print(total_results)
 	epi.Results = episode_list
-
-	//log.Info(fmt.Sprintf("length of episode list %v", len(episode_list)))
 
 	epi.GuideboxId = guideboxId
 	epi.TotalResults = total_results
@@ -349,11 +319,8 @@ func (epi GuideBoxEpisodes) RefreshEpisodes(guideboxId string, client redis.Clie
 }
 
 func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []interface{}, total_results int) {
-	//startingIndexList := []int{}
-	//log.Info("Im in")
 
 	total_results, episode_list = epi.GetEpisodes(0, 25, guideboxId)
-	//log.Info("Im out")
 
 	chanBuffer := total_results / 25
 	episodeListChan := make(chan []interface{}, chanBuffer)
@@ -362,23 +329,20 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 
 	for i := 1; (i * 25) <= total_results; i++ {
 		s := i * 25
-		//log.Printf("getting episodes starting with %v", s)
+
 		wg.Add(1)
 		go func(s int, guideboxId string, wg *sync.WaitGroup, c chan []interface{}) {
 			_, res := epi.GetEpisodes(s, 25, guideboxId)
 
-			//log.Printf("sending reuslts for %v to chan", s)
 			c <- res
 			wg.Done()
-			//log.Println(len(res))
-			//fmt.Println(wg)
+			return
 		}(s, guideboxId, &wg, episodeListChan)
-		//time.Sleep(25 * time.Millisecond)
+
 	}
 
-	//log.Info("waiting")
 	wg.Wait()
-	//log.Info("done waiting ")
+
 	close(episodeListChan)
 
 	for e := range episodeListChan {
@@ -387,18 +351,6 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 
 	}
 
-	//
-	//if total_results > len(episode_list) {
-	//	go func() {
-	//		for total_results > len(episode_list) {
-	//			_, res := epi.GetEpisodes(len(episode_list), 25, guideboxId)
-	//			episode_list = append(episode_list, res...)
-	//		}
-	//	}()
-	//
-	//}
-
-	//print(total_results)
 	epi.Results = episode_list
 
 	return episode_list, total_results
@@ -407,44 +359,38 @@ func (epi GuideBoxEpisodes) GetAllEpisodes(guideboxId string) (episode_list []in
 func (gbe GuideBoxEpisodes) GetEpisodes(start int, chunk int, guideboxId string) (total_results int, epiList []interface{}) {
 
 	//TODO Logging
-	resChan := make(chan *http.Response)
+	client := &http.Client{}
 
-	go func() {
+	baseUrl := "http://api-public.guidebox.com/v1.43/US/%v/show/%v/episodes/all/%v/%v/all/all/true"
 
-		client := &http.Client{}
+	apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
 
-		baseUrl := "https://api-public.guidebox.com/v1.43/US/%v/show/%v/episodes/all/%v/%v/all/all/true"
+	gbox_url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
 
-		apiKey := "rKWvTOuKvqzFbORmekPyhkYMGinuxgxM"
+	fmt.Println(gbox_url)
 
-		gbox_url := fmt.Sprintf(baseUrl, apiKey, guideboxId, start, chunk)
+	gbox_req, err := http.NewRequest("GET", gbox_url, nil)
 
-		fmt.Println(gbox_url)
-
-		gbox_req, err := http.NewRequest("GET", gbox_url, nil)
-
-		com.Check(err)
-
-		params := map[string]string{
-			"reverse_ordering": "true",
-		}
-
-		com.BuildQuery(gbox_req, params)
-
-		res, err := client.Do(gbox_req)
-
-		resChan <- res
-
-	}()
-
-	//com.Check(err)
-	res := <- resChan
-	decoder := json.NewDecoder(res.Body)
-
-	err := decoder.Decode(&gbe)
 	com.Check(err)
 
+	params := map[string]string{
+		"reverse_ordering": "true",
+	}
+
+	com.BuildQuery(gbox_req, params)
+
+	res, err := client.Do(gbox_req)
+
+	com.Check(err)
+
+	decoder := json.NewDecoder(res.Body)
+
+	com.Check(err)
+
+	err = decoder.Decode(&gbe)
+
 	total_results = gbe.TotalResults
+	log.Info(gbe.TotalReturned)
 	epiList = gbe.Results
 
 	return total_results, epiList
@@ -465,7 +411,7 @@ func RefreshEpisodes() {
 	if !b {
 		pass = ""
 	}
-	//rURL := fmt.Sprintf("%v://%v",u.Scheme, u.Host)
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     u.Host,
 		Password: pass,
@@ -484,6 +430,7 @@ func RefreshEpisodes() {
 	com.Check(err)
 
 	decoder := json.NewDecoder(res.Body)
+
 	decoder.Decode(&popularShowList)
 
 	for _, show := range popularShowList {
@@ -493,7 +440,7 @@ func RefreshEpisodes() {
 		log.Printf("getting episodes for &v", id)
 
 		episode_list, total_results := epis.GetAllEpisodes(id)
-		//
+
 		epis.CacheEpisode(total_results, episode_list, id, *client)
 
 	}
