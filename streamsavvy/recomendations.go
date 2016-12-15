@@ -28,19 +28,18 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	SimKey := "ss_reco:%v:%v"
 	categories := []string{"genres", "tags", "cast"}
 
+	common.Check(err) 
 	if err != nil {
 		conn.Close()
 	}
 
 	reco := Reco{}
 
-
-
-
 	reco.sock = conn
 
 	for {
 		messageType, p, err := conn.ReadMessage()
+		common.Check(err)
 		if err != nil {
 			//common.Check(err)
 			logrus.Error(err)
@@ -76,7 +75,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 				false,
 				nil,
 			)
-			//common.Check(err)
+			common.Check(err)
 			if err != nil {
 				logrus.Error(err)
 				//rmqc.RX.Close()
@@ -92,7 +91,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 				false, // no-wait
 				nil, // args
 			)
-
+			common.Check(err)
 			if err != nil {
 				common.Check(err)
 				logrus.Error(err)
@@ -108,15 +107,16 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 					if len(m.Body) > 2 {
 
 						err = reco.send(messageType, m.Body)
+						common.Check(err)
 						if err != nil {
 							logrus.Error(err)
 							reco.sock.Close()
 						}
 					}
 
-				case <- cleanup:
+				case <-cleanup:
 					rmqc.RX.Close()
-					return
+					break
 				}
 			}
 
@@ -175,7 +175,7 @@ func (r Reco) PublishShowInfo(show_id string, rmqc middleware.RMQCH) {
 			ContentType: "text/plain",
 			Body:        []byte(show_id),
 		})
-
+	common.Check(err)
 	if err != nil {
 		common.Check(err)
 		rmqc.TX.Close()

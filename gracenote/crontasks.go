@@ -48,14 +48,14 @@ func RefreshListings() {
 
 				common.Check(err)
 
-				pass, b := u.User.Password()
+				//pass, b := u.User.Password()
 
-				if !b {
-					pass = ""
-				}
+				//if !b {
+				//	pass = ""
+				//}
 				redisClient := redis.NewClient(&redis.Options{
 					Addr:     u.Host,
-					Password: pass,
+					Password: "",
 					DB:       0,
 				})
 

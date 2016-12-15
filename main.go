@@ -24,6 +24,7 @@ import (
 	//"github.com/rs/cors"
 	"net/url"
 	"github.com/urfave/negroni"
+	"github.com/nemesisesq/ss_data_service/timers"
 )
 
 func main() {
@@ -100,7 +101,7 @@ func main() {
 	socketRouter := mux.NewRouter().PathPrefix("/sock").Subrouter().StrictSlash(true)
 	socketRouter.HandleFunc("/echo", socket.EchoHandler)
 	socketRouter.HandleFunc("/epis", ss.HandleEpisodeSocket)
-	socketRouter.HandleFunc("/recommendations", ss.HandleRecomendations)
+	socketRouter.HandleFunc("/reco", ss.HandleRecomendations)
 
 	r.PathPrefix("/sock").Handler(negroni.New(
 		nigronimgosession.NewDatabase(dbAccessor).Middleware(),
@@ -140,12 +141,12 @@ func main() {
 
 	//timers
 
-	if os.Getenv("DEBUG") != "true" {
+	//if os.Getenv("DEBUG") != "true" {
 
-		//timers.GraceNoteListingTimer()
-		//timers.GuideboxEpisodeTimer()
-		//timers.PopularityTimer()
-	}
+		timers.GraceNoteListingTimer()
+		timers.GuideboxEpisodeTimer()
+		timers.PopularityTimer()
+	//}
 
 	//
 	//ticker := time.NewTicker(25 * time.Minute)
