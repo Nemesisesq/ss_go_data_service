@@ -111,6 +111,8 @@ func main() {
 		negroni.Wrap(socketRouter),
 	))
 
+	r.HandleFunc("/search", ss.Search).Methods("GET")
+
 	r.HandleFunc("/popular", pop.GetPopularityScore)
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
 	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices)
@@ -167,6 +169,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":" + port, n))
+	//log.Fatal(http.ListenAndServe(":" + port, n))
 
 }

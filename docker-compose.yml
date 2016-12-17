@@ -8,6 +8,8 @@ web:
     - redis:r
     - rabbitmq:rmq
     - mongodb:m
+    - neo4j:n
+
   environment:
 #    - MONGODB_URI: ${MONGODB_1_PORT}
 
@@ -32,7 +34,15 @@ mongodb:
 
   ports:
     - "27017:27017"
-#
+neo4j:
+  image: neo4j
+
+  ports:
+    - "7474:7474"
+    - "7473:7473"
+    - "7687:7687"
+    - "1337:1337"
+
 
 
 

@@ -1,0 +1,2178 @@
+[
+  {
+    "sportsId": "254",
+    "sportsName": "Alpine skiing",
+    "organizations": [
+      {
+        "organizationId": "7366",
+        "organizationName": "FIS Alpine Skiing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "41",
+    "sportsName": "Aerobics"
+  },
+  {
+    "sportsId": "47",
+    "sportsName": "Archery"
+  },
+  {
+    "sportsId": "48",
+    "sportsName": "Arm wrestling"
+  },
+  {
+    "sportsId": "227",
+    "sportsName": "Wrestling"
+  },
+  {
+    "sportsId": "56",
+    "sportsName": "Badminton"
+  },
+  {
+    "sportsId": "108",
+    "sportsName": "Field hockey"
+  },
+  {
+    "sportsId": "88",
+    "sportsName": "Cricket",
+    "organizations": [
+      {
+        "organizationId": "11221",
+        "organizationName": "Karnataka Premier League Cricket",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "87",
+        "organizationName": "IPL Cricket",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "12549",
+        "organizationName": "Big Bash League Cricket",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "60",
+    "sportsName": "Beach soccer"
+  },
+  {
+    "sportsId": "61",
+    "sportsName": "Beach volleyball"
+  },
+  {
+    "sportsId": "62",
+    "sportsName": "Biathlon"
+  },
+  {
+    "sportsId": "63",
+    "sportsName": "Bicycle"
+  },
+  {
+    "sportsId": "64",
+    "sportsName": "Bicycle racing"
+  },
+  {
+    "sportsId": "65",
+    "sportsName": "Billiards"
+  },
+  {
+    "sportsId": "66",
+    "sportsName": "Blackjack"
+  },
+  {
+    "sportsId": "67",
+    "sportsName": "Boat"
+  },
+  {
+    "sportsId": "245",
+    "sportsName": "Bull riding",
+    "organizations": [
+      {
+        "organizationId": "11643",
+        "organizationName": "CBR Bull Riding",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11644",
+        "organizationName": "PBR Bull Riding",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "69",
+    "sportsName": "Bobsled"
+  },
+  {
+    "sportsId": "70",
+    "sportsName": "Bodybuilding"
+  },
+  {
+    "sportsId": "139",
+    "sportsName": "Intl hockey",
+    "organizations": [
+      {
+        "organizationId": "2477",
+        "organizationName": "Champions Hockey League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "72",
+    "sportsName": "Boxing"
+  },
+  {
+    "sportsId": "73",
+    "sportsName": "Bullfighting"
+  },
+  {
+    "sportsId": "75",
+    "sportsName": "Canoe"
+  },
+  {
+    "sportsId": "77",
+    "sportsName": "Cheerleading"
+  },
+  {
+    "sportsId": "114",
+    "sportsName": "Gaelic football"
+  },
+  {
+    "sportsId": "90",
+    "sportsName": "Curling"
+  },
+  {
+    "sportsId": "92",
+    "sportsName": "Darts"
+  },
+  {
+    "sportsId": "94",
+    "sportsName": "Diving"
+  },
+  {
+    "sportsId": "97",
+    "sportsName": "Dog sled"
+  },
+  {
+    "sportsId": "105",
+    "sportsName": "Action sports",
+    "organizations": [
+      {
+        "organizationId": "12004",
+        "organizationName": "World Flying Disc Federation",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "12118",
+        "organizationName": "Major League Ultimate Frisbee",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "102",
+    "sportsName": "Equestrian"
+  },
+  {
+    "sportsId": "107",
+    "sportsName": "Fencing"
+  },
+  {
+    "sportsId": "199",
+    "sportsName": "Soccer",
+    "organizations": [
+      {
+        "organizationId": "109",
+        "organizationName": "Russian Premier League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "111",
+        "organizationName": "Scottish Premier League Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o111_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "115",
+        "organizationName": "Spanish Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o115_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "127",
+        "organizationName": "UEFA Champions League Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o127_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "18",
+        "organizationName": "MLS Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o18_l_h5_ac.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "186",
+        "organizationName": "Guatemalan Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "187",
+        "organizationName": "Honduran Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "190",
+        "organizationName": "Ecuadorian Serie A Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o190_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "30",
+        "organizationName": "USL Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3532",
+        "organizationName": "Salvadoran Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3537",
+        "organizationName": "Peruvian Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o3537_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "3567",
+        "organizationName": "Panamanian Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3587",
+        "organizationName": "Uruguayan Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o3587_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "3591",
+        "organizationName": "UEFA Europa League Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o3591_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "3713",
+        "organizationName": "NASL Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o3713_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "3832",
+        "organizationName": "Colombian Primera A Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o3832_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "50",
+        "organizationName": "Bundesliga Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o50_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "56",
+        "organizationName": "CONCACAF Champions League Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o56_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "60",
+        "organizationName": "Eredivisie Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "62",
+        "organizationName": "English Premier League Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o62_l_h5_ay.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6333",
+        "organizationName": "Superleague Greece Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "64",
+        "organizationName": "FA Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6578",
+        "organizationName": "English League One Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6579",
+        "organizationName": "English League Two Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6579_l_h5_aa.png",
+          "category": "Sport Logo",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "6584",
+        "organizationName": "Mexico Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6584_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6585",
+        "organizationName": "Argentine Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6585_l_h5_ay.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6586",
+        "organizationName": "Brazil Serie A Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6586_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6587",
+        "organizationName": "Brazil Serie B Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6588",
+        "organizationName": "Brazil Serie C Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6598",
+        "organizationName": "Taça da Liga",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6599",
+        "organizationName": "Taça de Portugal",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6601",
+        "organizationName": "Copa Libertadores Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6601_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6620",
+        "organizationName": "Chile Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6621",
+        "organizationName": "Chile Primera B Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6622",
+        "organizationName": "English Championship Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6624",
+        "organizationName": "Argentine Primera B Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6624_l_h5_ay.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6625",
+        "organizationName": "Costa Rica Primera Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6625_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6626",
+        "organizationName": "Dutch Eerste Divisie Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6630",
+        "organizationName": "Dutch KNVB Beker Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6631",
+        "organizationName": "English Community Shield Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6633",
+        "organizationName": "English Football League Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6635",
+        "organizationName": "French Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6636",
+        "organizationName": "French League Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6637",
+        "organizationName": "French Ligue 2 Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6637_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "6643",
+        "organizationName": "Bundesliga 2 Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6643_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6644",
+        "organizationName": "Bundesliga 3 Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6645",
+        "organizationName": "Italian Serie B Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6646",
+        "organizationName": "Coppa Italia Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6650",
+        "organizationName": "Italian Super Cup Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6650_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6654",
+        "organizationName": "Portuguese Liga de Honra",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6655",
+        "organizationName": "Primeira Liga Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6655_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6656",
+        "organizationName": "Scottish Challenge Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6657",
+        "organizationName": "Scottish League First Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6658",
+        "organizationName": "Scottish Championship Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6658_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6659",
+        "organizationName": "Scottish League Third Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6661",
+        "organizationName": "Spanish Segunda Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6662",
+        "organizationName": "Spanish Segunda B Group I Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6663",
+        "organizationName": "Spanish Segunda B Group II Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6664",
+        "organizationName": "Spanish Segunda B Group III Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6665",
+        "organizationName": "Spanish Segunda B Group IV Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6666",
+        "organizationName": "Spanish Super Cup Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o6666_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6667",
+        "organizationName": "Venezuelan Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7023",
+        "organizationName": "Mexico Ascenso Division Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7023_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "7132",
+        "organizationName": "Chilean Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7136",
+        "organizationName": "Chile Segunda Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7137",
+        "organizationName": "Chile Tercera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7138",
+        "organizationName": "Argentine Primera B Metro Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7152",
+        "organizationName": "Fotboll: Allsvenskan",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7224",
+        "organizationName": "Spanish Copa del Rey Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7224_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "7236",
+        "organizationName": "Guatemalan Ascenso League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7241",
+        "organizationName": "Ecuadorian Serie B Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7276",
+        "organizationName": "Ekstraklasa Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7338",
+        "organizationName": "Mexico Segunda Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7505",
+        "organizationName": "Colombian Primera B Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7539",
+        "organizationName": "Fotboll: Norska Tippeligan",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7559",
+        "organizationName": "Copa Colombia Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7573",
+        "organizationName": "Argentine Cup Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7573_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "7597",
+        "organizationName": "Brazil Serie D Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7642",
+        "organizationName": "Turkish Super Lig Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7652",
+        "organizationName": "Peruvian Second Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7853",
+        "organizationName": "Swiss Super League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7856",
+        "organizationName": "Paraguay Primera Division Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7857",
+        "organizationName": "Bolivian Professional Football League",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7857_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "7981",
+        "organizationName": "FIFA Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7981_l_h5_ab.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "88",
+        "organizationName": "Italian Serie A Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o88_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "93",
+        "organizationName": "French Ligue 1 Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o93_l_h5_ap.png",
+          "category": "Logo",
+          "text": "yes",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "9423",
+        "organizationName": "Panamanian Liga Ascenso Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7074",
+        "organizationName": "Copa MX Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7074_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "10553",
+        "organizationName": "Belgian Pro League Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7274",
+        "organizationName": "Deutsche Pokal Soccer",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o7274_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "4309",
+        "organizationName": "Bundesliga Austria",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o4309_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "9668",
+        "organizationName": "Danish Superliga Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10987",
+        "organizationName": "NWSL Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11212",
+        "organizationName": "Israeli Premier League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11358",
+        "organizationName": "Coppa Italia Primavera Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11822",
+        "organizationName": "Chinese Super League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11847",
+        "organizationName": "Veikkausligga Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11886",
+        "organizationName": "National League North",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11893",
+        "organizationName": "Italian Serie D Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11933",
+        "organizationName": "Italian Serie C Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11942",
+        "organizationName": "J1 League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "128",
+        "organizationName": "A-League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10923",
+        "organizationName": "Liga Dominicana de Fútbol",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10146",
+        "organizationName": "Indian Super League Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "104",
+        "organizationName": "NPSL Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "58",
+        "organizationName": "CSL Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "8241",
+        "organizationName": "Turkish Cup Soccer",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "109",
+    "sportsName": "Figure skating"
+  },
+  {
+    "sportsId": "110",
+    "sportsName": "Fishing"
+  },
+  {
+    "sportsId": "215",
+    "sportsName": "Tennis",
+    "organizations": [
+      {
+        "organizationId": "2329",
+        "organizationName": "ATP Tennis",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2329_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "3241",
+        "organizationName": "WTA Tennis",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "39",
+        "organizationName": "World Team Tennis",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11523",
+        "organizationName": "IPTL Tennis",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "140",
+    "sportsName": "Intl soccer",
+    "organizations": [
+      {
+        "organizationId": "2715",
+        "organizationName": "J. League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "229",
+    "sportsName": "Gaming"
+  },
+  {
+    "sportsId": "59",
+    "sportsName": "Basketball",
+    "organizations": [
+      {
+        "organizationId": "19",
+        "organizationName": "NBA Basketball",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o19_l_h5_ac.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "32",
+        "organizationName": "WNBA Basketball",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o32_l_h5_ab.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "10327",
+        "organizationName": "Italian Basket Serie A League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10764",
+        "organizationName": "FIBA Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "63",
+        "organizationName": "Euroleague Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11560",
+        "organizationName": "Israeli Premier League Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "100",
+        "organizationName": "NBA D-League Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "101",
+        "organizationName": "NBA Summer League Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "108",
+        "organizationName": "Premier Basketball League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3593",
+        "organizationName": "ABA Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "6043",
+        "organizationName": "NBLC Basketball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "118",
+    "sportsName": "Gymnastics"
+  },
+  {
+    "sportsId": "117",
+    "sportsName": "Golf",
+    "organizations": [
+      {
+        "organizationId": "2833",
+        "organizationName": "LPGA Tour Golf",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2833_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "2934",
+        "organizationName": "PGA Tour Golf",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2934_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "2588",
+        "organizationName": "European PGA Tour Golf",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "183",
+    "sportsName": "Sailing"
+  },
+  {
+    "sportsId": "133",
+    "sportsName": "Hunting"
+  },
+  {
+    "sportsId": "200",
+    "sportsName": "Softball",
+    "organizations": [
+      {
+        "organizationId": "99",
+        "organizationName": "National Pro Fastpitch Softball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "135",
+    "sportsName": "Hydroplane racing"
+  },
+  {
+    "sportsId": "136",
+    "sportsName": "Indoor soccer"
+  },
+  {
+    "sportsId": "138",
+    "sportsName": "Intl basketball"
+  },
+  {
+    "sportsId": "194",
+    "sportsName": "Snowboarding",
+    "organizations": [
+      {
+        "organizationId": "7369",
+        "organizationName": "FIS Snowboarding",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "255",
+    "sportsName": "Ski Jumping",
+    "organizations": [
+      {
+        "organizationId": "1890",
+        "organizationName": "FIS Ski Jumping",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "141",
+    "sportsName": "Kayaking"
+  },
+  {
+    "sportsId": "53",
+    "sportsName": "Auto racing",
+    "organizations": [
+      {
+        "organizationId": "2700",
+        "organizationName": "IndyCar Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "2892",
+        "organizationName": "NASCAR Racing",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2892_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "2616",
+        "organizationName": "Formula One Racing",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2616_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "10684",
+        "organizationName": "FIA World Endurance Championship",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10921",
+        "organizationName": "NASCAR Whelen Euro Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11606",
+        "organizationName": "IMSA Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "270",
+        "organizationName": "ARCA Racing Series",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "365",
+        "organizationName": "DTM Racing Series",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3857",
+        "organizationName": "Lucas Oil Off Road Racing Series",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "421",
+        "organizationName": "GP2 Championship Series Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "144",
+    "sportsName": "Luge"
+  },
+  {
+    "sportsId": "145",
+    "sportsName": "Martial arts"
+  },
+  {
+    "sportsId": "231",
+    "sportsName": "Mixed martial arts"
+  },
+  {
+    "sportsId": "149",
+    "sportsName": "Motorcycle racing"
+  },
+  {
+    "sportsId": "150",
+    "sportsName": "Motorsports"
+  },
+  {
+    "sportsId": "151",
+    "sportsName": "Mountain biking"
+  },
+  {
+    "sportsId": "181",
+    "sportsName": "Rugby",
+    "organizations": [
+      {
+        "organizationId": "2895",
+        "organizationName": "NRL Rugby",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3074",
+        "organizationName": "Super Rugby",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "2979",
+        "organizationName": "Premiership Rugby",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3077",
+        "organizationName": "Super League Rugby",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3676",
+        "organizationName": "Rugby Super League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "9451",
+        "organizationName": "Pacific Rugby Premiership",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "134",
+    "sportsName": "Hurling"
+  },
+  {
+    "sportsId": "169",
+    "sportsName": "Polo"
+  },
+  {
+    "sportsId": "171",
+    "sportsName": "Pro wrestling"
+  },
+  {
+    "sportsId": "173",
+    "sportsName": "Racquet"
+  },
+  {
+    "sportsId": "176",
+    "sportsName": "Ringuette"
+  },
+  {
+    "sportsId": "177",
+    "sportsName": "Rodeo"
+  },
+  {
+    "sportsId": "178",
+    "sportsName": "Roller derby"
+  },
+  {
+    "sportsId": "180",
+    "sportsName": "Rowing"
+  },
+  {
+    "sportsId": "58",
+    "sportsName": "Baseball",
+    "organizations": [
+      {
+        "organizationId": "17",
+        "organizationName": "MLB Baseball",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o17_l_h5_ac.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "6794",
+        "organizationName": "WMBL Baseball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "83",
+        "organizationName": "IBL Baseball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "102",
+        "organizationName": "Nippon Professional Baseball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "84",
+        "organizationName": "Independent League Baseball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "182",
+    "sportsName": "Running"
+  },
+  {
+    "sportsId": "142",
+    "sportsName": "Lacrosse",
+    "organizations": [
+      {
+        "organizationId": "22",
+        "organizationName": "NLL Lacrosse",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "98",
+        "organizationName": "MLL Lacrosse",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "186",
+    "sportsName": "Shooting"
+  },
+  {
+    "sportsId": "189",
+    "sportsName": "Skateboarding"
+  },
+  {
+    "sportsId": "190",
+    "sportsName": "Skating"
+  },
+  {
+    "sportsId": "191",
+    "sportsName": "Skeleton"
+  },
+  {
+    "sportsId": "192",
+    "sportsName": "Skiing"
+  },
+  {
+    "sportsId": "193",
+    "sportsName": "Snooker"
+  },
+  {
+    "sportsId": "256",
+    "sportsName": "Freestyle Skiing",
+    "organizations": [
+      {
+        "organizationId": "7368",
+        "organizationName": "FIS Freestyle Skiing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "195",
+    "sportsName": "Snowmobile"
+  },
+  {
+    "sportsId": "246",
+    "sportsName": "Cross-country skiing",
+    "organizations": [
+      {
+        "organizationId": "7367",
+        "organizationName": "FIS Cross-Country Skiing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "111",
+    "sportsName": "Football",
+    "organizations": [
+      {
+        "organizationId": "2",
+        "organizationName": "Arena Football",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o2_l_h5_aa.png",
+          "category": "Sport Logo",
+          "primary": "true",
+          "tier": "Organization"
+        }
+      },
+      {
+        "organizationId": "20",
+        "organizationName": "NFL Football",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o20_l_h5_ac.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "4",
+        "organizationName": "CFL Football",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o4_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "11772",
+        "organizationName": "MLFB Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "107",
+        "organizationName": "OVFL Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "3710",
+        "organizationName": "IWFL Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7689",
+        "organizationName": "LFL Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "203",
+    "sportsName": "Speed skating"
+  },
+  {
+    "sportsId": "207",
+    "sportsName": "Squash"
+  },
+  {
+    "sportsId": "209",
+    "sportsName": "Sumo wrestling"
+  },
+  {
+    "sportsId": "210",
+    "sportsName": "Surfing"
+  },
+  {
+    "sportsId": "212",
+    "sportsName": "Swimming"
+  },
+  {
+    "sportsId": "213",
+    "sportsName": "Table tennis"
+  },
+  {
+    "sportsId": "98",
+    "sportsName": "Drag racing",
+    "organizations": [
+      {
+        "organizationId": "3859",
+        "organizationName": "NHRA Drag Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "217",
+    "sportsName": "Track/field"
+  },
+  {
+    "sportsId": "219",
+    "sportsName": "Triathlon"
+  },
+  {
+    "sportsId": "221",
+    "sportsName": "Volleyball",
+    "organizations": [
+      {
+        "organizationId": "5281",
+        "organizationName": "Shakey's V-League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "222",
+    "sportsName": "Water polo"
+  },
+  {
+    "sportsId": "223",
+    "sportsName": "Water skiing"
+  },
+  {
+    "sportsId": "224",
+    "sportsName": "Watersports"
+  },
+  {
+    "sportsId": "226",
+    "sportsName": "Weightlifting"
+  },
+  {
+    "sportsId": "237",
+    "sportsName": "Futsal"
+  },
+  {
+    "sportsId": "228",
+    "sportsName": "Yacht racing"
+  },
+  {
+    "sportsId": "119",
+    "sportsName": "Handball",
+    "organizations": [
+      {
+        "organizationId": "4558",
+        "organizationName": "EHF Champions League Handball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7198",
+        "organizationName": "Bundesliga Handball",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "252",
+    "sportsName": "Synchronized swimming"
+  },
+  {
+    "sportsId": "240",
+    "sportsName": "Rugby league"
+  },
+  {
+    "sportsId": "253",
+    "sportsName": "Taekwondo"
+  },
+  {
+    "sportsId": "248",
+    "sportsName": "Horse racing"
+  },
+  {
+    "sportsId": "238",
+    "sportsName": "Harness racing"
+  },
+  {
+    "sportsId": "158",
+    "sportsName": "Olympics",
+    "organizations": [
+      {
+        "organizationId": "12099",
+        "organizationName": "IOC",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "251",
+    "sportsName": "Modern pentathlon"
+  },
+  {
+    "sportsId": "247",
+    "sportsName": "Cycling"
+  },
+  {
+    "sportsId": "235",
+    "sportsName": "Drift racing"
+  },
+  {
+    "sportsId": "241",
+    "sportsName": "Rugby union"
+  },
+  {
+    "sportsId": "250",
+    "sportsName": "Marathon"
+  },
+  {
+    "sportsId": "71",
+    "sportsName": "Bowling",
+    "organizations": [
+      {
+        "organizationId": "2933",
+        "organizationName": "PBA Bowling",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "2949",
+        "organizationName": "PWBA Bowling",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "239",
+    "sportsName": "Netball"
+  },
+  {
+    "sportsId": "236",
+    "sportsName": "Floorball"
+  },
+  {
+    "sportsId": "249",
+    "sportsName": "Judo"
+  },
+  {
+    "sportsId": "242",
+    "sportsName": "Shinty"
+  },
+  {
+    "sportsId": "244",
+    "sportsName": "Bowls"
+  },
+  {
+    "sportsId": "167",
+    "sportsName": "Poker",
+    "organizations": [
+      {
+        "organizationId": "11782",
+        "organizationName": "Global Poker League",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "68",
+    "sportsName": "Boat racing",
+    "organizations": [
+      {
+        "organizationId": "5404",
+        "organizationName": "Lucas Oil Drag Boat Racing",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "243",
+    "sportsName": "Australian rules football",
+    "organizations": [
+      {
+        "organizationId": "42",
+        "organizationName": "AFL Premiership Football",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "12157",
+        "organizationName": "AFL Canada",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  },
+  {
+    "sportsId": "122",
+    "sportsName": "Hockey",
+    "organizations": [
+      {
+        "organizationId": "1",
+        "organizationName": "AHL Hockey",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o1_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "15",
+        "organizationName": "ECHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "21",
+        "organizationName": "NHL Hockey",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o21_l_h5_ac.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "23",
+        "organizationName": "OHL Hockey",
+        "preferredImage": {
+          "width": "180",
+          "height": "135",
+          "uri": "http://stsv.tmsimg.com/assets/o23_l_h5_aa.png",
+          "category": "Logo",
+          "text": "yes",
+          "primary": "true",
+          "tier": "Sport"
+        }
+      },
+      {
+        "organizationId": "24",
+        "organizationName": "QMJHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "31",
+        "organizationName": "WHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "5",
+        "organizationName": "CHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7381",
+        "organizationName": "KHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "10241",
+        "organizationName": "Swiss National League A Ice Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "11420",
+        "organizationName": "NWHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "112",
+        "organizationName": "SJHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "117",
+        "organizationName": "USHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "4233",
+        "organizationName": "GTHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      },
+      {
+        "organizationId": "7337",
+        "organizationName": "CWHL Hockey",
+        "preferredImage": {
+          "uri": "http://stsv.tmsimg.com/sportslogos/generic/generic_sportsevent_h5.png"
+        }
+      }
+    ]
+  }
+]
