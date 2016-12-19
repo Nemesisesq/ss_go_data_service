@@ -7,6 +7,8 @@ import (
 	"gopkg.in/square/go-jose.v1/json"
 	bolt"github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"os"
+	"github.com/Sirupsen/logrus"
+	"strings"
 )
 
 type Organization struct {
@@ -24,28 +26,43 @@ type Sport struct {
 type SportsList []Sport
 
 func (sl SportsList) SaveSportsList() {
+
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
 	driver := bolt.NewDriver()
+	logrus.Info(os.Getenv("NEO4JBOLT"))
+
 	conn, err := driver.OpenNeo(os.Getenv("NEO4JBOLT"))
 
 	common.Check(err)
 
 	for _, val := range sl {
-		cypher_query := `CREATE	({sport_name}:Sport {sport_name:{sport_name}, gracenote_sport_id: {sports_id}})`
+		logrus.Info(val.SportsName, " sports name")
+		rmvSpace := strings.NewReplacer(" ", "", ".", "_", "'", "", "-", "", "/", "")
+		sport_node_name := rmvSpace.Replace(val.SportsName)
+		cypher_query := fmt.Sprintf(`CREATE (%v:Sport {sport_name:{sport_name}, gracenote_sport_id:{sports_id}})`, sport_node_name)
 
-		params := map[string]interface{}{"sport_name": val.SportsName, "sports_id": val.SportsId}
+		logrus.Info(sport_node_name, val.SportsName, val.SportsId)
+		params := map[string]interface{}{"sport_node_name": sport_node_name, "sport_name": val.SportsName, "sports_id": val.SportsId}
 
 		ProcessCypher(conn, cypher_query, params)
 
-		for _, val := range val.Organizations {
-			cypher_query := `CREATE	({org_name}:Organization {organization: {org_name}, gracenote_organization_id: {org_id} })
-			CREATE ({sport_name})-[:BELONGS_TO]->({org_name)
-			`
-			params := map[string]interface{}{"org_name": val.OrganizationName, "org_id": val.OrganizationId}
+		for _, org := range val.Organizations {
+
+			org_node_name := rmvSpace.Replace(org.OrganizationName)
+
+			cypher_query := fmt.Sprintf(`CREATE (%v:Organization {organization:{org_name}, gracenote_organization_id:{org_id}})`, org_node_name)
+			params := map[string]interface{}{"sport_node_name": sport_node_name, "org_node_name": org_node_name, "org_name": org.OrganizationName, "org_id": org.OrganizationId}
+			ProcessCypher(conn, cypher_query, params)
+
+			cypher_query = `CREATE ({sport_node_name})-[:BELONGS_TO]->({org_node_name})`
+			params = map[string]interface{}{"sport_node_name": sport_node_name, "org_node_name": org_node_name}
 			ProcessCypher(conn, cypher_query, params)
 		}
 
 	}
 }
+
 
 func ProcessCypher(conn bolt.Conn, cypher_template string, params map[string]interface{}) {
 	stmt, err := conn.PrepareNeo(cypher_template)
@@ -83,7 +100,7 @@ func GetSport(sportsId string) {
 	res, err := sClient.Do(req)
 	common.Check(err)
 
-	decoder := json.NewDecoder(res)
+	decoder := json.NewDecoder(res.Body)
 
 	sportsList := SportsList{}
 
@@ -91,5 +108,8 @@ func GetSport(sportsId string) {
 
 	common.Check(err)
 
+	sportsList.SaveSportsList()
+
 }
+
 
