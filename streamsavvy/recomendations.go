@@ -28,7 +28,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	SimKey := "ss_reco:%v:%v"
 	categories := []string{"genres", "tags", "cast"}
 
-	common.Check(err) 
+	common.Check(err)
 	if err != nil {
 		conn.Close()
 	}
@@ -49,18 +49,21 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 		reco.GuideboxId = string(p[:])
 
+		reco_ids := []string{}
+
 		for _, cat := range categories {
 
 			q := fmt.Sprintf(SimKey, cat, reco.GuideboxId)
 
-			res := r_client.ZRange(q, 0, 9)
+			res := r_client.ZRange(q, 0, 2)
 
+			reco_ids = append(reco_ids, res.Val()...)
 			//common.Check(err)
-			for _, val := range res.Val() {
 
-				reco.PublishShowInfo(val, rmqc)
-			}
+		}
+		for _, val := range reco_ids {
 
+			reco.PublishShowInfo(val, rmqc)
 		}
 
 		//TODO use this to update show recomendations later.

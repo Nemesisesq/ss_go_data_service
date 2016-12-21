@@ -11,6 +11,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/square/go-jose.v1/json"
 	"gopkg.in/mgo.v2/bson"
+	"strings"
 )
 
 type Team struct {
@@ -113,7 +114,7 @@ func (ct CollegeTeams) SaveCollegeTeams() {
 		cypher_query := `
 			MATCH (s:Sport {gracenote_sport_id:{sports_id}})
 			MATCH (u:University {gracenote_university_id: {uni_id}})
-			MERGE (t:Team {team_brand_id:{brand_id}, sports_id:{sports_id}, name:{team_name}, nickname:{nick}, propername:{propername}, abbreviation:{abbr}, img:{uri}})
+			MERGE (t:CollegeTeam {team_brand_id:{brand_id}, sports_id:{sports_id}, name:{team_name}, nickname:{nick}, propername:{propername}, abbreviation:{abbr}, img:{uri}})
 			MERGE (t)-[:PLAYS]->(s)
 			MERGE (t)-[:BELONGS_TO]->(u)
 		`
@@ -417,13 +418,31 @@ func GetAllTeamsDetails() {
 	data, rowMetaData := QueryNeo(`MATCH (n:Team) RETURN n`, nil)
 
 	logrus.Info(rowMetaData)
-	for _, val := range data {
-		team := &Team{}
-		the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
-		err = bson.Unmarshal(the_bson, &team)
-		common.Check(err)
+	//for indx := range data {
+	for i := 0; i * 20 < len(data); i += 1 {
+		//start := indx * 20
+		//end := start + 20
+		//chunk := data[start: end]
+		var chunk [][]interface{}
+		chunk, data = data[:12], data[12:]
+		//raw := []interface{}{}
+		teams := &Teams{}
+		for _, val := range chunk {
+			t := &Team{}
+			the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
+			err = bson.Unmarshal(the_bson, &t)
+			common.Check(err)
+			*teams = append(*teams, *t)
+		}
 
-		GetTeamDetails(team.TeamBrandId)
+
+		ids := []string{}
+
+		for _, val := range *teams {
+			ids = append(ids, val.TeamBrandId)
+		}
+
+		GetTeamDetails(strings.Join(ids, ","))
 	}
 
 }

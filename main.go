@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"strings"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	nigronimgosession "github.com/joeljames/nigroni-mgo-session"
@@ -23,8 +21,9 @@ import (
 	//"github.com/nemesisesq/ss_data_service/timers"
 	//"github.com/rs/cors"
 	"net/url"
-	"github.com/urfave/negroni"
+
 	"github.com/nemesisesq/ss_data_service/timers"
+	"github.com/urfave/negroni"
 )
 
 func main() {
@@ -49,10 +48,10 @@ func main() {
 		redis_url = os.Getenv("R_PORT")
 	}
 
-	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
-		fmt.Println(pair[0], " : ", pair[1])
-	}
+	//for _, e := range os.Environ() {
+	//	pair := strings.Split(e, "=")
+	//	fmt.Println(pair[0], " : ", pair[1])
+	//}
 
 	u, err := url.Parse(redis_url)
 
@@ -145,9 +144,9 @@ func main() {
 
 	//if os.Getenv("DEBUG") != "true" {
 
-		timers.GraceNoteListingTimer()
-		timers.GuideboxEpisodeTimer()
-		timers.PopularityTimer()
+	timers.GraceNoteListingTimer()
+	timers.GuideboxEpisodeTimer()
+	timers.PopularityTimer()
 	//}
 
 	//
@@ -169,6 +168,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	//log.Fatal(http.ListenAndServe(":" + port, n))
+	log.Fatal(http.ListenAndServe(":" + port, n))
 
 }
