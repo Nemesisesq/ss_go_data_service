@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func setUp(){
+func setUp() {
 	os.Setenv("NEO4JBOLT", "bolt://neo4j:prelude@localhost:7687")
 }
 
@@ -16,7 +16,6 @@ func TestMain(m *testing.M) {
 	//myTeardownFunction()
 	os.Exit(retCode)
 }
-
 
 func TestGestSports(t *testing.T) {
 
@@ -65,4 +64,19 @@ func TestGetTeamsAtAUniversity(t *testing.T) {
 	if rows == 0 {
 		t.Error("Expected Results to be in the database but 0 were found")
 	}
+}
+
+func TestGetAllTeamsDetails(t *testing.T) {
+	GetAllTeamsDetails()
+	bolt_driver := bolt.NewDriver()
+	conn, _ := bolt_driver.OpenNeo(os.Getenv("NEO4JBOLT"))
+	defer conn.Close()
+	result, _ := conn.ExecNeo(`MATCH (n:Teams)
+				WHERE n.img IS NOT NULL
+	 return COUNT(n)`, nil)
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		t.Error("Expected Results to be in the database but 0 were found")
+	}
+
 }
