@@ -67,12 +67,47 @@ type University struct {
 
 type Universities []University
 
+type PipeComponents struct {
+	c []string
+	p []map[string]interface{}
+
+}
+
+func (parts *PipeComponents) a (cypher string, params map[string]interface{}){
+	parts.c = append(parts.c, cypher)
+	parts.p = append(parts.p, params)
+}
+
+func (parts PipeComponents) execute (conn bolt.Conn){
+	pipeline, err := conn.PreparePipeline(parts.c...)
+	if err != nil {
+		panic(err)
+	}
+	logrus.Info(pipeline)
+	logrus.Info(parts.p)
+
+	pipelineResults, err := pipeline.ExecPipeline(parts.p...)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, result := range pipelineResults {
+		numResult, _ := result.RowsAffected()
+		fmt.Printf("CREATED ROWS: %d\n", numResult) // CREATED ROWS: 2 (per each iteration)
+	}
+
+	err = pipeline.Close()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (ct CollegeTeams) SaveCollegeTeams() {
 	driver := bolt.NewDriver()
 	conn, err := driver.OpenNeo(os.Getenv("NEO4JBOLT"))
 	defer conn.Close()
 	common.Check(err)
-
+	p := &PipeComponents{}
 	for _, val := range ct {
 		cypher_query := `
 			MATCH (s:Sport {gracenote_sport_id:{sports_id}})
@@ -91,7 +126,9 @@ func (ct CollegeTeams) SaveCollegeTeams() {
 			"uni_id": fmt.Sprintf(val.University.UniversityId),
 			"uri": fmt.Sprint(val.PreferredImage.Uri),
 		}
-		ProcessCypher(conn, cypher_query, params)
+		p.a(cypher_query,params)
+
+		//ProcessCypher(conn, cypher_query, params)
 
 		//cypher_query = `
 		//	MATCH (t:Team {team_brand_id:{brand_id}})
@@ -106,17 +143,19 @@ func (ct CollegeTeams) SaveCollegeTeams() {
 		//}
 		//ProcessCypher(conn, cypher_query, params)
 	}
+	p.execute(conn)
 
 }
+
+
 
 func (teams Teams) SaveTeams(org_id float64) {
 	driver := bolt.NewDriver()
 	conn, err := driver.OpenNeo(os.Getenv("NEO4JBOLT"))
 	defer conn.Close()
 	common.Check(err)
-	//query_slice := []string{}
-	//params_slice := []string{}
-
+	p := &PipeComponents{}
+	//var a = append
 	for _, val := range teams {
 		cypher_query := `
 			MERGE (t:Team {team_brand_id:{brand_id}, sports_id:{sports_id}, name:{team_name}, nickname:{nick}, propername:{propername}, abbreviation:{abbr}})
@@ -130,7 +169,9 @@ func (teams Teams) SaveTeams(org_id float64) {
 			"abbr": val.Abbreviation,
 			"org_id": org_id,
 		}
-		ProcessCypher(conn, cypher_query, params)
+		//ProcessCypher(conn, cypher_query, params)
+		p.a(cypher_query, params)
+
 
 		cypher_query = `
 			MATCH (t:Team {team_brand_id:{brand_id}})
@@ -144,8 +185,12 @@ func (teams Teams) SaveTeams(org_id float64) {
 			"sports_id":fmt.Sprint(val.SportsId),
 			"org_id": fmt.Sprint(org_id),
 		}
-		ProcessCypher(conn, cypher_query, params)
+		//ProcessCypher(conn, cypher_query, params)
+		p.a(cypher_query, params)
 	}
+	p.execute(conn)
+
+
 }
 
 func (unis Universities) SaveUniversities() {
@@ -153,13 +198,23 @@ func (unis Universities) SaveUniversities() {
 	conn, err := driver.OpenNeo(os.Getenv("NEO4JBOLT"))
 	defer conn.Close()
 	common.Check(err)
+
+	p := &PipeComponents{}
 	for _, val := range unis {
 		cypher_query := `
 			MERGE (u:University {gracenote_university_id:{uni_id}, name:{uni_name}, nickname:{uni_nick}, img:{uri}})
 		`
 		params := map[string]interface{}{"uni_id": val.UniversityId, "uni_name": val.UniversityName, "uni_nick": val.NickName, "uri": fmt.Sprintf("%v", val.PreferredImage.Uri)}
-		ProcessCypher(conn, cypher_query, params)
+		//ProcessCypher(conn, cypher_query, params)
+		//logrus.Info("before", p.c)
+		//logrus.Info(p.p)
+		p.a(cypher_query,params)
+		//logrus.Info(p.c)
+		//logrus.Info(p.p)
 	}
+
+	p.execute(conn)
+
 }
 
 
@@ -171,22 +226,29 @@ func (sl SportsList) SaveSportsList() {
 	defer conn.Close()
 	//conn.ExecPipeline()
 	common.Check(err)
+
+	p:= &PipeComponents{}
 	for _, val := range sl {
 		cypher_query := `MERGE (s:Sport {sport_name:{sport_name}, gracenote_sport_id:{sports_id}})`
 		params := map[string]interface{}{"sport_name": val.SportsName, "sports_id": val.SportsId}
-		ProcessCypher(conn, cypher_query, params)
+		//ProcessCypher(conn, cypher_query, params)
+		p.a(cypher_query,params)
 		for _, org := range val.Organizations {
 			cypher_query := `MERGE (o:Org {organization:{org_name}, gracenote_organization_id:{org_id}, img:{uri}})`
 			params := map[string]interface{}{"org_name": org.OrganizationName, "org_id": org.OrganizationId, "uri": fmt.Sprintf("%v", org.PreferredImage.Uri)}
-			ProcessCypher(conn, cypher_query, params)
+			//ProcessCypher(conn, cypher_query, params)
+			p.a(cypher_query,params)
 			cypher_query = `MATCH (s:Sport {gracenote_sport_id: {s}})
 					MATCH (o:Org {gracenote_organization_id: {o}})
 					MERGE (o)-[:REPRESENTS]->(s)
 					`
 			params = map[string]interface{}{"s": val.SportsId, "o": org.OrganizationId}
-			ProcessCypher(conn, cypher_query, params)
+			//ProcessCypher(conn, cypher_query, params)
+
+			p.a(cypher_query,params)
 		}
 	}
+	p.execute(conn)
 }
 
 func ProcessCypher(conn bolt.Conn, cypher_template string, params map[string]interface{}) {
