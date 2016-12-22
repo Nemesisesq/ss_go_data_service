@@ -34,7 +34,7 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	rmqc := r.Context().Value("rabbitmq").(middleware.RMQCH)
 	r_client := r.Context().Value("redis_client").(*redis.Client)
-	cleanup := r.Context().Value("cleanup").(chan string)
+	//cleanup := r.Context().Value("cleanup").(chan string)
 
 	SimKey := "ss_reco:%v:%v"
 	categories := []string{"genres", "cast"}
@@ -128,11 +128,11 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 
-				case <-cleanup:
-					rmqc.RX.Close()
-					break
-
-				default:
+				//case <-cleanup:
+				//	rmqc.RX.Close()
+				//	break
+				//
+				//default:
 				}
 			}
 
