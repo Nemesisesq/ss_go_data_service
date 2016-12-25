@@ -110,7 +110,7 @@ func main() {
 		negroni.Wrap(socketRouter),
 	))
 
-	r.HandleFunc("/search", ss.Search).Methods("GET")
+	r.HandleFunc("/search", ss.SearchHandler).Methods("GET")
 
 	r.HandleFunc("/popular", pop.GetPopularityScore)
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
