@@ -10,31 +10,34 @@ import (
 )
 
 type RabbitMQAccessor struct {
-	rx_conn amqp.Connection
-	tx_conn amqp.Connection
+	//rx_conn amqp.Connection
+	//tx_conn amqp.Connection
+	conn amqp.Connection
 
-	rx_url string
-	tx_url string
+	//rx_url string
+	//tx_url string
+	url string
 }
 
 type RMQCH struct {
-	TX amqp.Channel
-	RX amqp.Channel
+	//TX amqp.Channel
+	//RX amqp.Channel
+	Ch amqp.Channel
 }
 
-func NewRabbitMQAccesor(tx_url, rx_url string) (*RabbitMQAccessor, error) {
-	tx_conn, err := amqp.Dial(tx_url)
-	rx_conn, err := amqp.Dial(rx_url)
+func NewRabbitMQAccesor(url string) (*RabbitMQAccessor, error) {
+	conn, err := amqp.Dial(url)
+	//rx_conn, err := amqp.Dial(rx_url)
 
 	common.Check(err)
 
 	logrus.Info("RabbitMQ Connected")
 
-	return &RabbitMQAccessor{*tx_conn, *rx_conn, tx_url, rx_url}, nil
+	return &RabbitMQAccessor{*conn, url}, nil
 }
 
-func (rmqa *RabbitMQAccessor) Set(request *http.Request, tx_ch, rx_ch amqp.Channel) context.Context {
-	channels := RMQCH{tx_ch, rx_ch}
+func (rmqa *RabbitMQAccessor) Set(request *http.Request, ch amqp.Channel) context.Context {
+	channels := RMQCH{ch}
 
 	return context.WithValue(request.Context(), "rabbitmq", channels)
 }
@@ -49,12 +52,14 @@ func NewRabbitMQConnection(RabbitMQAccessor RabbitMQAccessor) *RabbitMQConnectio
 
 func (r *RabbitMQConnection) Middleware() negroni.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request, next http.HandlerFunc) {
-		tx_ch, err := r.rmqa.tx_conn.Channel()
-		rx_ch, err := r.rmqa.rx_conn.Channel()
+		//tx_ch, err := r.rmqa.tx_conn.Channel()
+		//rx_ch, err := r.rmqa.rx_conn.Channel()
+		ch, err := r.rmqa.conn.Channel()
 		common.Check(err)
-		defer tx_ch.Close()
-		defer rx_ch.Close()
-		ctx := r.rmqa.Set(request, *tx_ch, *rx_ch)
+		//defer tx_ch.Close()
+		//defer rx_ch.Close()
+		defer ch.Close()
+		ctx := r.rmqa.Set(request, *ch)
 		next(writer, request.WithContext(ctx))
 	}
 }

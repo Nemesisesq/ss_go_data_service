@@ -20,7 +20,6 @@ type Reco struct {
 	sock       *websocket.Conn
 }
 
-
 func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 	var upgrader = websocket.Upgrader{
@@ -75,64 +74,68 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 		RemoveDuplicates(&reco_ids)
 
-		reco.PublishShowInfo(reco_ids, rmqc)
+		//reco.PublishShowInfo(reco_ids, rmqc, corrId)
 
 		//TODO use this to update show recomendations later.
 		//reco.PublishShowInfo(p, rmqc)
 
-		go func() {
-			rx_q, err := rmqc.RX.QueueDeclare(
-				"reco_engine_results",
-				false,
-				false,
-				false,
-				false,
-				nil,
-			)
-			common.Check(err)
-			if err != nil {
-				logrus.Error(err)
-				//rmqc.RX.Close()
-				conn.Close()
-			}
-			logrus.Info("Listening to recomendation results channel")
-			msgs, err := rmqc.RX.Consume(
-				rx_q.Name, // queue
-				"",        // consumer
-				true,      // auto-ack
-				false,     // exclusive
-				false,     // no-local
-				false,     // no-wait
-				nil,       // args
-			)
-			common.Check(err)
-			if err != nil {
-				common.Check(err)
-				logrus.Error(err)
-				//rmqc.RX.Close()
-				conn.Close()
-			}
+		q, err := rmqc.Ch.QueueDeclare(
+			"",
+			false,
+			false,
+			false,
+			false,
+			nil,
+		)
+		common.Check(err)
+		logrus.Info("Listening to recomendation results channel")
+		msgs, err := rmqc.Ch.Consume(
+			q.Name, // queue
+			"",     // consumer
+			true,   // auto-ack
+			false,  // exclusive
+			false,  // no-local
+			false,  // no-wait
+			nil,    // args
+		)
+		common.Check(err)
 
+		corrId := common.RandomString(32)
+
+		the_json, err := json.Marshal(reco_ids)
+
+		err = rmqc.Ch.Publish(
+			"",
+			"reco_rpc_queue",
+			false,
+			false,
+			amqp.Publishing{
+				ContentType:   "text/plain",
+				CorrelationId: corrId,
+				ReplyTo:       q.Name,
+				Body:          the_json,
+			})
+
+		go func() {
 			for {
 
 				select {
 				case m := <-msgs:
 
-					if len(m.Body) > 2 {
+					if corrId == m.CorrelationId {
 						//logrus.Info(m.Body)
+
+
+
 						err = reco.send(messageType, m.Body)
+
+
 						common.Check(err)
-						if err != nil {
-							logrus.Error(err)
-							reco.sock.Close()
-						}
+
+						break
 					}
 
-				//case <-cleanup:
-				//	rmqc.RX.Close()
-				//	break
-				//
-				//default:
+
 				}
 			}
 
@@ -140,12 +143,6 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 		}()
 
-		//select {
-		//case <-cleanup:
-		//	rmqc.RX.Close()
-		//	rmqc.TX.Close()
-		//	return
-		//}
 	}
 }
 
@@ -163,46 +160,6 @@ func (r Reco) sendJson(msg int, m interface{}) error {
 	defer r.mu.Unlock()
 	return r.sock.WriteJSON(m)
 }
-
-//TODO it would be nice to access database straight from  go
-func (r Reco) PublishShowInfo(show_ids []string, rmqc middleware.RMQCH) {
-
-	logrus.WithField("connection address", r.sock).Info("publishing", show_ids)
-	tx_q, err := rmqc.TX.QueueDeclare(
-		"reco_engine",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	common.Check(err)
-	if err != nil {
-		logrus.Error(err)
-		rmqc.TX.Close()
-	}
-
-	//b_showIds := StringSliceToByteSlice(show_ids)
-
-	the_json, err := json.Marshal(show_ids)
-	common.Check(err)
-	err = rmqc.TX.Publish(
-		"",        // exchange
-		tx_q.Name, // routing key
-		false,     // mandatory
-		false,     // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        the_json,
-		})
-	common.Check(err)
-	if err != nil {
-		common.Check(err)
-		rmqc.TX.Close()
-	}
-}
-
 
 func RemoveDuplicates(xs *[]string) {
 	found := make(map[string]bool)

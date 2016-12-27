@@ -78,21 +78,24 @@ func main() {
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
 	//TODO fix these urls for AWS ElasticBeanStalk
-	var tx_url string
-	var rx_url string
+	//var tx_url string
+	//var rx_url string
+	var url string
 	if os.Getenv("RABBITMQ_URL") != "" {
 		log.Info("*$*$*$*$*$*$*$*$*")
-		tx_url = os.Getenv("RABBITMQ_URL")
-		rx_url = os.Getenv("RABBITMQ_URL")
+		//tx_url = os.Getenv("RABBITMQ_URL")
+		//rx_url = os.Getenv("RABBITMQ_URL")
+		url = os.Getenv("RABBITMQ_URL")
 	} else {
-		rx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
-		tx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
+		//rx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5672_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
+		//tx_url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
+		url = fmt.Sprintf("amqp://%v:%v", os.Getenv("RABBITMQ_1_PORT_5671_TCP_ADDR"), os.Getenv("RABBITMQ_1_PORT_5672_TCP_PORT"))
 
 	}
 
-	log.Info(tx_url, " ", rx_url)
+	log.Info(url)
 
-	messengerAccessor, err := middleware.NewRabbitMQAccesor(tx_url, rx_url)
+	messengerAccessor, err := middleware.NewRabbitMQAccesor(url)
 	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
