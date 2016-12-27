@@ -20,7 +20,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func Search(query string) []interface{} {
+func Search(query string) interface{} {
 
 	client := &http.Client{}
 	url := fmt.Sprintf("%v/search", os.Getenv("SS_DJANGO_DATA_SERVICE"))
@@ -39,7 +39,7 @@ func Search(query string) []interface{} {
 
 	com.Check(err)
 
-	var temp []interface{}
+	var temp interface{}
 
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&temp)
