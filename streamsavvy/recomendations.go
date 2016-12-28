@@ -125,12 +125,18 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 					if corrId == m.CorrelationId {
 						//logrus.Info(m.Body)
 
+						temp := []interface{}{}
 
+						json.Unmarshal(m.Body, &temp)
 
-						err = reco.send(messageType, m.Body)
+						for _, val := range temp {
+							res, err := json.Marshal(&val)
+							common.Check(err)
+							err = reco.send(messageType, res)
+							common.Check(err)
+						}
 
-
-						common.Check(err)
+						//err = reco.send(messageType, m.Body)
 
 						break
 					}
