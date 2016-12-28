@@ -100,7 +100,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		if err == redis.Nil || val == "" {
 
-			rx_q, err := rmqc.RX.QueueDeclare(
+			rx_q, err := rmqc.Ch.QueueDeclare(
 				"episodes",
 				false,
 				false,
@@ -116,7 +116,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 			*/
 			go func() {
 
-				msgs, err := rmqc.RX.Consume(
+				msgs, err := rmqc.Ch.Consume(
 					rx_q.Name, // queue
 					"", // consumer
 					true, // auto-ack
@@ -139,7 +139,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 							x += 1
 						}
 					case <-cleanup:
-						rmqc.RX.Close()
+						rmqc.Ch.Close()
 						return
 					}
 				}
@@ -150,7 +150,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 			total_results, episode_list := epi.GetEpisodes(0, 12, guideboxId)
 			log.Info("Got Initial")
-			tx_q, err := rmqc.TX.QueueDeclare(
+			tx_q, err := rmqc.Ch.QueueDeclare(
 				"episodes",
 				false,
 				false,
@@ -172,7 +172,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					response, err := json.Marshal(res)
 					com.Check(err)
 
-					err = rmqc.TX.Publish(
+					err = rmqc.Ch.Publish(
 						"", // exchange
 						tx_q.Name, // routing key
 						false, // mandatory
@@ -192,7 +192,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 					select {
 					case <-cleanup:
-						rmqc.TX.Close()
+						rmqc.Ch.Close()
 						return
 					}
 
@@ -224,8 +224,8 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 		select {
 		case <-cleanup:
-			rmqc.TX.Close()
-			rmqc.RX.Close()
+			rmqc.Ch.Close()
+			rmqc.Ch.Close()
 			return
 		}
 	}
