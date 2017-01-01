@@ -1,8 +1,8 @@
 package streamsavvy
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestSearch(t *testing.T) {

@@ -11,8 +11,6 @@ import (
 	"gopkg.in/redis.v5"
 )
 
-
-
 //func GetMongoSession() *mgo.Session {
 //	common.Check(err)
 //	return sesh.Copy()

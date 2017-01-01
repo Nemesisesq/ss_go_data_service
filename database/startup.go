@@ -3,10 +3,10 @@ package database
 import (
 	"os"
 
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/joeljames/nigroni-mgo-session"
 	com "github.com/nemesisesq/ss_data_service/common"
-	"fmt"
 )
 
 func DBStartup() nigronimgosession.DatabaseAccessor {
@@ -17,7 +17,7 @@ func DBStartup() nigronimgosession.DatabaseAccessor {
 		logrus.Info("f", f)
 	} else {
 
-		f = fmt.Sprintf("mongodb://%v:%v", os.Getenv("M_PORT_27017_TCP_ADDR"),os.Getenv("M_PORT_27017_TCP_PORT"))
+		f = fmt.Sprintf("mongodb://%v:%v", os.Getenv("M_PORT_27017_TCP_ADDR"), os.Getenv("M_PORT_27017_TCP_PORT"))
 	}
 
 	dbURL := f

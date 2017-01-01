@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/negroni"
-	"gopkg.in/redis.v5"
 	"github.com/nemesisesq/ss_data_service/common"
-	"fmt"
+	"gopkg.in/redis.v5"
 )
 
 type CacheAccessor struct {
@@ -20,10 +20,9 @@ type CacheAccessor struct {
 
 func NewCacheAccessor(addr, pass string, db int) (*CacheAccessor, error) {
 	logrus.WithFields(logrus.Fields{
-		"address": addr,
+		"address":  addr,
 		"password": pass,
-		"db" : db,
-
+		"db":       db,
 	}).Info("This is the information to connect to redis")
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,

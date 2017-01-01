@@ -145,7 +145,7 @@ func GetLineupAirings(w http.ResponseWriter, r *http.Request) {
 	stations = guideObj.FilterAirings(stations, r)
 	stations = RemoveDuplicates(stations)
 
-	for _, i := range stations{
+	for _, i := range stations {
 
 		log.Info(i)
 	}

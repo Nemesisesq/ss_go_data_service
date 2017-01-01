@@ -138,9 +138,8 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 						//err = reco.send(messageType, m.Body)
 
-						break
+						return
 					}
-
 
 				}
 			}

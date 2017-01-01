@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"net/http"
 	"context"
 	"github.com/codegangsta/negroni"
+	"net/http"
 )
 
 func CleanupMiddleware() negroni.HandlerFunc {

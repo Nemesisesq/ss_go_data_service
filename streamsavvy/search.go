@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	com "github.com/nemesisesq/ss_data_service/common"
 	"fmt"
+	com "github.com/nemesisesq/ss_data_service/common"
 )
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {

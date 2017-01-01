@@ -146,6 +146,7 @@ func RefreshPopularityScores() {
 		GetPopularShows(i, "1995-01-01", c, *ch)
 
 	}
+	return
 
 }
 

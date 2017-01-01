@@ -1,9 +1,9 @@
 package streamsavvy
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"encoding/json"
 
 	"net/url"
 	"os"
@@ -118,12 +118,12 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 
 				msgs, err := rmqc.Ch.Consume(
 					rx_q.Name, // queue
-					"", // consumer
-					true, // auto-ack
-					false, // exclusive
-					false, // no-local
-					false, // no-wait
-					nil, // args
+					"",        // consumer
+					true,      // auto-ack
+					false,     // exclusive
+					false,     // no-local
+					false,     // no-wait
+					nil,       // args
 				)
 
 				com.Check(err)
@@ -134,7 +134,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					case d := <-msgs:
 						if d.Body != nil {
 
-							log.Info("sending to client ", x * 12)
+							log.Info("sending to client ", x*12)
 							err = conn.WriteMessage(messageType, d.Body)
 							x += 1
 						}
@@ -173,10 +173,10 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 					com.Check(err)
 
 					err = rmqc.Ch.Publish(
-						"", // exchange
+						"",        // exchange
 						tx_q.Name, // routing key
-						false, // mandatory
-						false, // immediate
+						false,     // mandatory
+						false,     // immediate
 						amqp.Publishing{
 							ContentType: "text/plain",
 							Body:        response,
@@ -200,7 +200,7 @@ func HandleEpisodeSocket(w http.ResponseWriter, r *http.Request) {
 				}(s, guideboxId)
 
 				/*
-				Be careful with select statements with out defaults
+					Be careful with select statements with out defaults
 				*/
 
 			}
@@ -279,7 +279,7 @@ func CleanUpDeepLinks(epi_list []interface{}) []interface{} {
 		com.Check(err)
 		for indx, val := range x_epi.SubscriptionIosSources {
 			if val["source"].(string) == "hulu_with_showtime" {
-				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx + 1:]...)
+				x_epi.SubscriptionIosSources = append(x_epi.SubscriptionIosSources[:indx], x_epi.SubscriptionIosSources[indx+1:]...)
 			}
 
 		}
@@ -310,6 +310,7 @@ func (epi GuideBoxEpisodes) CacheEpisode(total_results int, episode_list []inter
 	com.Check(err)
 
 	json.Unmarshal([]byte(val), &epi)
+	return
 }
 
 func (epi GuideBoxEpisodes) RefreshEpisodes(guideboxId string, client redis.Client) {
@@ -444,5 +445,6 @@ func RefreshEpisodes() {
 		epis.CacheEpisode(total_results, episode_list, id, *client)
 
 	}
+	return
 
 }

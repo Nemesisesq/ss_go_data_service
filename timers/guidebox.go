@@ -29,6 +29,7 @@ func GuideboxEpisodeTimer() {
 		}
 
 		log.Println("Cleaning up!!")
+		return
 	}(ticker, quit)
 
 }

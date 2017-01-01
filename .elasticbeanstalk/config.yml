@@ -1,14 +1,14 @@
 branch-defaults:
   elasticbeanstalk:
-
     environment: Aizengolangapi-dev
+  master:
+    environment: Aizengolangapi-dev
+deploy:
+  artifact: bundle.zip
 global:
   application_name: Aizen (golang api)
   default_ec2_keyname: aws-mongo
   default_platform: 64bit Amazon Linux 2016.09 v2.2.0 running Docker 1.11.2
-
   default_region: us-east-1
   profile: eb-cli
   sc: git
-deploy:
-  artifact: bundle.zip

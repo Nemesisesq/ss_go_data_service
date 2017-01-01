@@ -22,6 +22,8 @@ import (
 	//"github.com/rs/cors"
 	"net/url"
 
+	"github.com/graphql-go/graphql-go-handler"
+	"github.com/nemesisesq/ss_data_service/graphqlApi"
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/urfave/negroni"
 )
@@ -113,6 +115,17 @@ func main() {
 		negroni.Wrap(socketRouter),
 	))
 
+	h := handler.New(&handler.Config{
+		Schema: graphqlApi.Schema(),
+		Pretty: true,
+	})
+	r.Handle("/graphql", h)
+
+	//r.HandleFunc("/graphql",func(w http.ResponseWriter, r *http.Request) {
+	//result := graphqlApi.ExecuteQuery(r.URL.Query()["query"][0], graphqlApi.Schema())
+	//json.NewEncoder(w).Encode(result)
+	//})
+
 	r.HandleFunc("/search", ss.SearchHandler).Methods("GET")
 
 	r.HandleFunc("/popular", pop.GetPopularityScore)
@@ -171,6 +184,6 @@ func main() {
 	//}()
 
 	fmt.Println(fmt.Sprintf("listening on port :%s", port))
-	log.Fatal(http.ListenAndServe(":" + port, n))
+	log.Fatal(http.ListenAndServe(":"+port, n))
 
 }

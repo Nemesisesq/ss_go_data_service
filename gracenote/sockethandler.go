@@ -1,5 +1,5 @@
 package gracenote
 
-func HandleListings(){
+func HandleListings() {
 
 }

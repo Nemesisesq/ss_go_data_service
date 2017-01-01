@@ -5,8 +5,8 @@ import (
 
 	//"github.com/gorilla/context"
 	"context"
-	mgo "gopkg.in/mgo.v2"
 	"github.com/Sirupsen/logrus"
+	mgo "gopkg.in/mgo.v2"
 )
 
 type DatabaseAccessor struct {
@@ -18,7 +18,7 @@ type DatabaseAccessor struct {
 
 func NewDatabaseAccessor(url, name, coll string) (*DatabaseAccessor, error) {
 
-	logrus.Print("#############",url, "##################")
+	logrus.Print("#############", url, "##################")
 	session, err := mgo.Dial(url)
 	logrus.Error(err)
 	if err == nil {

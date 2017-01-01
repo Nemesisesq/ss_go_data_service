@@ -132,7 +132,6 @@ func Map(vs []string, f func(string) string) []string {
 	return vsm
 }
 
-
 func RandomString(l int) string {
 	bytes := make([]byte, l)
 	for i := 0; i < l; i++ {

@@ -30,6 +30,7 @@ func PopularityTimer() {
 		}
 
 		log.Println("Cleaning up!!")
+		return
 	}(ticker, quit)
 
 }

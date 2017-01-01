@@ -5,31 +5,32 @@ import (
 	"net/http"
 	"os"
 
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/graph"
 	"github.com/nemesisesq/ss_data_service/common"
-	"gopkg.in/square/go-jose.v1/json"
 	"gopkg.in/mgo.v2/bson"
-	"strings"
+	"gopkg.in/square/go-jose.v1/json"
 )
 
 type Team struct {
-	TeamBrandId    string `json:"teamBrandId" bson:"team_brand_id"`
-	SportsId       string `json:"sportsId" bson:"sports_id"`
-	TeamBrandName  string `json:"teamBrandName" bson:"team_brand_name"`
-	Nickname       string `json:"nickname" bson:"nickname"`
-	ProperName     string `json:"properName" bson:"proper_name"`
-	Abbreviation   string `json:"abbreviation" bson:"abbreviation"`
+	TeamBrandId    string         `json:"teamBrandId" bson:"team_brand_id"`
+	SportsId       string         `json:"sportsId" bson:"sports_id"`
+	TeamBrandName  string         `json:"teamBrandName" bson:"team_brand_name"`
+	Nickname       string         `json:"nickname" bson:"nickname"`
+	ProperName     string         `json:"properName" bson:"proper_name"`
+	Abbreviation   string         `json:"abbreviation" bson:"abbreviation"`
 	PreferredImage PreferredImage `json:"preferredImage" bson:"preferred_image"`
-	Img            string        `bson:"img"`
+	Img            string         `bson:"img"`
 }
 
 type CollegeTeam struct {
 	Team
-	University     University `json:"university" bson:"university"`
+	University     University     `json:"university" bson:"university"`
 	PreferredImage PreferredImage `json:"preferredImage" bson:"preferred_image"`
-	Img            string        `bson:"img"`
+	Img            string         `bson:"img"`
 }
 
 type CollegeTeams []CollegeTeam
@@ -37,16 +38,16 @@ type CollegeTeams []CollegeTeam
 type Teams []Team
 
 type Organization struct {
-	OrganizationId   interface{}      `json:"organizationId" bson:"gracenote_organization_id"`
-	OrganizationName string      `json:"organizationName" bson:"organization"`
+	OrganizationId   interface{}    `json:"organizationId" bson:"gracenote_organization_id"`
+	OrganizationName string         `json:"organizationName" bson:"organization"`
 	PreferredImage   PreferredImage `json:"preferredImage" bson:"preferred_image"`
-	Img              string        `bson:"img"`
+	Img              string         `bson:"img"`
 	Teams            `json:"teams"`
 }
 
 type Sport struct {
-	SportsId      string         `json:"sportsId" bson:"sportsId"`
-	SportsName    string         `json:"sportsName" bson:"sportsName"`
+	SportsId      string         `json:"sportsId" bson:"gracenote_sport_id"`
+	SportsName    string         `json:"sportsName" bson:"sport_name"`
 	Organizations []Organization `json:"organizations" bson:"organizations"`
 }
 
@@ -65,7 +66,7 @@ type University struct {
 	UniversityName string         `json:"universityName" bson:"universityName"`
 	NickName       string         `json:"nickName" bson:"nickName"`
 	PreferredImage PreferredImage `json:"preferredImage" bson:"preferred_image"`
-	Img            string        `bson:"img"`
+	Img            string         `bson:"img"`
 }
 
 type Universities []University
@@ -119,14 +120,14 @@ func (ct CollegeTeams) SaveCollegeTeams() {
 			MERGE (t)-[:BELONGS_TO]->(u)
 		`
 		params := map[string]interface{}{
-			"brand_id":fmt.Sprint(val.TeamBrandId),
-			"sports_id":fmt.Sprint(val.SportsId),
-			"team_name":val.TeamBrandName,
-			"nick": val.Nickname,
+			"brand_id":   fmt.Sprint(val.TeamBrandId),
+			"sports_id":  fmt.Sprint(val.SportsId),
+			"team_name":  val.TeamBrandName,
+			"nick":       val.Nickname,
 			"propername": val.ProperName,
-			"abbr": val.Abbreviation,
-			"uni_id": fmt.Sprintf(val.University.UniversityId),
-			"uri": fmt.Sprint(val.PreferredImage.Uri),
+			"abbr":       val.Abbreviation,
+			"uni_id":     fmt.Sprintf(val.University.UniversityId),
+			"uri":        fmt.Sprint(val.PreferredImage.Uri),
 		}
 		p.a(cypher_query, params)
 
@@ -161,14 +162,14 @@ func (teams Teams) SaveTeams(org_id float64) {
 			MERGE (t:Team {team_brand_id:{brand_id}, sports_id:{sports_id}, name:{team_name}, nickname:{nick}, propername:{propername}, abbreviation:{abbr}, img:{img}})
 		`
 		params := map[string]interface{}{
-			"brand_id":fmt.Sprint(val.TeamBrandId),
-			"sports_id":fmt.Sprint(val.SportsId),
-			"team_name":val.TeamBrandName,
-			"nick": val.Nickname,
+			"brand_id":   fmt.Sprint(val.TeamBrandId),
+			"sports_id":  fmt.Sprint(val.SportsId),
+			"team_name":  val.TeamBrandName,
+			"nick":       val.Nickname,
 			"propername": val.ProperName,
-			"abbr": val.Abbreviation,
-			"org_id": org_id,
-			"img":val.PreferredImage.Uri,
+			"abbr":       val.Abbreviation,
+			"org_id":     org_id,
+			"img":        val.PreferredImage.Uri,
 		}
 		//ProcessCypher(conn, cypher_query, params)
 		p.a(cypher_query, params)
@@ -182,9 +183,9 @@ func (teams Teams) SaveTeams(org_id float64) {
 			MERGE (t)-[:MEMBER_OF]->(o)
 		`
 			params = map[string]interface{}{
-				"brand_id":fmt.Sprint(val.TeamBrandId),
-				"sports_id":fmt.Sprint(val.SportsId),
-				"org_id": fmt.Sprint(org_id),
+				"brand_id":  fmt.Sprint(val.TeamBrandId),
+				"sports_id": fmt.Sprint(val.SportsId),
+				"org_id":    fmt.Sprint(org_id),
 			}
 			//ProcessCypher(conn, cypher_query, params)
 			p.a(cypher_query, params)
@@ -258,7 +259,7 @@ func ProcessCypher(conn bolt.Conn, cypher_template string, params map[string]int
 	common.Check(err)
 	logrus.WithFields(logrus.Fields{
 		"Cypher QueryResult": result,
-		"params": params,
+		"params":             params,
 	}).Info()
 	if val, ok := result.RowsAffected(); ok != nil {
 		//numResult, err := result.RowsAffected()
@@ -379,7 +380,7 @@ func GetTeamsAtAUniversity(uni_id string) {
 	common.Check(err)
 	params := map[string]string{
 		"includeTeam": "true",
-		"api_key":   ApiKey,
+		"api_key":     ApiKey,
 	}
 	common.BuildQuery(req, params)
 	res, err := sClient.Do(req)
@@ -399,7 +400,7 @@ func GetTeamDetails(teamBrandId string) {
 	common.Check(err)
 	params := map[string]string{
 		"includeTeam": "true",
-		"api_key":   ApiKey,
+		"api_key":     ApiKey,
 	}
 	common.BuildQuery(req, params)
 	res, err := sClient.Do(req)
@@ -419,12 +420,15 @@ func GetAllTeamsDetails() {
 
 	logrus.Info(rowMetaData)
 	//for indx := range data {
-	for i := 0; i * 20 < len(data); i += 1 {
+
+	sem := make(chan bool, 10)
+	for i := 0; i*20 < len(data); i += 1 {
+		sem <- true
 		//start := indx * 20
 		//end := start + 20
 		//chunk := data[start: end]
 		var chunk [][]interface{}
-		chunk, data = data[:12], data[12:]
+		chunk, data = data[:20], data[20:]
 		//raw := []interface{}{}
 		teams := &Teams{}
 		for _, val := range chunk {
@@ -435,14 +439,21 @@ func GetAllTeamsDetails() {
 			*teams = append(*teams, *t)
 		}
 
-
 		ids := []string{}
 
 		for _, val := range *teams {
 			ids = append(ids, val.TeamBrandId)
 		}
+		go func(ids []string) {
+			GetTeamDetails(strings.Join(ids, ","))
 
-		GetTeamDetails(strings.Join(ids, ","))
+			defer func() { <-sem }()
+			return
+		}(ids)
 	}
 
+	for i := 0; i < cap(sem); i++ {
+		sem <- true
+	}
+	close(sem)
 }
