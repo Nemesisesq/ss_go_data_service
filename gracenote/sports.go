@@ -26,12 +26,15 @@ type Team struct {
 	Img            string         `bson:"img"`
 }
 
+
 type CollegeTeam struct {
 	Team
 	University     University     `json:"university" bson:"university"`
 	PreferredImage PreferredImage `json:"preferredImage" bson:"preferred_image"`
 	Img            string         `bson:"img"`
 }
+
+
 
 type CollegeTeams []CollegeTeam
 

@@ -25,6 +25,36 @@ var sportType = graphql.NewObject(
 
 var sportsType = graphql.NewList(sportType)
 
+var teamType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name:"Team",
+		Fields: graphql.Fields{
+			"propername":&graphql.Field{
+				Type:graphql.String,
+			},
+			"img": &graphql.Field{
+				Type:graphql.String,
+			},
+			"team_brand_id": &graphql.Field{
+			Type:graphql.String,
+			},
+			"name": &graphql.Field{
+			Type:graphql.String,
+			},
+			"nickname": &graphql.Field{
+			Type:graphql.String,
+			},
+			"abbreviation": &graphql.Field{
+			Type:graphql.String,
+			},
+			"sports_id": &graphql.Field{
+			Type:graphql.String,
+			},
+		},
+	},
+)
+
+var teamsType = graphql.NewList(teamType)
 func Schema() *graphql.Schema {
 
 	fields := graphql.Fields{
@@ -32,6 +62,20 @@ func Schema() *graphql.Schema {
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				return "World", nil
+			},
+		},
+		"teams" :&graphql.Field{
+			Type: teamsType,
+			Args: graphql.FieldConfigArgument{
+				"sportId": &graphql.ArgumentConfig{
+					Type:graphql.String,
+				},
+			},
+			Resolve:func(p graphql.ResolveParams) (interface{}, error) {
+				sportId := p.Args["sportId"]
+		       		teams := dao.GetTeams(sportId)
+
+				return teams, nil
 			},
 		},
 		"sports": &graphql.Field{

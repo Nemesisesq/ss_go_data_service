@@ -12,12 +12,65 @@ import (
 )
 
 type Sport gracenote.Sport
+type Team gracenote.Team
+type CollegeTeam gracenote.CollegeTeam
+
+func(t Team)isATeam() string {
+	return "pro"
+}
+func (c CollegeTeam)isATeam() string {
+	return "amature"
+}
+
+type SportsTeam interface {
+	isATeam() string
+}
+
+var bolt_url = os.Getenv("NEO4JBOLT")
+
+func GetTeams(sportId string) []SportsTeam {
+	driver := bolt.NewDriver()
+	conn, err := driver.OpenNeo(bolt_url)
+	defer conn.Close()
+	common.Check(err)
+
+	cypher_query := `MATCH (t:Team {sports_id:{id}})
+			MATCH (c:CollegeTeam {sports_id:{id})
+			RETURN t,c
+	`
+	params := map[string]interface{}{"id":sportId}
+
+	data, metadata := QueryNeo(cypher_query, params)
+	log.Info(metadata)
+	sportTeams := []SportsTeam{}
+
+	for _, val := range data {
+		var tc SportsTeam
+
+		if true {
+			tc = CollegeTeam{}
+		} else {
+			tc = Team{}
+		}
+
+
+		the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
+		common.Check(err)
+		err = bson.Unmarshal(the_bson, &tc)
+		common.Check(err)
+		sportTeams = append(sportTeams, tc)
+
+	}
+
+	return sportTeams
+
+}
 
 func GetSport(p map[string]interface{}) []Sport {
 	driver := bolt.NewDriver()
-	log.Info(os.Getenv("NEO4JBOLT"))
+	log.Info(bolt_url)
 
-	conn, err := driver.OpenNeo(os.Getenv("NEO4JBOLT"))
+	conn, err := driver.OpenNeo(bolt_url)
 	defer conn.Close()
 	common.Check(err)
 
