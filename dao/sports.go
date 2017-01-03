@@ -9,65 +9,119 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	log"github.com/Sirupsen/logrus"
 	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/graph"
+	"fmt"
 )
 
 type Sport gracenote.Sport
-type Team gracenote.Team
-type CollegeTeam gracenote.CollegeTeam
+type Team map[string]interface{}
+type CollegeTeam map[string]interface{}
 
-func(t Team)isATeam() string {
+type NeoData [][]interface{}
+
+func (t Team) isATeam() string {
 	return "pro"
 }
-func (c CollegeTeam)isATeam() string {
+func (c CollegeTeam) isATeam() string {
 	return "amature"
 }
 
-type SportsTeam interface {
-	isATeam() string
-}
+type SportsTeams []map[string]interface{}
+
 
 var bolt_url = os.Getenv("NEO4JBOLT")
 
-func GetTeams(sportId string) []SportsTeam {
-	driver := bolt.NewDriver()
-	conn, err := driver.OpenNeo(bolt_url)
+func GetOrgs(sportId string) []map[string]interface{}{
+	conn := conn()
 	defer conn.Close()
-	common.Check(err)
 
-	cypher_query := `MATCH (t:Team {sports_id:{id}})
-			MATCH (c:CollegeTeam {sports_id:{id})
-			RETURN t,c
-	`
+	cypher_query := `MATCH (o)-[:REPRESENTS]->(s)
+			WHERE s.gracenote_sport_id = {id}
+	 		RETURN o
+	 		`
 	params := map[string]interface{}{"id":sportId}
 
 	data, metadata := QueryNeo(cypher_query, params)
 	log.Info(metadata)
-	sportTeams := []SportsTeam{}
 
+	orgs := []map[string]interface{}{}
 	for _, val := range data {
-		var tc SportsTeam
 
-		if true {
-			tc = CollegeTeam{}
-		} else {
-			tc = Team{}
-		}
-
-
+		o := &map[string]interface{}{}
 		the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
 		common.Check(err)
-		err = bson.Unmarshal(the_bson, &tc)
+		err = bson.Unmarshal(the_bson, &o)
 		common.Check(err)
-		sportTeams = append(sportTeams, tc)
+		orgs = append(orgs, *o)
 
+	}
+	return orgs
+}
+
+func GetTeams(sportId string) SportsTeams {
+	conn := conn()
+	defer conn.Close()
+	pro_cypher_query := getquery("Team")
+	college_cypher_query := getquery("CollegeTeam")
+
+	//TODO if logic should be implemented at soem point in time
+	qs := []string{pro_cypher_query, college_cypher_query}
+
+	params := map[string]interface{}{"id":sportId}
+
+	data_slice := []NeoData{}
+
+	for _, r := range qs {
+
+		data, metadata := QueryNeo(r, params)
+		log.Info(metadata)
+
+		data_slice = append(data_slice, data)
+	}
+
+	sportTeams := SportsTeams{}
+	for indx, data := range data_slice {
+		for _, val := range data {
+
+			if indx == 1 {
+				tc := CollegeTeam{}
+				the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
+				common.Check(err)
+				//log.Info(the_bson)
+				err = bson.Unmarshal(the_bson, &tc)
+				common.Check(err)
+				sportTeams = append(sportTeams, tc)
+			} else {
+				tc := Team{}
+
+				the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
+				common.Check(err)
+				//log.Info(string(the_bson[:]))
+				err = bson.Unmarshal(the_bson, &tc)
+				common.Check(err)
+				sportTeams = append(sportTeams, tc)
+			}
+
+		}
 	}
 
 	return sportTeams
 
 }
+func conn() bolt.Conn {
+	driver := bolt.NewDriver()
+	bolt_url = os.Getenv("NEO4JBOLT")
+	conn, err := driver.OpenNeo(bolt_url)
+	common.Check(err)
+	return conn
+}
+func getquery(nodeName string) string {
+	cypher_query := fmt.Sprintf(`MATCH (t:%v {sports_id:{id}}) RETURN t`, nodeName)
+	return cypher_query
+}
 
 func GetSport(p map[string]interface{}) []Sport {
 	driver := bolt.NewDriver()
+	bolt_url = os.Getenv("NEO4JBOLT")
 	log.Info(bolt_url)
 
 	conn, err := driver.OpenNeo(bolt_url)

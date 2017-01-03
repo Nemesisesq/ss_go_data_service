@@ -7,7 +7,24 @@ import (
 
 	"github.com/nemesisesq/ss_data_service/dao"
 )
+var orgType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name:"Organizations",
+		Fields: graphql.Fields{
+			"img": &graphql.Field{
+				Type: graphql.String,
+			},
+			"gracenote_organization_id": &graphql.Field{
+				Type:graphql.String,
+			},
+			"organization": &graphql.Field{
+				Type:graphql.String,
+			},
+		},
+	},
+)
 
+var orgsType = graphql.NewList(orgType)
 
 var sportType = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -64,6 +81,20 @@ func Schema() *graphql.Schema {
 				return "World", nil
 			},
 		},
+		"orgs" : &graphql.Field{
+			Type:orgsType,
+			Args:graphql.FieldConfigArgument{
+				"sportId": &graphql.ArgumentConfig{
+					Type:graphql.String,
+				},
+			},
+			Resolve:func(p graphql.ResolveParams) (interface{}, error) {
+				sportId := p.Args["sportId"].(string)
+				orgs := dao.GetOrgs(sportId)
+				return orgs, nil
+			},
+		},
+
 		"teams" :&graphql.Field{
 			Type: teamsType,
 			Args: graphql.FieldConfigArgument{
@@ -72,7 +103,7 @@ func Schema() *graphql.Schema {
 				},
 			},
 			Resolve:func(p graphql.ResolveParams) (interface{}, error) {
-				sportId := p.Args["sportId"]
+				sportId := p.Args["sportId"].(string)
 		       		teams := dao.GetTeams(sportId)
 
 				return teams, nil

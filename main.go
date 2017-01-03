@@ -159,10 +159,14 @@ func main() {
 	//timers
 
 	//if os.Getenv("DEBUG") != "true" {
+	if os.Getenv("DEV") == "True" {
 
-	timers.GraceNoteListingTimer()
-	timers.GuideboxEpisodeTimer()
-	timers.PopularityTimer()
+	} else {
+
+		timers.GraceNoteListingTimer()
+		timers.GuideboxEpisodeTimer()
+		timers.PopularityTimer()
+	}
 	//}
 
 	//
