@@ -57,6 +57,33 @@ func GetOrgs(sportId string) []map[string]interface{}{
 	return orgs
 }
 
+func GetTeamsByOrganization(orgId string) []map[string]interface{}{
+	conn := conn()
+	defer conn.Close()
+
+	cypher_query := `MATCH (o)-[:MEMBER_OF]->(s)
+			WHERE s.gracenote_organization_id = {id}
+	 		RETURN o
+	 		`
+	params := map[string]interface{}{"id":orgId}
+
+	data, metadata := QueryNeo(cypher_query, params)
+	log.Info(metadata)
+
+	teams := []map[string]interface{}{}
+	for _, val := range data {
+
+		o := &map[string]interface{}{}
+		the_bson, err := bson.Marshal(val[0].(graph.Node).Properties)
+		common.Check(err)
+		err = bson.Unmarshal(the_bson, &o)
+		common.Check(err)
+		teams = append(teams, *o)
+
+	}
+	return teams
+}
+
 func GetTeams(sportId string) SportsTeams {
 	conn := conn()
 	defer conn.Close()

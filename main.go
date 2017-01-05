@@ -26,6 +26,7 @@ import (
 	"github.com/nemesisesq/ss_data_service/graphqlApi"
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/urfave/negroni"
+	"github.com/nemesisesq/ss_data_service/strand"
 )
 
 func main() {
@@ -115,6 +116,11 @@ func main() {
 		negroni.Wrap(socketRouter),
 	))
 
+	//GraphQL Endpoint/*
+	//
+	//
+	// */
+
 	h := handler.New(&handler.Config{
 		Schema: graphqlApi.Schema(),
 		Pretty: true,
@@ -143,6 +149,7 @@ func main() {
 	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "1")
 	})
+
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})
 	//r.HandleFunc("/test/{email}", testHandler).Methods("GET")

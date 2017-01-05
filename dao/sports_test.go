@@ -37,7 +37,6 @@ func TestGetTeams(t *testing.T) {
 
 func TestGetOrgs(t *testing.T) {
 	res := GetOrgs("111")
-
 	rJSON, _  := json.Marshal(res)
 	fmt.Printf("%s \n", rJSON)
 }

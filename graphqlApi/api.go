@@ -101,10 +101,22 @@ func Schema() *graphql.Schema {
 				"sportId": &graphql.ArgumentConfig{
 					Type:graphql.String,
 				},
+				"orgId": &graphql.ArgumentConfig{
+					Type:graphql.String,
+				},
 			},
 			Resolve:func(p graphql.ResolveParams) (interface{}, error) {
-				sportId := p.Args["sportId"].(string)
-		       		teams := dao.GetTeams(sportId)
+
+				var teams []map[string]interface{}
+
+				if sportId, ok := p.Args["sportId"].(string); ok {
+
+		       			teams = dao.GetTeams(sportId)
+				}
+
+				if orgId, ok := p.Args["orgId"].(string); ok {
+					teams = dao.GetTeamsByOrganization(orgId)
+				}
 
 				return teams, nil
 			},
