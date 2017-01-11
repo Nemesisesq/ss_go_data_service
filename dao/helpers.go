@@ -18,3 +18,22 @@ func QueryNeo(cypher_query string, params map[string]interface{}) ([][]interface
 
 	return data, rowMetaData
 }
+
+func ProcessCypher(conn bolt.Conn, cypher_template string, params map[string]interface{}) {
+	stmt, err := conn.PrepareNeo(cypher_template)
+	common.Check(err)
+	result, err := stmt.ExecNeo(params)
+	common.Check(err)
+	logrus.WithFields(logrus.Fields{
+		"Cypher QueryResult": result,
+		"params":             params,
+	}).Info()
+	if val, ok := result.RowsAffected(); ok != nil {
+		//numResult, err := result.RowsAffected()
+		common.Check(err)
+		logrus.Info("CREATED ROWS", val)
+
+	}
+	//Closing the statment will also close the rows
+	stmt.Close()
+}

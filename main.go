@@ -24,14 +24,12 @@ import (
 
 	"github.com/graphql-go/graphql-go-handler"
 	"github.com/nemesisesq/ss_data_service/graphqlApi"
+	"github.com/nemesisesq/ss_data_service/strand"
 	"github.com/nemesisesq/ss_data_service/timers"
 	"github.com/urfave/negroni"
-	"github.com/nemesisesq/ss_data_service/strand"
 )
 
 func main() {
-
-	//configure new relic
 
 	log.SetFormatter(&log.JSONFormatter{})
 	//Handle port environment variables for local and remote
@@ -80,9 +78,25 @@ func main() {
 	com.Check(err)
 	n.Use(middleware.NewRedisClient(*cacheAccessor).Middleware())
 
-	//TODO fix these urls for AWS ElasticBeanStalk
-	//var tx_url string
-	//var rx_url string
+	//Auth0
+	/* this passes linting*/
+
+	//jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
+	//	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+	//		secret := os.Getenv("AUTH0_CLIENT_SECRET")
+	//		if secret == "" {
+	//			return nil, errors.New("AUTH0_CLIENT_SECRET is not set")
+	//		}
+	//		return secret, nil
+	//	},
+	//})
+
+	//func SecuredPingHandler(w http.ResponseWriter, r *http.Request) {
+	//respondJson("All good. You only get this message if you're authenticated", w)
+	//}
+
+	//n.UseFunc(jwtMiddleware.HandlerWithNext)
+
 	var url string
 	if os.Getenv("RABBITMQ_URL") != "" {
 		log.Info("*$*$*$*$*$*$*$*$*")
@@ -116,10 +130,7 @@ func main() {
 		negroni.Wrap(socketRouter),
 	))
 
-	//GraphQL Endpoint/*
-	//
-	//
-	// */
+	/*GraphQL Endpoint*/
 
 	h := handler.New(&handler.Config{
 		Schema: graphqlApi.Schema(),
@@ -127,12 +138,8 @@ func main() {
 	})
 	r.Handle("/graphql", h)
 
-	//r.HandleFunc("/graphql",func(w http.ResponseWriter, r *http.Request) {
-	//result := graphqlApi.ExecuteQuery(r.URL.Query()["query"][0], graphqlApi.Schema())
-	//json.NewEncoder(w).Encode(result)
-	//})
-
 	r.HandleFunc("/search", ss.SearchHandler).Methods("GET")
+	r.HandleFunc("/strand", strand.ServePage)
 
 	r.HandleFunc("/popular", pop.GetPopularityScore)
 	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")

@@ -3,12 +3,15 @@ package streamsavvy
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 	"github.com/nemesisesq/ss_data_service/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"net/http"
 )
+
+//New endpoint for graphQL following shows
 
 func GetFavorites(w http.ResponseWriter, r *http.Request) {
 
