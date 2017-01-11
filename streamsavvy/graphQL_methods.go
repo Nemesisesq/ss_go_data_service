@@ -29,25 +29,37 @@ func ProcessTeamForFavorites(userId, email, team_brand_id, label string, favorit
 
 	if favorite {
 
-		cypher_query = `MERGE (u:User {email: {email}, user_id: {user_id}})
-			 MATCH (t:{label} {team_brand_id:{team_brand_id}})
-			 MERGE (u)-[:LIKES]->(t)
+		cypher_query = `
+			MATCH (t)
+			WHERE t.team_brand_id={team_brand_id}
+			MERGE (u:User {email: {email}, user_id: {user_id}})
+			MERGE (u)-[:LIKES]->(t)
 
 			`
 	} else {
 
-		cypher_query = `MERGE (u:User {email: {email}, user_id: {user_id}})
-			 MATCH (t:{lable} {team_brand_id:{team_brand_id}})
-			 MERGE (u)-[rel:LIKES]->(t)
-			 DELETE rel
+		cypher_query = `
+			MATCH (t)
+			WHERE t.team_brand_id={team_brand_id}
+			MERGE (u:User {email: {email}, user_id: {user_id}})
+			MERGE (u)-[rel:LIKES]->(t)
+			DELETE rel
 
 			`
 	}
-	params := map[string]interface{}{"email": email, "user_id": userId, "team_brand_id": team_brand_id, "label": label}
+	params := map[string]interface{}{"email": email, "user_id": userId, "team_brand_id": team_brand_id}
 
 	//stmt, err := conn.PrepareNeo(cypher_query)
 
+
 	dao.ProcessCypher(conn, cypher_query, params)
+	if favorite {
+		logrus.WithField("team", team_brand_id).Info("was favortied")
+	} else {
+
+		logrus.WithField("team", team_brand_id).Info("was un-favortied")
+	}
+
 
 }
 

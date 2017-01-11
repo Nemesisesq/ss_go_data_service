@@ -7,16 +7,16 @@ import (
 
 var mutationFields = graphql.Fields{
 	"toggleTeam": &graphql.Field{
-		Type: graphql.String,
+		Type: favoriteStatusType,
 		Args: graphql.FieldConfigArgument{
 			"label": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.NewList(teamLabelEnum)),
+				Type: graphql.NewList(teamLabelEnum),
 			},
 			"team_brand_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
 			"favorite": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.NewList(favoriteEnum)),
+				Type: graphql.NewNonNull(graphql.Boolean),
 			},
 			"userId": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
@@ -32,7 +32,10 @@ var mutationFields = graphql.Fields{
 			email := params.Args["email"].(string)
 			team_brand_id := params.Args["team_brand_id"].(string)
 			favorite := params.Args["favorite"].(bool)
-			label := params.Args["label"].(string)
+			var label string
+			if label, ok := params.Args["label"]; ok {
+				label = label.(string)
+			}
 
 			streamsavvy.ProcessTeamForFavorites(userId, email, team_brand_id, label, favorite)
 

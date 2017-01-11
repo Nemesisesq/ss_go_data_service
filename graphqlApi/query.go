@@ -27,6 +27,7 @@ var queryFields = graphql.Fields{
 		},
 	},
 
+
 	"teams": &graphql.Field{
 		Type: teamsType,
 		Args: graphql.FieldConfigArgument{
