@@ -37,9 +37,9 @@ var mutationFields = graphql.Fields{
 				label = label.(string)
 			}
 
-			streamsavvy.ProcessTeamForFavorites(userId, email, team_brand_id, label, favorite)
+			status := streamsavvy.ProcessTeamForFavorites(userId, email, team_brand_id, label, favorite)
 
-			return "ok", nil
+			return map[string]interface{}{"status":status}, nil
 		},
 	},
 	"toggleShow": &graphql.Field{

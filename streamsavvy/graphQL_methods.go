@@ -15,7 +15,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func ProcessTeamForFavorites(userId, email, team_brand_id, label string, favorite bool) {
+func ProcessTeamForFavorites(userId, email, team_brand_id, label string, favorite bool) bool {
 
 	driver := bolt.NewDriver()
 	bolt_url := os.Getenv("NEO4JBOLT")
@@ -59,6 +59,8 @@ func ProcessTeamForFavorites(userId, email, team_brand_id, label string, favorit
 
 		logrus.WithField("team", team_brand_id).Info("was un-favortied")
 	}
+
+	return favorite
 
 
 }
