@@ -7,7 +7,7 @@ import (
 )
 
 func setUp() {
-	os.Setenv("NEO4JBOLT", "bolt://nem:prelude@0.0.0.0:7687")
+	os.Setenv("NEO4JBOLT", "bolt://nemesisesq:Ldq2Ji5ok3bq@graph.streamsavvy.cloud:7687")
 }
 
 func TestMain(m *testing.M) {

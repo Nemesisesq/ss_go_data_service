@@ -274,6 +274,7 @@ func GetSport(sportsId string) {
 	url := fmt.Sprintf("%v/%v", SportsUri, sportsId)
 	req, err := http.NewRequest("GET", url, nil)
 	common.Check(err)
+	logrus.Info(err)
 	params := map[string]string{
 		"api_key":    ApiKey,
 		"includeOrg": "true",
