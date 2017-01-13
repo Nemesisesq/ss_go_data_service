@@ -135,12 +135,14 @@ func AddContentToFavorites(w http.ResponseWriter, r *http.Request) {
 
 		favorites.ContentList = append(favorites.ContentList, *content)
 		err = c.Insert(favorites)
+		common.Check(err)
 
 	} else {
 		query.One(&favorites)
 		favorites.ContentList = append(favorites.ContentList, *content)
 		colQuery := bson.M{"user.user_id": userId}
 		err = c.Update(colQuery, favorites)
+		common.Check(err)
 	}
 
 	res, err := json.Marshal(&common.ResponseStatus{200, "Data saved sucessfully!"})

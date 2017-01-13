@@ -9,7 +9,7 @@ import (
 //import "golang.org/x/tools/go/ssa/interp"
 
 type Content struct {
-	Id                  bson.ObjectId `json:"id" bson:"_id"`
+	Id                  bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Title               string                   `json:"title" bson:"title"`
 	GuideboxData        map[string]interface{}   `json:"guidebox_data" bson:"guidebox_data"`
 	OnNetflix           bool                     `json:"on_netflix" bson:"on_netflix"`
