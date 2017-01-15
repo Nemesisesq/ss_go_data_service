@@ -121,6 +121,7 @@ func main() {
 	socketRouter.HandleFunc("/echo", socket.EchoHandler)
 	socketRouter.HandleFunc("/epis", ss.HandleEpisodeSocket)
 	socketRouter.HandleFunc("/reco", ss.HandleRecomendations)
+	socketRouter.HandleFunc("/pair", ss.Pairhandler)
 
 	r.PathPrefix("/sock").Handler(negroni.New(
 		nigronimgosession.NewDatabase(dbAccessor).Middleware(),
