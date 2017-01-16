@@ -8,9 +8,10 @@ import (
 	"github.com/nemesisesq/ss_data_service/common"
 	"github.com/streadway/amqp"
 	"github.com/Sirupsen/logrus"
+	"fmt"
 )
 
-func pairHander(w http.ResponseWriter, r *http.Request) {
+func PairHandler(w http.ResponseWriter, r *http.Request) {
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -25,24 +26,58 @@ func pairHander(w http.ResponseWriter, r *http.Request) {
 
 	reco := Reco{sock: conn}
 
-	var pairId string = r.Form.Get("id")
+	var pairId string = r.URL.Query().Get("id")
+	logrus.Info(pairId, "pair id")
+	if pairId == "" {
+		fmt.Fprint(w, "no pair id found, please provide pair id")
+		return
+	}
+
+	err = rmqc.Ch.ExchangeDeclare(
+		pairId,
+		"fanout",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	common.Check(err)
+
+
+
+	q, err := rmqc.Ch.QueueDeclare(
+		"",    // name
+		false, // durable
+		false, // delete when usused
+		true,  // exclusive
+		false, // no-wait
+		nil,   // arguments
+	)
+
+	err = rmqc.Ch.QueueBind(
+		q.Name,
+		"",
+		pairId,
+		false,
+		nil,
+	)
+
+	msgs, err := rmqc.Ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+	common.Check(err)
 
 	for {
 		messageType, p, err := reco.sock.ReadMessage()
 
 		common.Check(err)
-
-		err = rmqc.Ch.ExchangeDeclare(
-			pairId,
-			"fanout",
-			true,
-			false,
-			false,
-			false,
-			nil,
-		)
-		common.Check(err)
-
 		err = rmqc.Ch.Publish(
 			pairId,
 			"",
@@ -54,44 +89,19 @@ func pairHander(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 
-		q, err := rmqc.Ch.QueueDeclare(
-			"",    // name
-			false, // durable
-			false, // delete when usused
-			true,  // exclusive
-			false, // no-wait
-			nil,   // arguments
-		)
 
-		err = rmqc.Ch.QueueBind(
-			q.Name,
-			"",
-			pairId,
-			false,
-			nil,
-		)
 
-		msgs, err := rmqc.Ch.Consume(
-			q.Name, // queue
-			"",     // consumer
-			true,   // auto-ack
-			false,  // exclusive
-			false,  // no-local
-			false,  // no-wait
-			nil,    // args
-		)
-		common.Check(err)
-
-		forever := make(chan bool)
+		//forever := make(chan bool)
 
 		go func() {
 			for d := range msgs {
-				reco.send(messageType, d)
+				logrus.Info("getting broadcast")
+				reco.send(messageType, append([]byte(q.Name),d.Body...))
 			}
 		}()
 
 		logrus.Printf(" [*] Waiting for logs. To exit press CTRL+C")
-		<-forever
+
 
 
 
