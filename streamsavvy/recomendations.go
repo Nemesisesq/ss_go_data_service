@@ -74,6 +74,8 @@ func HandleRecomendations(w http.ResponseWriter, r *http.Request) {
 
 		RemoveDuplicates(&reco_ids)
 
+		logrus.Info(reco_ids)
+
 		//reco.PublishShowInfo(reco_ids, rmqc, corrId)
 
 		//TODO use this to update show recomendations later.
