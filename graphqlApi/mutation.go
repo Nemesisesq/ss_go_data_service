@@ -3,11 +3,12 @@ package graphqlApi
 import (
 	"github.com/graphql-go/graphql"
 	"github.com/nemesisesq/ss_data_service/streamsavvy"
+	"github.com/nemesisesq/ss_data_service/dao"
 )
 
 var mutationFields = graphql.Fields{
 	"toggleTeam": &graphql.Field{
-		Type: favoriteStatusType,
+		Type: favsType,
 		Args: graphql.FieldConfigArgument{
 			"label": &graphql.ArgumentConfig{
 				Type: graphql.NewList(teamLabelEnum),
@@ -37,13 +38,16 @@ var mutationFields = graphql.Fields{
 				label = label.(string)
 			}
 
-			status := streamsavvy.ProcessTeamForFavorites(userId, email, team_brand_id, label, favorite)
+			_ = streamsavvy.ProcessTeamForFavorites(userId, email, team_brand_id, label, favorite)
 
-			return map[string]interface{}{"status":status}, nil
+			/* TODO Cleand this up this was a boolean returned from the function.*/
+			favs := dao.GetFavorties(userId)
+
+			return favs, nil
 		},
 	},
 	"toggleShow": &graphql.Field{
-		Type: favoriteStatusType,
+		Type: favsType,
 		Args: graphql.FieldConfigArgument{
 			"favorite": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
@@ -66,13 +70,16 @@ var mutationFields = graphql.Fields{
 			guidebox_id := params.Args["guidebox_id"].(int)
 			favorite := params.Args["favorite"].(bool)
 
-			status := streamsavvy.ProcessShowForFavorites(userId, email, guidebox_id, favorite)
 
-			return map[string]interface{}{"status":status}, nil
+			_ = streamsavvy.ProcessShowForFavorites(userId, email, guidebox_id, favorite)
+			/* TODO Cleand this up this was a boolean returned from the function.*/
+			favs := dao.GetFavorties(userId)
+
+			return favs, nil
 		},
 	},
 	"toggleSport": &graphql.Field{
-		Type: favoriteStatusType,
+		Type: favsType,
 		Args: graphql.FieldConfigArgument{
 			"sportsId": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
@@ -96,9 +103,13 @@ var mutationFields = graphql.Fields{
 			sportsId := params.Args["sportsId"].(int)
 			favorite := params.Args["favorite"].(bool)
 
-			status := streamsavvy.ProcessSportForFavorites(userId, email, sportsId, favorite)
+			_ = streamsavvy.ProcessSportForFavorites(userId, email, sportsId, favorite)
 
-			return map[string]interface{}{"status":status}, nil
+
+			/* TODO Cleand this up this was a boolean returned from the function.*/
+			favs := dao.GetFavorties(userId)
+
+			return favs, nil
 		},
 	},
 }

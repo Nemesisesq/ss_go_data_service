@@ -14,8 +14,8 @@ func QueryNeo(cypher_query string, params map[string]interface{}) ([][]interface
 	common.Check(err)
 	defer conn.Close()
 
-	data, rowMetaData, _, _ := conn.QueryNeoAll(cypher_query, params)
-
+	data, rowMetaData, _, err := conn.QueryNeoAll(cypher_query, params)
+	common.Check(err)
 	return data, rowMetaData
 }
 
@@ -34,6 +34,6 @@ func ProcessCypher(conn bolt.Conn, cypher_template string, params map[string]int
 		logrus.Info("CREATED ROWS", val)
 
 	}
-	//Closing the statment will also close the rows
+	//Closing the statement will also close the rows
 	stmt.Close()
 }

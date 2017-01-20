@@ -64,6 +64,25 @@ var sportType = graphql.NewObject(
 	},
 )
 
+var favType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Favorite",
+		Fields: graphql.Fields{
+			"name": &graphql.Field {
+				Type:graphql.String,
+			},
+			"ss_id": &graphql.Field {
+				Type:graphql.String,
+			},
+			"img": &graphql.Field {
+				Type:graphql.String,
+			},
+		},
+	},
+)
+
+var favsType = graphql.NewList(favType)
+
 var favoriteStatusType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "FavoriteStatus",

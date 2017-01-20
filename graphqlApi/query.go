@@ -85,4 +85,21 @@ var queryFields = graphql.Fields{
 			return sports[0], nil
 		},
 	},
+
+	"favorites": &graphql.Field {
+		Type: favsType,
+		Args: graphql.FieldConfigArgument{
+			"user_id": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			//params := map[string]interface{}{}
+			user_id := p.Args["user_id"].(string)
+			favs := dao.GetFavorties(user_id)
+
+			return favs, nil
+		},
+
+	},
 }
