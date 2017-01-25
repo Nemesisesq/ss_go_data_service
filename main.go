@@ -29,6 +29,14 @@ import (
 	"github.com/urfave/negroni"
 )
 
+
+import "github.com/getsentry/raven-go"
+
+func init() {
+	raven.SetDSN("https://e97edf1ce0364d559dd2207587587430:1b7429bbef644465b9fa041560c68ca2@sentry.io/131416")
+
+}
+
 func main() {
 
 	log.SetFormatter(&log.JSONFormatter{})
@@ -116,12 +124,13 @@ func main() {
 	n.Use(middleware.NewRabbitMQConnection(*messengerAccessor).Middleware())
 
 	r := mux.NewRouter()
+	SENTRY := raven.RecoveryHandler
 
 	socketRouter := mux.NewRouter().PathPrefix("/sock").Subrouter().StrictSlash(true)
-	socketRouter.HandleFunc("/echo", socket.EchoHandler)
-	socketRouter.HandleFunc("/epis", ss.HandleEpisodeSocket)
-	socketRouter.HandleFunc("/reco", ss.HandleRecomendations)
-	socketRouter.HandleFunc("/pair", ss.PairHandler)
+	socketRouter.HandleFunc("/echo", SENTRY (socket.EchoHandler))
+	socketRouter.HandleFunc("/epis", SENTRY(ss.HandleEpisodeSocket))
+	socketRouter.HandleFunc("/reco", SENTRY(ss.HandleRecomendations))
+	socketRouter.HandleFunc("/pair", SENTRY(ss.PairHandler))
 
 	r.PathPrefix("/sock").Handler(negroni.New(
 		nigronimgosession.NewDatabase(dbAccessor).Middleware(),
@@ -137,26 +146,28 @@ func main() {
 		Schema: graphqlApi.Schema(),
 		Pretty: true,
 	})
+
+
+
 	r.Handle("/graphql", h)
 
-	r.HandleFunc("/search", ss.SearchHandler).Methods("GET")
-	r.HandleFunc("/strand", strand.ServePage)
 
-	r.HandleFunc("/popular", pop.GetPopularityScore)
-	r.HandleFunc("/episodes", ss.GetEpisodes).Methods("GET")
-	r.HandleFunc("/live-streaming-service", serv_proc.GetLiveStreamingServices)
-	r.HandleFunc("/on-demand-streaming-service", serv_proc.GetOnDemandServices)
-	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", gnote.GetLineupAirings)
-
-	r.HandleFunc("/data", edr.EmailDataHandler).Methods("POST")
-	r.HandleFunc("/update", pop.UpdatePopularShows).Methods("GET")
-	r.HandleFunc("/favorites", ss.GetFavorites)
-	r.HandleFunc("/favorites/add", ss.AddContentToFavorites)
-	r.HandleFunc("/favorites/remove", ss.RemoveContentFromFavorites).Methods("DELETE")
-	r.HandleFunc("/favorites/delete_all/test", ss.DeleteTestFavorites).Methods("DELETE")
-	r.HandleFunc("/fff", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/search", SENTRY(ss.SearchHandler)).Methods("GET")
+	r.HandleFunc("/strand", SENTRY(strand.ServePage))
+	r.HandleFunc("/popular", SENTRY(pop.GetPopularityScore))
+	r.HandleFunc("/episodes", SENTRY(ss.GetEpisodes)).Methods("GET")
+	r.HandleFunc("/live-streaming-service", SENTRY(serv_proc.GetLiveStreamingServices))
+	r.HandleFunc("/on-demand-streaming-service", SENTRY(serv_proc.GetOnDemandServices))
+	r.HandleFunc("/gracenote/lineup-airings/{lat}/{long}", SENTRY(gnote.GetLineupAirings))
+	r.HandleFunc("/data", SENTRY(edr.EmailDataHandler)).Methods("POST")
+	r.HandleFunc("/update", SENTRY(pop.UpdatePopularShows)).Methods("GET")
+	r.HandleFunc("/favorites", SENTRY(ss.GetFavorites))
+	r.HandleFunc("/favorites/add", SENTRY(ss.AddContentToFavorites))
+	r.HandleFunc("/favorites/remove", SENTRY(ss.RemoveContentFromFavorites)).Methods("DELETE")
+	r.HandleFunc("/favorites/delete_all/test", SENTRY(ss.DeleteTestFavorites)).Methods("DELETE")
+	r.HandleFunc("/fff", SENTRY(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "1")
-	})
+	}))
 
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	//r.HandleFunc("/stop-ticker", func(w http.ResponseWriter, r *http.Request) {close(quit)})

@@ -63,7 +63,7 @@ func GetTeamsByOrganization(orgId string) []map[string]interface{}{
 
 	cypher_query := `MATCH (o)-[:MEMBER_OF]->(s)
 			WHERE s.gracenote_organization_id = {id}
-	 		RETURN o
+	 		RETURN DISTINCT o
 	 		`
 	params := map[string]interface{}{"id":orgId}
 

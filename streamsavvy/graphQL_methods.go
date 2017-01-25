@@ -186,7 +186,7 @@ func ProcessSportForFavorites(userId, email  string ,sportId int, fav bool) bool
 
 			`
 	}
-	params := map[string]interface{}{"email": email, "user_id": userId, "sportsId": sportId}
+	params := map[string]interface{}{"email": email, "user_id": userId, "sportsId": fmt.Sprint(sportId)}
 
 	//stmt, err := conn.PrepareNeo(cypher_query)
 

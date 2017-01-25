@@ -10,13 +10,16 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/joho/godotenv"
 	"math/rand"
+	"github.com/getsentry/raven-go"
 )
 
 func Check(e error) {
-	if e != nil {
-		GetLogger().Debug(e)
-		panic(e)
-	}
+	raven.CapturePanic(func() {
+		if e != nil {
+			GetLogger().Debug(e)
+			panic(e)
+		}
+	}, nil)
 }
 
 func BuildQuery(r *http.Request, m map[string]string) {
@@ -141,5 +144,5 @@ func RandomString(l int) string {
 }
 
 func randInt(min int, max int) int {
-	return min + rand.Intn(max-min)
+	return min + rand.Intn(max - min)
 }

@@ -39,6 +39,12 @@ func GetFavorties(userId string) (favs []map[string]interface{}) {
 			temp["name"] = temp["title"]
 		}
 
+		switch node.Labels[0] {
+		case "Content":
+			temp["name"] = temp["title"]
+		case "Sport":
+			temp["name"] = temp["sport_name"]
+		}
 
 		favs = append(favs, temp)
 
